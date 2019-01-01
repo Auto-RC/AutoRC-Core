@@ -1,8 +1,9 @@
 import pygame
+import os
+import time
 
-
-axes = [3, 4, 0, 1, 2, 5]
-vals = []
+axes = [3, 4, 2]
+vals = [0] * len(axes)
 
 
 
@@ -16,10 +17,10 @@ while(1):
 
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
-
     for i in range(len(axes)):
         vals[i] = joystick.get_axis(axes[i])
 
+    print("throttle: ", vals[1], "   brake: ", vals[0], "   steering: ", vals[2])
+    time.sleep(1)
 
 
-    print(vals)

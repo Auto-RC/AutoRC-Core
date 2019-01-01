@@ -1,9 +1,7 @@
 import serial
 import sys
-import pygame
-
-axes = [3, 4, 0, 1, 2, 5]
-vals = []
+from controller import Controller
+import time
 
 if (len(sys.argv) == 4):
     path = "/dev/" + str(sys.argv[1])
@@ -16,16 +14,22 @@ print("path: ", path, "  b_rate: ", b_rate)
 ser = serial.Serial(path, b_rate, timeout=1)
 ser.baudrate = b_rate
 
-pygame.init()
+controller = Controller()
+
+
+def send(forward, side):
+    forward = int(((forward + 1) * 100) + 900)
+    side = int(side * 200) + 900
+    print(forward, side)
+    for i in range(4 - len(str(side))):
+        ser.write(b'0')
+    ser.write(str(side).encode())
+    for i in range(4 - len(str(forward))):
+        ser.write(b'0')
+    ser.write(str(forward).encode())
+    time.sleep(0.05)
+
 
 while(1):
-    for event in pygame.event.get():
-        pass
-
-    joystick = pygame.joystick.Joystick(0)
-    joystick.init()
-
-    for i in range(len(axes)):
-        vals[i] = joystick.get_axis(axes[i])
-
-    print(vals)
+    controller.update()
+    send(controller.throttle, controller.steering)
