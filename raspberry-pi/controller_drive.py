@@ -17,7 +17,6 @@ def calcThrottle(throttle, brake):
         return (throttle+1)/2
 
 while(1):
-    s = time.time()
     controller.update()
 
     if controller.throttle != 0:
@@ -30,7 +29,5 @@ while(1):
     if controller.brake == 0 and brake_safety:
         controller.brake = -1
 
-    print(controller.steering, controller.throttle, controller.brake)
     drive.set_steering(controller.steering)
     drive.set_throttle(calcThrottle(controller.throttle, controller.brake))
-    print("total time:", time.time() - s)

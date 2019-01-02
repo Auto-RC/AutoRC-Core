@@ -12,12 +12,12 @@ class Car_Control:
         self.steering_avg = self.steering_min/2 + self.steering_max/2
         self.throttle_min = 290
         self.throttle_max = 400
+        self.throttle_avg = 330
         self.pwm.set_pwm_freq(freq)
 
     def set_steering(self, position):
         if -1 <= position <= 1:
             position = int((-position * (self.steering_max-self.steering_avg)) + self.steering_avg)
-        print("position: ", position)
         if position > self.steering_max:
             self.pwm.set_pwm(0, 0, self.steering_max)
         elif position < self.steering_min:
@@ -25,4 +25,11 @@ class Car_Control:
         else:
             self.pwm.set_pwm(0, 0, position)
 
-    def set_throttle(self, throttle, brake):
+    def set_throttle(self, throttle):
+        if -1 <= throttle < 0:
+            throttle = int(throttle * (self.throttle_avg-self.throttle_min)) + self.throttle_avg
+        elif 0 <= throttle <= 1:
+            throttle = int(throttle * (self.throttle_max-self.throttle_avg)) + self.throttle_avg
+        else:
+            throttle = 0
+        self.pwm.set_pwm(1, 0, throttle)
