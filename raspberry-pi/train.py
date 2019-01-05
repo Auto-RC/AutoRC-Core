@@ -12,8 +12,8 @@ def calcThrottle(throttle, brake):
     else:
         return (throttle+1)/2
 
-
 PWM_FREQ = 60
+FREQ = 20
 
 safety = True
 brake_safety = True
@@ -26,40 +26,37 @@ memory = Memory()
 t = Thread(target=cam.update, args=())
 t.daemon = True
 t.start()
-time.sleep(1)
 print("started thread")
+time.sleep(1)
+print("running")
 
+while controller.on:
+    controller.update()
 
-try:
-    i = 0
-    while(1):
-        controller.update()
-        print("controller updated", i)
+    if controller.throttle != 0:
+        safety = False
+    if controller.throttle == 0 and safety:
+        controller.throttle = -1
 
+    if controller.brake != 0:
+        brake_safety = False
+    if controller.brake == 0 and brake_safety:
+        controller.brake = -1
 
-        if controller.throttle != 0:
-            safety = False
-        if controller.throttle == 0 and safety:
-            controller.throttle = -1
+    throttle = calcThrottle(controller.throttle, controller.brake)
 
-        if controller.brake != 0:
-            brake_safety = False
-        if controller.brake == 0 and brake_safety:
-            controller.brake = -1
+    drive.set_steering(controller.steering)
+    drive.set_throttle(throttle)
 
-        throttle = calcThrottle(controller.throttle, controller.brake)
-
-        print("throttle: ", throttle, "steering: ", controller.steering, i)
-
-        drive.set_steering(controller.steering)
-        drive.set_throttle(throttle)
-
+    if controller.capturing:
+        print("capturing")
         frame = cam.run_threaded()
 
         memory.add(frame, [controller.steering, throttle])
-        print("memory appended", i)
-        i +=1
-except Exception as e:
-    cam.shutdown()
-    memory.save()
-    print(e)
+
+    time.sleep(1/FREQ)
+
+print("shutting down")
+cam.shutdown()
+memory.save()
+print("done")

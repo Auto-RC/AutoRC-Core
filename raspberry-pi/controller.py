@@ -4,9 +4,13 @@ import os
 class Controller:
     def __init__(self):
         self.axes = [3, 4, 2]
+        self.buttons = [1, 12]
         self.throttle = -1
         self.brake = -1
         self.steering = 0
+        self.on = True
+        self.capturing = False
+
         pygame.init()
         os.environ["SDL_VIDEODRIVER"] = "dummy"
         pygame.display.init()
@@ -27,4 +31,15 @@ class Controller:
         self.throttle = vals[1]
         self.brake = vals[0]
         self.steering = vals[2]
+
+        vals = [0] * len(self.buttons)
+
+        for i in range(len(self.buttons)):
+            vals[i] = joystick.get_button(self.buttons[i])
+
+        if vals[0]:
+            self.capturing = True
+
+        if vals[1]:
+            self.on = False
 

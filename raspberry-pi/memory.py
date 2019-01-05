@@ -2,11 +2,12 @@ import numpy as np
 
 class Memory:
     def __init__(self):
-        self.mem = np.array([])
+        self.inputs = []
+        self.outputs = []
 
     def add(self, x, y):
-        np.append(self.mem, [x, y])
+        self.inputs.append([x])
+        self.outputs.append([y])
 
     def save(self):
-        np.save("data", self.mem)
-        print(self.mem.size)
+        np.save("data", np.array([self.inputs, self.outputs]))
