@@ -9,5 +9,7 @@ class Memory:
         self.inputs.append([x])
         self.outputs.append([y])
 
-    def save(self):
-        np.save("data", np.array([self.inputs, self.outputs]))
+    def save(self, name):
+        np.save("data/"+name, np.array([self.inputs, self.outputs]))
+        self.inputs = []
+        self.outputs = []

@@ -30,6 +30,9 @@ print("started thread")
 time.sleep(1)
 print("running")
 
+data = 0
+i = 0
+
 while controller.on:
     controller.update()
 
@@ -49,14 +52,23 @@ while controller.on:
     drive.set_throttle(throttle)
 
     if controller.capturing:
-        print("capturing")
+        if data == 0:
+            i += 1
+            print("dataset {}".format(i))
+            data = 1
+
         frame = cam.run_threaded()
 
         memory.add(frame, [controller.steering, throttle])
+
+    elif data == 1:
+        memory.save(str("data{}".format(i)))
+        data = 0
 
     time.sleep(1/FREQ)
 
 print("shutting down")
 cam.shutdown()
-memory.save()
+
+memory.save(("data" + str(i)))
 print("done")

@@ -8,11 +8,11 @@ class Car_Control:
     def __init__(self, freq=60):
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.steering_min = 300
-        self.steering_max = 482
+        self.steering_max = 490
         self.steering_avg = self.steering_min/2 + self.steering_max/2
         self.throttle_min = 290
-        self.throttle_max = 420
-        self.throttle_avg = 380
+        self.throttle_max = 410
+        self.throttle_avg = 385
         self.pwm.set_pwm_freq(freq)
 
     def set_steering(self, position):

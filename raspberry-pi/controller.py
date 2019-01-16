@@ -1,5 +1,6 @@
 import pygame
 import os
+import time
 
 class Controller:
     def __init__(self):
@@ -38,8 +39,12 @@ class Controller:
             vals[i] = joystick.get_button(self.buttons[i])
 
         if vals[0]:
-            self.capturing = True
+            self.capturing = not self.capturing
+            if self.capturing:
+                print("capturing")
+            else:
+                print("saving")
+            time.sleep(0.1)
 
         if vals[1]:
             self.on = False
-
