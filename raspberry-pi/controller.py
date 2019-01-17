@@ -39,12 +39,13 @@ class Controller:
             vals[i] = joystick.get_button(self.buttons[i])
 
         if vals[0]:
+            print("x pressed")
             self.capturing = not self.capturing
             if self.capturing:
                 print("capturing")
             else:
                 print("saving")
-            time.sleep(0.1)
+            time.sleep(0.5)
 
         if vals[1]:
-            self.on = False
+            self.on = not self.on

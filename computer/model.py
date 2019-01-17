@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import time
+from os import listdir
 
 def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=.5)
@@ -32,9 +33,9 @@ with tf.variable_scope('Supervised'):
     b_conv3 = bias_variable([64])
     h_conv3 = tf.nn.relu(conv2d(h_conv2, W_conv3, s=[1, 1, 1, 1]) + b_conv3)
 
-    h_conv3_flat = tf.reshape(h_conv3, [-1, 128 * 96 * 2])
+    h_conv3_flat = tf.reshape(h_conv3, [-1, 128 * 96 * 4])
 
-    W_fc1 = weight_variable([128 * 96 * 2, 64])
+    W_fc1 = weight_variable([128 * 96 * 4, 64])
     b_fc1 = bias_variable([64])
     h_fc1 = tf.nn.sigmoid(tf.matmul(h_conv3_flat, W_fc1) + b_fc1)
 
@@ -46,55 +47,69 @@ with tf.variable_scope('Supervised'):
     b_fc3 = bias_variable([2])
     y_out = tf.nn.sigmoid(tf.matmul(h_fc2, W_fc3) + b_fc3)
 
-    cross_entropy = tf.losses.softmax_cross_entropy(exp_y, y_out)
-    train_step = tf.train.AdamOptimizer(5e-5).minimize(cross_entropy)
-    correct_prediction = tf.equal(tf.round(y_out), exp_y)
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    huber = tf.losses.huber_loss(exp_y, y_out)
+    train_step = tf.train.AdamOptimizer(5e-5).minimize(huber)
+    accuracy = tf.losses.mean_squared_error(exp_y, y_out)
     output = tf.round(y_out)
 
-def train():
+def train(amt_pictures = None):
+    saver = tf.train.Saver()
     with tf.Session() as sess:
         print('Gathering Data...')
         data = []
         labels = []
         s = time.time()
-        for n in range(1, len(listdir('GamePics'))):
-            for d in range(0, len(listdir('GamePics/game{}/'.format(n +13312)))):
-                im = cv2.imread('GamePics/game{}/'.format(n) + str(d) + '.png', 0)
-                im = cv2.resize(im, (40, 10), interpolation=cv2.INTER_AREA)
-                im = im / 255.0
-                data.append(im)
+        for n in range(1, len(listdir('./data'))):
+            d = np.load('./data/data{}.npy'.format(n))[0]
+            if amt_pictures and len(d) > amt_pictures:
+                lower = int((len(d)-amt_pictures)/2)
+                upper = int((len(d)-amt_pictures)/2) + 1000
+                d = np.load('./data/data{}.npy'.format(n))[0][lower:upper]
+                print(len(d))
+            for i in d:
+                data.append(i[0])
 
-            nl = np.load('labels/game{}.npy'.format(n))
-            labels = np.append(labels, nl)
-            print 'labels/game{}.npy'.format(n), nl.shape
-        print time.time() - s
+            l = np.load('./data/data{}.npy'.format(n))[1]
+            if amt_pictures and len(l) > amt_pictures:
+                l = np.load('./data/data{}.npy'.format(n))[1][lower:upper]
+            for i in l:
+                labels.append(i[0])
+            print(len(labels), len(data))
+            print(lower, upper)
 
-        data = np.array(data).reshape(-1, 10, 40, 1)
-        labels = labels.reshape(-1, 1)
+        print(time.time() - s)
 
-        print labels.shape, data.shape
+        data = np.array(data).reshape(-1, 128, 96, 3)
+        labels = np.array(labels).reshape(-1, 2)
+
+        print(labels.shape, data.shape)
+
 
         try:
-            saver.restore(sess, "models/supervised/model.ckpt")
+            saver.restore(sess, "models/model.ckpt")
+            print('restored')
         except:
-            print 'did not restore'
+            print('did not restore')
             sess.run(tf.global_variables_initializer())
 
         s = time.time()
         ce = 1.0
         i = 0
+        sq1 = sess.run([accuracy], feed_dict={x_in: data, exp_y: labels})
         try:
             while(1):
-                if i % 25 == 0:
-                    ce, acc, ts = sess.run([cross_entropy, accuracy, train_step], feed_dict={x_in: data, exp_y: labels})
-                    print 'step {} - cross entropy: {}    accuracy: {}    time: {}'.format(i, ce, acc, time.time() - s)
-                    s = time.time()
+                if i % 10 == 0:
+
+                    acc, sc = sess.run([accuracy, train_step], feed_dict={x_in: data, exp_y: labels})
+                    print('step {} - sq error: {}    percent: {}    time: {}'.format(i, acc, 1 - (acc/sq1), time.time() - s))
                 # if i % 10 == 0:
                 #     print sess.run(output, feed_dict={x_in: data, exp_y: labels, m: len(data)})
                 else:
                     sess.run(train_step, feed_dict={x_in: data, exp_y: labels})
                 i += 1
         finally:
-            saver.save(sess, "models/supervised/model.ckpt")
-            print time.time() - s
+            saver.save(sess, "models/model.ckpt")
+            print('saved to models/model.ckpt')
+            print(time.time() - s)
+
+train(1000)

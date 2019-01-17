@@ -2,14 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="42c4eae9-e65d-4556-9e99-c297b32b9ee5" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/raspberry-pi/collect.py" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/raspberry-pi/camera.sh" afterPath="$PROJECT_DIR$/raspberry-pi/camera.sh" />
+      <change beforePath="$PROJECT_DIR$/computer/model.py" afterPath="$PROJECT_DIR$/computer/model.py" />
       <change beforePath="$PROJECT_DIR$/raspberry-pi/carControl.py" afterPath="$PROJECT_DIR$/raspberry-pi/carControl.py" />
+      <change beforePath="$PROJECT_DIR$/raspberry-pi/connect.sh" afterPath="$PROJECT_DIR$/raspberry-pi/connect.sh" />
       <change beforePath="$PROJECT_DIR$/raspberry-pi/controller.py" afterPath="$PROJECT_DIR$/raspberry-pi/controller.py" />
       <change beforePath="$PROJECT_DIR$/raspberry-pi/memory.py" afterPath="$PROJECT_DIR$/raspberry-pi/memory.py" />
-      <change beforePath="$PROJECT_DIR$/raspberry-pi/train.py" afterPath="$PROJECT_DIR$/raspberry-pi/train.py" />
-      <change beforePath="$PROJECT_DIR$/raspberry-pi/video.sh" afterPath="$PROJECT_DIR$/raspberry-pi/video.sh" />
+      <change beforePath="$PROJECT_DIR$/raspberry-pi/run.py" afterPath="$PROJECT_DIR$/raspberry-pi/run.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -23,11 +22,11 @@
       <content type="file-editors">
         <state>
           <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-            <file leaf-file-name="train.py" pinned="false" current-in-tab="true">
+            <file leaf-file-name="train.py" pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/raspberry-pi/train.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="816">
-                    <caret line="73" column="13" lean-forward="true" selection-start-line="73" selection-start-column="13" selection-end-line="73" selection-end-column="13" />
+                  <state relative-caret-position="510">
+                    <caret line="41" column="6" lean-forward="false" selection-start-line="41" selection-start-column="6" selection-end-line="41" selection-end-column="6" />
                     <folding>
                       <element signature="e#0#27#0" expanded="true" />
                     </folding>
@@ -45,6 +44,18 @@
                 </provider>
               </entry>
             </file>
+            <file leaf-file-name="model.py" pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/computer/model.py">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="441">
+                    <caret line="88" column="41" lean-forward="true" selection-start-line="88" selection-start-column="41" selection-end-line="88" selection-end-column="41" />
+                    <folding>
+                      <element signature="e#0#23#0" expanded="true" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
           </leaf>
         </state>
       </content>
@@ -55,9 +66,33 @@
       <file leaf-file-name="camera.sh" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/raspberry-pi/camera.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="11" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="run.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/raspberry-pi/run.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="672">
+              <caret line="77" column="34" lean-forward="true" selection-start-line="77" selection-start-column="34" selection-end-line="77" selection-end-column="34" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="capture.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/raspberry-pi/capture.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -74,11 +109,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="controller_drive.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/raspberry-pi/controller_drive.py">
+      <file leaf-file-name="controller.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/raspberry-pi/controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="465">
-              <caret line="33" column="0" lean-forward="true" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+            <state relative-caret-position="675">
+              <caret line="50" column="33" lean-forward="false" selection-start-line="50" selection-start-column="33" selection-end-line="50" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -94,33 +129,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="carControl.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="carControl.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/raspberry-pi/carControl.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="28" column="30" lean-forward="true" selection-start-line="28" selection-start-column="30" selection-end-line="28" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="controller.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/raspberry-pi/controller.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="675">
-              <caret line="45" column="29" lean-forward="false" selection-start-line="45" selection-start-column="29" selection-end-line="45" selection-end-column="29" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="capture.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/raspberry-pi/capture.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+            <state relative-caret-position="270">
+              <caret line="21" column="19" lean-forward="false" selection-start-line="21" selection-start-column="19" selection-end-line="21" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -129,28 +142,18 @@
       <file leaf-file-name="memory.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/raspberry-pi/memory.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" column="0" lean-forward="true" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+            <state relative-caret-position="300">
+              <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="video.sh" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/raspberry-pi/video.sh">
+      <file leaf-file-name="connect.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/raspberry-pi/connect.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="24" lean-forward="false" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cameratest.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/raspberry-pi/cameratest.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="3" column="9" lean-forward="false" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
+            <state relative-caret-position="30">
+              <caret line="2" column="19" lean-forward="false" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -166,6 +169,9 @@
     </option>
   </component>
   <component name="FindInProjectRecents">
+    <findStrings>
+      <find>h</find>
+    </findStrings>
     <replaceStrings>
       <replace>p</replace>
       <replace />
@@ -189,15 +195,17 @@
         <option value="$PROJECT_DIR$/raspberry-pi/cameratest.py" />
         <option value="$PROJECT_DIR$/raspberry-pi/controller_drive.py" />
         <option value="$PROJECT_DIR$/raspberry-pi/camera.py" />
-        <option value="$PROJECT_DIR$/raspberry-pi/run.py" />
-        <option value="$PROJECT_DIR$/computer/model.py" />
         <option value="$PROJECT_DIR$/raspberry-pi/video.sh" />
         <option value="$PROJECT_DIR$/raspberry-pi/camera.sh" />
         <option value="$PROJECT_DIR$/raspberry-pi/collect.py" />
-        <option value="$PROJECT_DIR$/raspberry-pi/controller.py" />
-        <option value="$PROJECT_DIR$/raspberry-pi/train.py" />
-        <option value="$PROJECT_DIR$/raspberry-pi/memory.py" />
+        <option value="$PROJECT_DIR$/raspberry-pi/runTrain.sh" />
+        <option value="$PROJECT_DIR$/raspberry-pi/connect.sh" />
         <option value="$PROJECT_DIR$/raspberry-pi/carControl.py" />
+        <option value="$PROJECT_DIR$/raspberry-pi/memory.py" />
+        <option value="$PROJECT_DIR$/raspberry-pi/train.py" />
+        <option value="$PROJECT_DIR$/raspberry-pi/controller.py" />
+        <option value="$PROJECT_DIR$/raspberry-pi/run.py" />
+        <option value="$PROJECT_DIR$/computer/model.py" />
       </list>
     </option>
   </component>
@@ -242,12 +250,23 @@
             <path>
               <item name="auto-rc_poc" type="b2602c69:ProjectViewProjectNode" />
               <item name="auto-rc_poc" type="462c0819:PsiDirectoryNode" />
+              <item name="computer" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="auto-rc_poc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="auto-rc_poc" type="462c0819:PsiDirectoryNode" />
               <item name="logger" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="auto-rc_poc" type="b2602c69:ProjectViewProjectNode" />
               <item name="auto-rc_poc" type="462c0819:PsiDirectoryNode" />
               <item name="raspberry-pi" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="auto-rc_poc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="auto-rc_poc" type="462c0819:PsiDirectoryNode" />
+              <item name="serial" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -259,6 +278,11 @@
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/computer" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -299,15 +323,17 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="840" height="1027" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1941392" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.115879826" sideWeight="0.50427353" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.115879826" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.115879826" sideWeight="0.4957265" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -326,40 +352,15 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/raspberry-pi/capture.py</url>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/raspberry-pi/cameratest.py</url>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="6" />
+      <option name="time" value="7" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/threading.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="849" column="17" lean-forward="true" selection-start-line="849" selection-start-column="17" selection-end-line="849" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/cont_basic_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="687">
-          <caret line="101" column="0" lean-forward="false" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/computer/transfer.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/computer/2019-01-08_1725.jpg" />
     <entry file="file://$PROJECT_DIR$/computer/2019-01-08_1730.jpg" />
     <entry file="file://$PROJECT_DIR$/computer/2019-01-08_1731.jpg" />
@@ -396,22 +397,6 @@
     <entry file="file://$PROJECT_DIR$/computer/2019-01-12_1347.jpg" />
     <entry file="file://$PROJECT_DIR$/computer/2019-01-12_1348.jpg" />
     <entry file="file://$PROJECT_DIR$/computer/2019-01-12_1351.jpg" />
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/run.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="22" column="37" lean-forward="false" selection-start-line="22" selection-start-column="37" selection-end-line="22" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/computer/model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="652">
-          <caret line="49" column="40" lean-forward="false" selection-start-line="49" selection-start-column="40" selection-end-line="49" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/2019-01-12_2127.jpg">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -432,18 +417,18 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/capture.sh">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/video.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="2" lean-forward="false" selection-start-line="7" selection-start-column="2" selection-end-line="7" selection-end-column="2" />
+        <state relative-caret-position="150">
+          <caret line="10" column="24" lean-forward="false" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/camera.sh">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/controller_drive.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+        <state relative-caret-position="465">
+          <caret line="33" column="0" lean-forward="false" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -456,26 +441,58 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/capture.py">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/capture.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+        <state relative-caret-position="105">
+          <caret line="7" column="2" lean-forward="false" selection-start-line="7" selection-start-column="2" selection-end-line="7" selection-end-column="2" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/camera.py">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/run.hs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
-          <caret line="42" column="39" lean-forward="false" selection-start-line="42" selection-start-column="39" selection-end-line="42" selection-end-column="39" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/video.sh">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/camera.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="24" lean-forward="false" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/runTrain.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/connect.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="19" lean-forward="false" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/memory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/carControl.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="21" column="19" lean-forward="false" selection-start-line="21" selection-start-column="19" selection-end-line="21" selection-end-column="19" />
           <folding />
         </state>
       </provider>
@@ -490,31 +507,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/controller.py">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/capture.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="675">
-          <caret line="45" column="29" lean-forward="false" selection-start-line="45" selection-start-column="29" selection-end-line="45" selection-end-column="29" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="816">
-          <caret line="73" column="13" lean-forward="true" selection-start-line="73" selection-start-column="13" selection-end-line="73" selection-end-column="13" />
-          <folding>
-            <element signature="e#0#27#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/memory.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="0" lean-forward="true" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -526,19 +525,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/controller_drive.py">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/controller.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="33" column="0" lean-forward="true" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+        <state relative-caret-position="675">
+          <caret line="50" column="33" lean-forward="false" selection-start-line="50" selection-start-column="33" selection-end-line="50" selection-end-column="33" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raspberry-pi/carControl.py">
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/camera.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="28" column="30" lean-forward="true" selection-start-line="28" selection-start-column="30" selection-end-line="28" selection-end-column="30" />
+        <state relative-caret-position="621">
+          <caret line="42" column="39" lean-forward="false" selection-start-line="42" selection-start-column="39" selection-end-line="42" selection-end-column="39" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="41" column="6" lean-forward="false" selection-start-line="41" selection-start-column="6" selection-end-line="41" selection-end-column="6" />
+          <folding>
+            <element signature="e#0#27#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/computer/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="88" column="41" lean-forward="true" selection-start-line="88" selection-start-column="41" selection-end-line="88" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/raspberry-pi/run.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="672">
+          <caret line="77" column="34" lean-forward="true" selection-start-line="77" selection-start-column="34" selection-end-line="77" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
