@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="42c4eae9-e65d-4556-9e99-c297b32b9ee5" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/os/controls/connect.sh" afterPath="$PROJECT_DIR$/os/controls/connect.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/os/controls/controller.py" afterPath="$PROJECT_DIR$/os/controls/controller.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -40,11 +42,21 @@
       <file leaf-file-name="controller.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/os/controls/controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="399">
-              <caret line="114" column="19" lean-forward="true" selection-start-line="114" selection-start-column="19" selection-end-line="114" selection-end-column="19" />
+            <state relative-caret-position="272">
+              <caret line="16" column="38" lean-forward="true" selection-start-line="16" selection-start-column="38" selection-end-line="16" selection-end-column="38" />
               <folding>
-                <element signature="e#258#271#0" expanded="true" />
+                <element signature="e#258#267#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="connect.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/os/controls/connect.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -119,6 +131,7 @@
         <option value="$PROJECT_DIR$/os/sensors/camera.py" />
         <option value="$PROJECT_DIR$/os/sensors/camera_capture.py" />
         <option value="$PROJECT_DIR$/os/run.py" />
+        <option value="$PROJECT_DIR$/os/controls/connect.sh" />
         <option value="$PROJECT_DIR$/os/controls/controller.py" />
       </list>
     </option>
@@ -231,7 +244,7 @@
     <frame x="-6" y="-6" width="1293" height="773" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.10164191" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22908522" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.115879826" sideWeight="0.50427353" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -271,7 +284,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/computer/2019-01-12_1347.jpg" />
     <entry file="file://$PROJECT_DIR$/computer/2019-01-12_1348.jpg" />
     <entry file="file://$PROJECT_DIR$/computer/2019-01-12_1351.jpg" />
     <entry file="file://$PROJECT_DIR$/2019-01-12_2127.jpg" />
@@ -613,12 +625,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/os/controls/connect.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/os/controls/controller.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="114" column="19" lean-forward="true" selection-start-line="114" selection-start-column="19" selection-end-line="114" selection-end-column="19" />
+        <state relative-caret-position="272">
+          <caret line="16" column="38" lean-forward="true" selection-start-line="16" selection-start-column="38" selection-end-line="16" selection-end-column="38" />
           <folding>
-            <element signature="e#258#271#0" expanded="true" />
+            <element signature="e#258#267#0" expanded="true" />
           </folding>
         </state>
       </provider>
