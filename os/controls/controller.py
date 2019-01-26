@@ -14,7 +14,7 @@ import pygame
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
-utility_dir = parent_dir + r'\utility'
+utility_dir = parent_dir + r'/utility'
 print(utility_dir)
 
 sys.path.append(utility_dir)
