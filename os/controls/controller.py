@@ -65,8 +65,8 @@ class Controller(threading.Thread):
         for event in pygame.event.get():
             pass
 
-        joystick = pygame.joystick.Joystick(0)
-        joystick.init()
+        self.joystick = pygame.joystick.Joystick(0)
+        self.joystick.init()
 
     def update(self):
 
@@ -75,7 +75,7 @@ class Controller(threading.Thread):
         vals = [0] * len(self.axes)
 
         for i in range(len(self.axes)):
-            vals[i] = joystick.get_axis(self.axes[i])
+            vals[i] = self.joystick.get_axis(self.axes[i])
 
         self.throttle = vals[1]
         self.brake = vals[0]
@@ -84,7 +84,7 @@ class Controller(threading.Thread):
         vals = [0] * len(self.buttons)
 
         for i in range(len(self.buttons)):
-            vals[i] = joystick.get_button(self.buttons[i])
+            vals[i] = self.joystick.get_button(self.buttons[i])
 
         if vals[0]:
             logger.debug("x pressed")
