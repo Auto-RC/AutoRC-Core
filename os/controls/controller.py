@@ -62,13 +62,15 @@ class Controller(threading.Thread):
         pygame.display.init()
         screen = pygame.display.set_mode((1, 1))
 
-    def update(self):
-
         for event in pygame.event.get():
             pass
 
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
+
+    def update(self):
+
+
 
         vals = [0] * len(self.axes)
 
