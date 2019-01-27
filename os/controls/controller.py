@@ -102,7 +102,6 @@ class Controller(threading.Thread):
 
         for key , value in self.ctrl_btn_index.items():
             self.ctrl_btn_val[key] = joystick.get_button(value)
-            logger.debug("{} = {}".format(key, self.ctrl_btn_val[key]))
 
         logger.debug(self.ctrl_btn_val)
 
