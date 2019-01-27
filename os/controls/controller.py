@@ -71,11 +71,11 @@ class Controller(threading.Thread):
         # Initializing the dict which store controller values
         # ------------------------------------------------------------------------------------------
         self.ctrl_axis_val = dict()
-        for key , value in self.ctrl_axis_index:
+        for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = 0.0
 
         self.ctrl_btn_val = dict()
-        for key , value in self.ctrl_btn_index:
+        for key , value in self.ctrl_btn_index.items():
             self.ctrl_btn_val[key] = False
 
         # Initializing PyGame
@@ -96,12 +96,12 @@ class Controller(threading.Thread):
 
         self.joystick.init()
 
-        for key , value in self.ctrl_axis_index:
+        for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = self.joystick.get_axis(value)
 
         logger.debug(self.ctrl_axis_val)
 
-        for key , value in self.ctrl_btn_index:
+        for key , value in self.ctrl_btn_index.items():
             self.ctrl_btn_val[key] = self.joystick.get_button(value)
 
         logger.debug(self.ctrl_btn_val)
