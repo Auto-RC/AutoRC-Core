@@ -30,7 +30,7 @@ from logger import *
 
 class Controller(threading.Thread):
 
-    def __init__(self, wait_interval):
+    def __init__(self, wait_interval_ms):
 
         logger.setLevel(logging.DEBUG)
 
@@ -43,7 +43,7 @@ class Controller(threading.Thread):
 
         # Main parameters
         # ------------------------------------------------------------------------------------------
-        self.wait_interval = wait_interval
+        self.wait_interval_ms = wait_interval_ms
         self.stop_flag = False
 
         # Initializing the controller index
@@ -88,12 +88,11 @@ class Controller(threading.Thread):
         for event in pygame.event.get():
             pass
 
-        self.joystick = pygame.joystick.Joystick(0)
-
         logger.info("Done initializing controller thread")
 
     def update(self):
 
+        self.joystick = pygame.joystick.Joystick(0)
         self.joystick.init()
 
         for key , value in self.ctrl_axis_index.items():
@@ -116,7 +115,7 @@ class Controller(threading.Thread):
         while self.stop_flag == False:
 
             self.update()
-            time.sleep(self.wait_interval)
+            time.sleep(self.wait_interval_ms/1000.0)
 
         logger.info("Controller thread stopped")
 
@@ -131,6 +130,6 @@ class Controller(threading.Thread):
 
 if __name__ == '__main__':
 
-    c = Controller(0.5)
+    c = Controller(wait_interval_ms=25)
 
     c.run()
