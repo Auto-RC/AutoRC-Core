@@ -85,9 +85,6 @@ class Controller(threading.Thread):
         pygame.display.init()
         screen = pygame.display.set_mode((1, 1))
 
-        for event in pygame.event.get():
-            pass
-
         logger.info("Done initializing controller thread")
 
     def update(self):
@@ -95,7 +92,8 @@ class Controller(threading.Thread):
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
 
-        logger.info(joystick.get_button(3))
+        for event in pygame.event.get():
+            pass
 
         for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = joystick.get_axis(value)
