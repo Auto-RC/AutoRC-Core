@@ -49,23 +49,23 @@ class Controller(threading.Thread):
         # Initializing the controller index
         # ------------------------------------------------------------------------------------------
         self.ctrl_axis_index = dict()
-        self.ctrl_axis_index['r_joystick_x'] = 0
-        self.ctrl_axis_index['r_joystick_y'] = 1
-        self.ctrl_axis_index['l_joystick_x'] = 2
-        self.ctrl_axis_index['l_joystick_y'] = 5
-        self.ctrl_axis_index['lr_arrow'] =     9
-        self.ctrl_axis_index['ud_arrow'] =     10
+        self.ctrl_axis_index['r_j_x'] = 0  # right joystick x
+        self.ctrl_axis_index['r_j_y'] = 1  # right joystick y
+        self.ctrl_axis_index['l_j_x'] = 2  # left joystick x
+        self.ctrl_axis_index['l_j_y'] = 5  # left joystick y
+        self.ctrl_axis_index['a_y'] =   9  # arrow y
+        self.ctrl_axis_index['a_x'] =   10  # arrow x
 
         self.ctrl_btn_index = dict()
-        self.ctrl_btn_index['[]_btn'] =        0  # If you do not see a square, you are sad.
-        self.ctrl_btn_index['x_btn'] =         1
-        self.ctrl_btn_index['O_btn'] =         2
-        self.ctrl_btn_index['^_btn'] =         3
-        self.ctrl_btn_index['left_bumper'] =   4
-        self.ctrl_btn_index['right_bumper'] =  5
-        self.ctrl_btn_index['left_trigger'] =  6
-        self.ctrl_btn_index['right_trigger'] = 7
-        self.ctrl_btn_index['pwr'] =           12
+        self.ctrl_btn_index['[]'] =     0  # If you do not see a square, you are sad.
+        self.ctrl_btn_index['x'] =      1
+        self.ctrl_btn_index['O'] =      2
+        self.ctrl_btn_index['^'] =      3
+        self.ctrl_btn_index['l_b'] =    4  # left bumber
+        self.ctrl_btn_index['r_b'] =    5  # right bumper
+        self.ctrl_btn_index['l_t'] =    6  # left trigger
+        self.ctrl_btn_index['r_t'] =    7  # right trigger
+        self.ctrl_btn_index['pwr'] =    12 # power
 
 
         # Initializing the dict which store controller values
@@ -97,15 +97,14 @@ class Controller(threading.Thread):
 
         for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = joystick.get_axis(value)
-            logger.debug("{}[{}] = {} | {}".format(key,value,self.ctrl_axis_val[key],joystick.get_axis(value)))
 
-        # logger.debug(self.ctrl_axis_val)
+        logger.debug(self.ctrl_axis_val)
 
         for key , value in self.ctrl_btn_index.items():
             self.ctrl_btn_val[key] = joystick.get_button(value)
             logger.debug("{} = {}".format(key, self.ctrl_btn_val[key]))
 
-        # logger.debug(self.ctrl_btn_val)
+        logger.debug(self.ctrl_btn_val)
 
         if self.ctrl_btn_val['pwr']:
             self.stop()
