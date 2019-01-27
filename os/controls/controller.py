@@ -34,26 +34,49 @@ class Controller(threading.Thread):
 
         logger.setLevel(logging.INFO)
 
-        logger.info("Initializing class")
+        logger.info("Initializing controller thread...")
 
         # Thread parameters
         # ------------------------------------------------------------------------------------------
         self.thread_name = "Controller"
         threading.Thread.__init__(self, name=self.thread_name)
-        self.stop_flag = False
 
         # Main parameters
         # ------------------------------------------------------------------------------------------
         self.wait_interval = wait_interval
+        self.stop_flag = False
 
-        # Initializing the controller input index
+        # Initializing the controller index
         # ------------------------------------------------------------------------------------------
-        self.axes = [3, 4, 2]
-        self.buttons = [1, 12]
-        self.throttle = -1
-        self.brake = -1
-        self.steering = 0
-        self.capturing = False
+        self.ctrl_axis_index = dict()
+        self.ctrl_axis_index['r_joystick_x'] = 0
+        self.ctrl_axis_index['r_joystick_y'] = 1
+        self.ctrl_axis_index['l_joystick_x'] = 2
+        self.ctrl_axis_index['l_joystick_y'] = 5
+        self.ctrl_axis_index['lr_arrow'] =     9
+        self.ctrl_axis_index['ud_arrow'] =     10
+
+        self.ctrl_btn_index = dict()
+        self.ctrl_btn_index['[]_btn'] =        0  # If you do not see a square, you are sad.
+        self.ctrl_btn_index['x_btn'] =         1
+        self.ctrl_btn_index['O_btn'] =         2
+        self.ctrl_btn_index['^_btn'] =         3
+        self.ctrl_btn_index['left_bumper'] =   4
+        self.ctrl_btn_index['right_bumper'] =  5
+        self.ctrl_btn_index['left_trigger'] =  6
+        self.ctrl_btn_index['right_trigger'] = 7
+        self.ctrl_btn_index['pwr'] =           12
+
+
+        # Initializing the dict which store controller values
+        # ------------------------------------------------------------------------------------------
+        self.ctrl_axis_val = dict()
+        for key , value in self.ctrl_axis_index:
+            self.ctrl_axis_val[key] = 0.0
+
+        self.ctrl_btn_val = dict()
+        for key , value in self.ctrl_btn_index:
+            self.ctrl_btn_val[key] = False
 
         # Initializing PyGame
         # ------------------------------------------------------------------------------------------
@@ -66,37 +89,25 @@ class Controller(threading.Thread):
             pass
 
         self.joystick = pygame.joystick.Joystick(0)
-        self.joystick.init()
+
+        logger.info("Done initializing controller thread")
 
     def update(self):
 
+        self.joystick.init()
 
+        for key , value in self.ctrl_axis_index:
+            self.ctrl_axis_val[key] = self.joystick.get_axis(value)
 
-        vals = [0] * len(self.axes)
+        logger.debug(self.ctrl_axis_val)
 
-        for i in range(len(self.axes)):
-            vals[i] = self.joystick.get_axis(self.axes[i])
+        for key , value in self.ctrl_btn_index:
+            self.ctrl_btn_val[key] = self.joystick.get_button(value)
 
-        self.throttle = vals[1]
-        self.brake = vals[0]
-        self.steering = vals[2]
+        logger.debug(self.ctrl_btn_val)
 
-        vals = [0] * len(self.buttons)
-
-        for i in range(len(self.buttons)):
-            vals[i] = self.joystick.get_button(self.buttons[i])
-
-        if vals[0]:
-            logger.debug("x pressed")
-            print("x pressed")
-            self.capturing = not self.capturing
-            if self.capturing:
-                print("capturing")
-            else:
-                print("saving")
-
-        if vals[1]:
-            self.on = not self.on
+        if self.ctrl_btn_val['pwr']:
+            self.stop()
 
     def run(self):
 
@@ -107,7 +118,7 @@ class Controller(threading.Thread):
             self.update()
             time.sleep(self.wait_interval)
 
-        logger.info("Controller thread input")
+        logger.info("Controller thread stopped")
 
     def stop(self):
 
