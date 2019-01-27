@@ -97,7 +97,7 @@ class Controller(threading.Thread):
 
         for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = self.joystick.get_axis(value)
-            logger.debug("{}[{}] = {}".format(key,value,self.ctrl_axis_val[key]))
+            logger.debug("{}[{}] = {} | {}".format(key,value,self.ctrl_axis_val[key],self.joystick.get_axis(value)))
 
         # logger.debug(self.ctrl_axis_val)
 
