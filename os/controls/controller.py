@@ -115,7 +115,7 @@ class Controller(threading.Thread):
         while self.stop_flag == False:
 
             self.update()
-            time.sleep(self.wait_interval_ms/1000.0)
+            time.sleep(self.wait_interval_ms/10.0)
 
         logger.info("Controller thread stopped")
 
