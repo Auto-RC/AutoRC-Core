@@ -32,7 +32,7 @@ class Controller(threading.Thread):
 
     def __init__(self, wait_interval):
 
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
         logger.info("Initializing controller thread...")
 
