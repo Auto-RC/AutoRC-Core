@@ -97,13 +97,15 @@ class Controller(threading.Thread):
 
         for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = self.joystick.get_axis(value)
+            logger.debug("{} = {}".format(key,self.ctrl_axis_val[key]))
 
-        logger.debug(self.ctrl_axis_val)
+        # logger.debug(self.ctrl_axis_val)
 
         for key , value in self.ctrl_btn_index.items():
             self.ctrl_btn_val[key] = self.joystick.get_button(value)
+            logger.debug("{} = {}".format(key, self.ctrl_btn_val[key]))
 
-        logger.debug(self.ctrl_btn_val)
+        # logger.debug(self.ctrl_btn_val)
 
         if self.ctrl_btn_val['pwr']:
             self.stop()
