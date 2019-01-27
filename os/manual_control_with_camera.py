@@ -26,6 +26,7 @@ memory = Memory()
 t = Thread(target=cam.update, args=())
 t.daemon = True
 t.start()
+
 print("started thread")
 time.sleep(1)
 print("running")

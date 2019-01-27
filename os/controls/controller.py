@@ -14,8 +14,8 @@ import pygame
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+
 utility_dir = parent_dir + r'/utility'
-print(utility_dir)
 
 sys.path.append(utility_dir)
 
@@ -61,7 +61,7 @@ class Controller(threading.Thread):
         self.ctrl_btn_index['x'] =      1
         self.ctrl_btn_index['O'] =      2
         self.ctrl_btn_index['^'] =      3
-        self.ctrl_btn_index['l_b'] =    4  # left bumber
+        self.ctrl_btn_index['l_b'] =    4  # left bumper
         self.ctrl_btn_index['r_b'] =    5  # right bumper
         self.ctrl_btn_index['l_t'] =    6  # left trigger
         self.ctrl_btn_index['r_t'] =    7  # right trigger

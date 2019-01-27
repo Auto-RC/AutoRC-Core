@@ -12,38 +12,30 @@ import threading
 # ==================================================================================================
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-utility_dir = current_dir + r'/utility'
+sensors_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+parent_dir = os.path.abspath(os.path.join(sensors_dir, os.pardir))
+
+utility_dir = parent_dir + r'/utility'
 controls_dir = current_dir + r'/controls'
 
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
 
 from logger import *
-from controller import Controller
+from camera import PiCamera
 
 # ==================================================================================================
-#                                           AutoRC
+#                                           IRIS
 # ==================================================================================================
 
-class AutoRC(threading.Thread):
+class Iris(threading.Thread):
 
-    def __init__(self, controller_update_ms):
-
-        # Thread parameters
-        # ------------------------------------------------------------------------------------------
-        self.thread_name = "AutoRC"
-        threading.Thread.__init__(self, name=self.thread_name)
-
-        # Initializing parameters
-        # ------------------------------------------------------------------------------------------
-        self.controller_update_ms = controller_update_ms
-
-        # Initializing objects
-        # ------------------------------------------------------------------------------------------
-        self.controller = Controller(wait_interval_ms = self.controller_update_ms)
+    def __init__(self,
+                 frame_rate=20,
+                 ):
 
 
-    def run_manual(self):
 
-        self.controller.run()
+
+
 

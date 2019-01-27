@@ -1,6 +1,7 @@
 import numpy as np
 
 class Memory:
+
     def __init__(self):
         self.inputs = []
         self.outputs = []
