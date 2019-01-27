@@ -95,7 +95,7 @@ class Controller(threading.Thread):
         self.joystick = pygame.joystick.Joystick(0)
         self.joystick.init()
 
-        logger.info(self.joystick.get_axis(3))
+        logger.info(self.joystick.get_button(3))
 
         for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = self.joystick.get_axis(value)
