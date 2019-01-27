@@ -92,19 +92,19 @@ class Controller(threading.Thread):
 
     def update(self):
 
-        self.joystick = pygame.joystick.Joystick(0)
-        self.joystick.init()
+        joystick = pygame.joystick.Joystick(0)
+        joystick.init()
 
-        logger.info(self.joystick.get_button(3))
+        logger.info(joystick.get_button(3))
 
         for key , value in self.ctrl_axis_index.items():
-            self.ctrl_axis_val[key] = self.joystick.get_axis(value)
-            logger.debug("{}[{}] = {} | {}".format(key,value,self.ctrl_axis_val[key],self.joystick.get_axis(value)))
+            self.ctrl_axis_val[key] = joystick.get_axis(value)
+            logger.debug("{}[{}] = {} | {}".format(key,value,self.ctrl_axis_val[key],joystick.get_axis(value)))
 
         # logger.debug(self.ctrl_axis_val)
 
         for key , value in self.ctrl_btn_index.items():
-            self.ctrl_btn_val[key] = self.joystick.get_button(value)
+            self.ctrl_btn_val[key] = joystick.get_button(value)
             logger.debug("{} = {}".format(key, self.ctrl_btn_val[key]))
 
         # logger.debug(self.ctrl_btn_val)
