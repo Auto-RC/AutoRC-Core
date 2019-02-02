@@ -5,7 +5,7 @@
 import os
 import sys
 import time
-import threading
+from threading import Thread
 
 # ==================================================================================================
 #                                        LOCAL IMPORTS
