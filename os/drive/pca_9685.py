@@ -4,7 +4,8 @@ import time
 import Adafruit_PCA9685
 
 
-class drive:
+class Drive:
+
     def __init__(self, freq=60):
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.steering_min = 300

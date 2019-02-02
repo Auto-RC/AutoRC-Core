@@ -99,8 +99,7 @@ class AutoRC(threading.Thread):
         logger.debug("AutoRC.run() started")
 
         while True:
-            logger.debug("Button o: {}".format(self.controller.ctrl_btn_val['O']))
-            logger.debug("Button ^: {}".format(self.controller.ctrl_btn_val['^']))
+            logger.debug("VEH: {} IRIS: {}".format(self.enable_vehicle,self.enable_iris))
             if self.controller.ctrl_btn_val['O'] == True:
                 self.toggle_vehicle()
             if self.controller.ctrl_btn_val['^'] == True:
