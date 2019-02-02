@@ -1,14 +1,9 @@
 import time
 
-class BaseCamera:
 
-    def run_threaded(self):
-        return self.frame
+class PiCamera:
 
-
-class PiCamera(BaseCamera):
-
-    def __init__(self, resolution=(128, 96), framerate=20):
+    def __init__(self, resolution=, framerate, format):
 
         from picamera.array import PiRGBArray
         from picamera import PiCamera
@@ -17,9 +12,10 @@ class PiCamera(BaseCamera):
         self.camera = PiCamera()  # PiCamera gets resolution (height, width)
         self.camera.resolution = resolution
         self.camera.framerate = framerate
+        self.format=format
         self.rawCapture = PiRGBArray(self.camera, size=resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
-                                                     format="rgb",
+                                                     format=self.format,
                                                      use_video_port=True)
 
         # initialize the frame and the variable used to indicate
@@ -27,8 +23,8 @@ class PiCamera(BaseCamera):
         self.frame = None
         self.on = True
 
-        print('PiCamera loaded.. .warming camera')
-        time.sleep(2)
+        print('PiCamera loaded ... warming camera')
+        time.sleep(1)
 
     def run(self):
         f = next(self.stream)
@@ -47,6 +43,9 @@ class PiCamera(BaseCamera):
             # if the thread indicator variable is set, stop the thread
             if not self.on:
                 break
+
+    def run_threaded(self):
+        return self.frame
 
     def shutdown(self):
         # indicate that the thread should be stopped
