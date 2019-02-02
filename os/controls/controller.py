@@ -67,7 +67,7 @@ class Controller(threading.Thread):
         self.ctrl_btn_index['r_t'] =    7  # right trigger
         self.ctrl_btn_index['pwr'] =    12 # power
 
-        logger.debug("Controller dictionaries intialized")
+        logger.debug("Controller index dictionaries intialized")
 
 
         # Initializing the dict which store controller values
@@ -80,11 +80,16 @@ class Controller(threading.Thread):
         for key , value in self.ctrl_btn_index.items():
             self.ctrl_btn_val[key] = False
 
+        logger.debug("Controller values dictionaries intialized")
+
         # Initializing PyGame
         # ------------------------------------------------------------------------------------------
         pygame.init()
+        logger.debug("pygame init()")
         os.environ["SDL_VIDEODRIVER"] = "dummy"
+        logger.debug("created dummy screen")
         pygame.display.init()
+        logger.debug("init screen")
         screen = pygame.display.set_mode((1, 1))
 
         logger.info("Done initializing controller thread")
