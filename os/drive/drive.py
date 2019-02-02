@@ -19,6 +19,11 @@ class Drive(threading.Thread):
 
     def __init__(self, update_interval_ms, controller, pca9685):
 
+        # Thread parameters
+        # ------------------------------------------------------------------------------------------
+        self.thread_name = "Drive"
+        threading.Thread.__init__(self, name=self.thread_name)
+
         self.enable_drive = True
         self.update_interval_ms = update_interval_ms
 
