@@ -39,6 +39,8 @@ class Controller(threading.Thread):
         self.thread_name = "Controller"
         threading.Thread.__init__(self, name=self.thread_name)
 
+        logger.debug("Thread variables for controller set")
+
         # Main parameters
         # ------------------------------------------------------------------------------------------
         self.wait_interval_ms = wait_interval_ms
@@ -64,6 +66,8 @@ class Controller(threading.Thread):
         self.ctrl_btn_index['l_t'] =    6  # left trigger
         self.ctrl_btn_index['r_t'] =    7  # right trigger
         self.ctrl_btn_index['pwr'] =    12 # power
+
+        logger.debug("Controller dictionaries intialized")
 
 
         # Initializing the dict which store controller values
