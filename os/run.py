@@ -38,6 +38,8 @@ class AutoRC(threading.Thread):
 
     def __init__(self, controller_update_ms):
 
+        logger.debug("Initia")
+
         # Thread parameters
         # ------------------------------------------------------------------------------------------
         self.thread_name = "AutoRC"
@@ -94,11 +96,11 @@ class AutoRC(threading.Thread):
 
     def run(self):
 
-
+        logger.debug("AutoRC.run() started")
 
         while True:
-            logger.debug("Button o: ", self.controller.ctrl_btn_val['O'])
-            logger.debug("Button ^: ", self.controller.ctrl_btn_val['^'])
+            # logger.debug("Button o: ", self.controller.ctrl_btn_val['O'])
+            # logger.debug("Button ^: ", self.controller.ctrl_btn_val['^'])
             if self.controller.ctrl_btn_val['O'] == True:
                 self.toggle_vehicle()
             if self.controller.ctrl_btn_val['^'] == True:
@@ -113,6 +115,6 @@ if __name__ == '__main__':
 
     logger.setLevel(logging.DEBUG)
 
-    instance = AutoRC(controller_update_ms=10)
+    instance = AutoRC(controller_update_ms=100)
 
     instance.start()
