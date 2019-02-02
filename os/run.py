@@ -87,6 +87,7 @@ class AutoRC(threading.Thread):
         elif self.enable_vehicle == True:
 
             self.drive.disable()
+            del self.drive
 
             self.enable_vehicle = False
             logger.debug("Vehicle disabled.")

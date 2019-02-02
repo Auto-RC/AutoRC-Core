@@ -56,7 +56,7 @@ class Drive(threading.Thread):
 
             time.sleep(self.update_interval_ms)
 
-    def disable_drive(self):
+    def disable(self):
 
         self.enable_drive = False
 
