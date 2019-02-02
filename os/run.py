@@ -50,7 +50,7 @@ class AutoRC(threading.Thread):
         # Initializing controller
         # ------------------------------------------------------------------------------------------
         self.controller = Controller(wait_interval_ms = self.controller_update_ms)
-        self.controller.run()
+        self.controller.start()
 
         # Initializing flags
         # ------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ class AutoRC(threading.Thread):
         if (self.enable_iris == False) and (not self.iris):
 
             self.iris = Iris(20, (128, 96), 'rgb')
-            self.iris.run()
+            self.iris.start()
 
             self.enable_iris = True
             logger.debug("Iris enabled")
@@ -93,6 +93,8 @@ class AutoRC(threading.Thread):
     # ----------------------------------------------------------------------------------------------
 
     def run(self):
+
+
 
         while True:
             logger.debug("Button o: ", controller.ctrl_btn_val['O'])
@@ -113,4 +115,4 @@ if __name__ == '__main__':
 
     instance = AutoRC(controller_update_ms=10)
 
-    instance.run()
+    instance.start()
