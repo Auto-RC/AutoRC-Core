@@ -90,7 +90,7 @@ class Controller(threading.Thread):
         logger.debug("created dummy screen")
         pygame.display.init()
         logger.debug("init screen")
-        screen = pygame.display.set_mode((1, 1))
+        #screen = pygame.display.set_mode((1, 1))
 
         logger.info("Done initializing controller thread")
 
