@@ -36,9 +36,6 @@ class Iris:
                  format='rgb'
                  ):
 
-
-        logger.setLevel(logging.DEBUG)
-
         # Main parameters
         # ------------------------------------------------------------------------------------------
         self.frame_rate = frame_rate

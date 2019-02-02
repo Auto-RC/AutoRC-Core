@@ -32,8 +32,6 @@ class Controller(threading.Thread):
 
     def __init__(self, wait_interval_ms):
 
-        logger.setLevel(logging.DEBUG)
-
         logger.info("Initializing controller thread...")
 
         # Thread parameters
@@ -98,12 +96,12 @@ class Controller(threading.Thread):
         for key , value in self.ctrl_axis_index.items():
             self.ctrl_axis_val[key] = joystick.get_axis(value)
 
-        logger.debug(self.ctrl_axis_val)
+        # logger.debug(self.ctrl_axis_val)
 
         for key , value in self.ctrl_btn_index.items():
             self.ctrl_btn_val[key] = joystick.get_button(value)
 
-        logger.debug(self.ctrl_btn_val)
+        # logger.debug(self.ctrl_btn_val)
 
         if self.ctrl_btn_val['pwr']:
             self.stop()

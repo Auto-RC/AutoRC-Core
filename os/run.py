@@ -65,8 +65,10 @@ class AutoRC(threading.Thread):
 
         if self.enable_vehicle == False:
             self.enable_vehicle = True
+            logger.debug("Vehicle enabled.")
         elif self.enable_vehicle == True:
             self.enable_vehicle = False
+            logger.debug("Vehicle disabled.")
 
     def toggle_iris(self):
 
@@ -76,6 +78,7 @@ class AutoRC(threading.Thread):
             self.iris.run()
 
             self.enable_iris = True
+            logger.debug("Iris enabled")
 
         elif (self.enable_iris == True) and (self.iris):
 
@@ -83,6 +86,7 @@ class AutoRC(threading.Thread):
             del self.iris
 
             self.enable_iris = False
+            logger.debug("Iris disabled")
 
     # ----------------------------------------------------------------------------------------------
     #                                               Run
@@ -102,6 +106,8 @@ class AutoRC(threading.Thread):
 # ==================================================================================================
 
 if __name__ == '__main__':
+
+    logger.setLevel(logging.DEBUG)
 
     instance = AutoRC(controller_update_ms=10)
 
