@@ -74,7 +74,7 @@ class AutoRC(threading.Thread):
 
     def toggle_iris(self):
 
-        if (self.enable_iris == False) # and (not self.iris):
+        if (self.enable_iris == False): # and (not self.iris):
 
             self.iris = Iris(20, (128, 96), 'rgb')
             self.iris.start()
@@ -82,7 +82,7 @@ class AutoRC(threading.Thread):
             self.enable_iris = True
             logger.debug("Iris enabled")
 
-        elif (self.enable_iris == True) # and (self.iris):
+        elif (self.enable_iris == True): # and (self.iris):
 
             self.iris.stop()
             del self.iris
