@@ -47,11 +47,13 @@ class Controller(threading.Thread):
         # Initializing the controller index
         # ------------------------------------------------------------------------------------------
         self.ctrl_axis_index = dict()
-        self.ctrl_axis_index['r_j_x'] = 0  # right joystick x
-        self.ctrl_axis_index['r_j_y'] = 1  # right joystick y
-        self.ctrl_axis_index['l_j_x'] = 2  # left joystick x
-        self.ctrl_axis_index['l_j_y'] = 5  # left joystick y
-        self.ctrl_axis_index['a_y'] =   9  # arrow y
+        self.ctrl_axis_index['r_j_x'] = 0   # right joystick x
+        self.ctrl_axis_index['r_j_y'] = 1   # right joystick y
+        self.ctrl_axis_index['l_j_x'] = 2   # left joystick x
+        self.ctrl_axis_index['l_j_y'] = 5   # left joystick y
+        self.ctrl_axis_index['l_t'] =   3   # left trigger
+        self.ctrl_axis_index['r_t'] =   4   # right trigger
+        self.ctrl_axis_index['a_y'] =   9   # arrow y
         self.ctrl_axis_index['a_x'] =   10  # arrow x
 
         self.ctrl_btn_index = dict()

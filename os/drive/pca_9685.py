@@ -4,9 +4,10 @@ import time
 import Adafruit_PCA9685
 
 
-class Drive:
+class PCA9685:
 
     def __init__(self, freq=60):
+
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.steering_min = 300
         self.steering_max = 490
@@ -18,6 +19,7 @@ class Drive:
 
 
     def set_steering(self, position):
+
         if -1 <= position <= 1:
             position = int((-position * (self.steering_max-self.steering_avg)) + self.steering_avg)
         if position > self.steering_max:
