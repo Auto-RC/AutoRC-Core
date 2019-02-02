@@ -3,7 +3,7 @@ import time
 
 class PiCamera:
 
-    def __init__(self, resolution=, framerate, format):
+    def __init__(self, resolution, framerate, format):
 
         from picamera.array import PiRGBArray
         from picamera import PiCamera

@@ -31,16 +31,11 @@ from camera import PiCamera
 class Iris(threading.Thread):
 
     def __init__(self,
-<<<<<<< HEAD
                  frame_rate=20,
                  resolution=(128, 96),
                  format='rgb'
                  ):
-=======
-                 frame_rate=20):
 
-
->>>>>>> 4308febb311cc156680a5a9a0d7d02f77db9f622
 
         logger.setLevel(logging.DEBUG)
 
