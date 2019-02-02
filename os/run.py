@@ -95,6 +95,8 @@ class AutoRC(threading.Thread):
     def run(self):
 
         while True:
+            logger.debug("Button o: ", controller.ctrl_btn_val['O'])
+            logger.debug("Button ^: ", controller.ctrl_btn_val['^'])
             if self.controller.ctrl_btn_val['O'] == True:
                 self.toggle_vehicle()
             if self.controller.ctrl_btn_val['^'] == True:
