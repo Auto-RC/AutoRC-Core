@@ -4,7 +4,7 @@ import time
 import Adafruit_PCA9685
 
 
-class Car_Control:
+class drive:
     def __init__(self, freq=60):
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.steering_min = 300
@@ -14,6 +14,7 @@ class Car_Control:
         self.throttle_max = 410
         self.throttle_avg = 390
         self.pwm.set_pwm_freq(freq)
+
 
     def set_steering(self, position):
         if -1 <= position <= 1:
