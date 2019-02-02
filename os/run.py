@@ -14,18 +14,26 @@ import threading
 current_dir = os.path.dirname(os.path.realpath(__file__))
 utility_dir = current_dir + r'/utility'
 controls_dir = current_dir + r'/controls'
+sensors_dir = current_dir + r'/sensors'
+camera_dir = current_dir + r'/camera'
 
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
 
 from logger import *
 from controller import Controller
+from memory import Memory
+from iris import Iris
 
 # ==================================================================================================
 #                                           AutoRC
 # ==================================================================================================
 
 class AutoRC(threading.Thread):
+
+    # ----------------------------------------------------------------------------------------------
+    #                                           Initialize
+    # ----------------------------------------------------------------------------------------------
 
     def __init__(self, controller_update_ms):
 
@@ -38,20 +46,62 @@ class AutoRC(threading.Thread):
         # ------------------------------------------------------------------------------------------
         self.controller_update_ms = controller_update_ms
 
-        # Initializing objects
+        # Initializing controller
         # ------------------------------------------------------------------------------------------
         self.controller = Controller(wait_interval_ms = self.controller_update_ms)
-
-
-    def run_manual(self):
-
         self.controller.run()
 
-    def camera_test(self):
-        with picamera.PiCamera() as camera:
-            camera.resolution = (128, 96)
-            camera.start_preview()
-            # Camera warm-up time
-            time.sleep(2)
-            for i in range(200):
-                camera.capture('track1/pic{}.jpg'.format(i))
+        # Initializing flags
+        # ------------------------------------------------------------------------------------------
+        self.enable_vehicle = False
+        self.enable_iris = False
+
+    # ----------------------------------------------------------------------------------------------
+    #                                        Core Functionality
+    # ----------------------------------------------------------------------------------------------
+
+    def toggle_vehicle(self):
+
+        if self.enable_vehicle == False:
+            self.enable_vehicle = True
+        elif self.enable_vehicle == True:
+            self.enable_vehicle = False
+
+    def toggle_iris(self):
+
+        if (self.enable_iris == False) and (not self.iris):
+
+            self.iris = Iris(20, (128, 96), 'rgb')
+            self.iris.run()
+
+            self.enable_iris = True
+
+        elif (self.enable_iris == True) and (self.iris):
+
+            self.iris.stop()
+            del self.iris
+
+            self.enable_iris = False
+
+    # ----------------------------------------------------------------------------------------------
+    #                                               Run
+    # ----------------------------------------------------------------------------------------------
+
+    def run(self):
+
+        while True:
+            if self.controller.ctrl_btn_val['O'] == True:
+                self.toggle_vehicle()
+            if self.controller.ctrl_btn_val['^'] == True:
+                self.toggle_iris()
+
+
+# ==================================================================================================
+#                                            TEST CODE
+# ==================================================================================================
+
+if __name__ == '__main__':
+
+    instance = AutoRC(controller_update_ms=10)
+
+    instance.run()
