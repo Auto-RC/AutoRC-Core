@@ -15,7 +15,7 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 utility_dir = current_dir + r'/utility'
 controls_dir = current_dir + r'/controls'
 sensors_dir = current_dir + r'/sensors'
-camera_dir = current_dir + r'/camera'
+camera_dir = sensors_dir + r'/camera'
 
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
