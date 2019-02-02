@@ -31,8 +31,9 @@ from camera import PiCamera
 class Iris(threading.Thread):
 
     def __init__(self,
-                 frame_rate=20,
-                 ):
+                 frame_rate=20):
+
+
 
 
 
