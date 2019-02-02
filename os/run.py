@@ -19,6 +19,7 @@ camera_dir = current_dir + r'/camera'
 
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
+sys.path.append(camera_dir)
 
 from logger import *
 from controller import Controller
