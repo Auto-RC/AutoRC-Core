@@ -116,7 +116,7 @@ class AutoRC(threading.Thread):
 
     def run(self):
 
-        logger.debug("AutoRC.run() started")
+        logger.debug("AutoRC started")
 
         while True:
             logger.debug("VEH: {} IRIS: {}".format(self.enable_vehicle,self.enable_iris))
@@ -127,6 +127,8 @@ class AutoRC(threading.Thread):
                 self.toggle_iris()
 
             time.sleep(100/1000)
+
+        # logger.debug("AutoRC exited")
 
 
 # ==================================================================================================
