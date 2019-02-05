@@ -47,10 +47,6 @@ class Drive(threading.Thread):
             self.controller.brake = self.controller.ctrl_axis_val['l_t']
             self.controller.steering = self.controller.ctrl_axis_val['r_j_x']
 
-            print("throttle: {}   brake: {}   steering: {}".format(self.controller.throttle,
-                                                                          self.controller.brake,
-                                                                          self.controller.steering))
-
             if (self.safety_enable == True) and \
                (self.controller.throttle != 0) and \
                (self.controller.brake != 0):
