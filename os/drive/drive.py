@@ -9,7 +9,7 @@ import time
 #                                           LOCAL IMPORTS
 # ==================================================================================================
 
-
+from logger import *
 
 # ==================================================================================================
 #                                               DRIVE
@@ -35,6 +35,8 @@ class Drive(threading.Thread):
 
     def run(self):
 
+        logger.info("Drive thread started")
+
         while self.enable_drive == True:
 
             # Getting values from controller
@@ -42,6 +44,10 @@ class Drive(threading.Thread):
             self.controller.throttle = self.controller.ctrl_axis_index['r_t']
             self.controller.brake = self.controller.ctrl_axis_index['l_t']
             self.controller.steering = self.controller.ctrl_axis_index['r_j_x']
+
+            logger.debug("throttle: {}   brake: {}   steering: {}".format(self.controller.throttle,
+                                                                          self.controller.brake,
+                                                                          self.controller.steering))
 
             if (self.safety_enable == True) and \
                (self.controller.throttle != 0) and \
@@ -55,7 +61,7 @@ class Drive(threading.Thread):
             self.pca9685.set_steering(self.controller.steering)
             self.pca9685.set_throttle(self.compute_throttle(self.controller.throttle, self.controller.brake))
 
-            time.sleep(self.update_interval_ms)
+            time.sleep(self.update_interval_ms/1000)
 
     def disable(self):
 
