@@ -132,3 +132,6 @@ if __name__ == '__main__':
     c = Controller(wait_interval_ms=10)
 
     c.run()
+    print("throttle: {}   brake: {}   steering: {}".format(Controller.throttle,
+                                                           Controller.brake,
+                                                           Controller.steering))
