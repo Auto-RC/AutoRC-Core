@@ -133,8 +133,8 @@ if __name__ == '__main__':
 
     c.start()
     for i in range(100):
-        print("throttle: {}   brake: {}   steering: {}".format(c.ctrl_axis_index['r_t'],
-                                                           c.ctrl_axis_index['l_t'],
-                                                           c.ctrl_axis_index['r_j_x']))
+        print("throttle: {}   brake: {}   steering: {}".format(c.ctrl_axis_val['r_t'],
+                                                           c.ctrl_axis_val['l_t'],
+                                                           c.ctrl_axis_val['r_j_x']))
         time.sleep(0.2)
     c.stop()

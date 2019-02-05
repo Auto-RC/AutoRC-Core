@@ -43,9 +43,9 @@ class Drive(threading.Thread):
 
             # Getting values from controller
             # --------------------------------------------------------------------------------------
-            self.controller.throttle = self.controller.ctrl_axis_index['r_t']
-            self.controller.brake = self.controller.ctrl_axis_index['l_t']
-            self.controller.steering = self.controller.ctrl_axis_index['r_j_x']
+            self.controller.throttle = self.controller.ctrl_axis_val['r_t']
+            self.controller.brake = self.controller.ctrl_axis_val['l_t']
+            self.controller.steering = self.controller.ctrl_axis_val['r_j_x']
 
             print("throttle: {}   brake: {}   steering: {}".format(self.controller.throttle,
                                                                           self.controller.brake,
