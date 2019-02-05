@@ -9,6 +9,19 @@ import time
 #                                           LOCAL IMPORTS
 # ==================================================================================================
 
+current_dir = os.path.dirname(os.path.realpath(__file__))
+utility_dir = current_dir + r'/utility'
+controls_dir = current_dir + r'/controls'
+sensors_dir = current_dir + r'/sensors'
+camera_dir = sensors_dir + r'/camera'
+drive_dir = current_dir + r'/drive'
+
+sys.path.append(utility_dir)
+sys.path.append(controls_dir)
+sys.path.append(camera_dir)
+sys.path.append(drive_dir)
+
+
 from logger import *
 
 # ==================================================================================================
