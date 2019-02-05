@@ -36,7 +36,7 @@ class Drive(threading.Thread):
 
     def run(self):
 
-        logger.info("Drive thread started")
+        #logger.info("Drive thread started")
 
         while self.enable_drive == True:
 
@@ -84,7 +84,6 @@ class Drive(threading.Thread):
 
 if __name__ == '__main__':
 
-    logger.setLevel(logging.DEBUG)
 
     drive = Drive()
 
