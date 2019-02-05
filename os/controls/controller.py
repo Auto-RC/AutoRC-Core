@@ -131,7 +131,10 @@ if __name__ == '__main__':
 
     c = Controller(wait_interval_ms=10)
 
-    c.run()
-    print("throttle: {}   brake: {}   steering: {}".format(Controller.ctrl_axis_index['r_t'],
-                                                           Controller.ctrl_axis_index['l_t'],
-                                                           Controller.ctrl_axis_index['r_j_x']))
+    c.start()
+    for i in range(100):
+        print("throttle: {}   brake: {}   steering: {}".format(c.ctrl_axis_index['r_t'],
+                                                           c.ctrl_axis_index['l_t'],
+                                                           c.ctrl_axis_index['r_j_x']))
+        time.sleep(0.2)
+    c.stop()
