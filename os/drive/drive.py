@@ -75,3 +75,18 @@ class Drive(threading.Thread):
             return -(brake + 1) / 2  # Output range [0,-1]
         else:
             return (throttle + 1) / 2  # Output range [0,1]
+
+
+# ==================================================================================================
+#                                            TEST CODE
+# ==================================================================================================
+
+if __name__ == '__main__':
+
+    logger.setLevel(logging.DEBUG)
+
+    drive = Drive()
+
+    drive.start()
+    time.sleep(10)
+    drive.disable()
