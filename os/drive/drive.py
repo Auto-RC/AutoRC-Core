@@ -31,6 +31,8 @@ class Drive(threading.Thread):
         self.pca9685 = pca9685
 
         self.safety_enable = True
+        time.sleep(0.5)
+        logger.debug("Vehicle enabled.")
 
     def run(self):
 

@@ -1,5 +1,6 @@
 from __future__ import division
 import time
+from logger import *
 
 import Adafruit_PCA9685
 
@@ -18,10 +19,13 @@ class PCA9685:
         self.pwm.set_pwm_freq(freq)
 
 
-    def set_steering(self, position):
+    def set_steering(self, scaled_position):
 
-        if -1 <= position <= 1:
-            position = int((-position * (self.steering_max-self.steering_avg)) + self.steering_avg)
+        if -1 <= scaled_position <= 1:
+            position = int((-scaled_position * (self.steering_max-self.steering_avg)) + self.steering_avg)
+
+        logger.debug("Steering input: {}, pwm value: {}".format(scaled_position, position))
+
         if position > self.steering_max:
             self.pwm.set_pwm(0, 0, self.steering_max)
         elif position < self.steering_min:
@@ -29,11 +33,14 @@ class PCA9685:
         else:
             self.pwm.set_pwm(0, 0, position)
 
-    def set_throttle(self, throttle):
-        if -1 <= throttle < 0:
-            throttle = int(throttle * (self.throttle_avg-self.throttle_min)) + self.throttle_avg
-        elif 0 <= throttle <= 1:
-            throttle = int(throttle * (self.throttle_max-self.throttle_avg)) + self.throttle_avg
+    def set_throttle(self, scaled_throttle):
+        if -1 <= scaled_throttle < 0:
+            throttle = int(scaled_throttle * (self.throttle_avg-self.throttle_min)) + self.throttle_avg
+        elif 0 <= scaled_throttle <= 1:
+            throttle = int(scaled_throttle * (self.throttle_max-self.throttle_avg)) + self.throttle_avg
         else:
             throttle = 0
+
+        logger.debug("Throttle input: {}, pwm value: {}".format(scaled_throttle, throttle))
+
         self.pwm.set_pwm(1, 0, throttle)
