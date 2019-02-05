@@ -11,20 +11,6 @@ import sys
 #                                           LOCAL IMPORTS
 # ==================================================================================================
 
-current_dir = os.path.dirname(os.path.realpath(__file__))
-utility_dir = current_dir + r'/utility'
-controls_dir = current_dir + r'/controls'
-sensors_dir = current_dir + r'/sensors'
-camera_dir = sensors_dir + r'/camera'
-drive_dir = current_dir + r'/drive'
-
-sys.path.append(utility_dir)
-sys.path.append(controls_dir)
-sys.path.append(camera_dir)
-sys.path.append(drive_dir)
-
-
-from logger import *
 
 # ==================================================================================================
 #                                               DRIVE
@@ -60,7 +46,7 @@ class Drive(threading.Thread):
             self.controller.brake = self.controller.ctrl_axis_index['l_t']
             self.controller.steering = self.controller.ctrl_axis_index['r_j_x']
 
-            logger.debug("throttle: {}   brake: {}   steering: {}".format(self.controller.throttle,
+            print("throttle: {}   brake: {}   steering: {}".format(self.controller.throttle,
                                                                           self.controller.brake,
                                                                           self.controller.steering))
 
