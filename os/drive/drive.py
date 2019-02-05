@@ -32,7 +32,6 @@ class Drive(threading.Thread):
 
         self.safety_enable = True
         time.sleep(0.5)
-        logger.debug("Vehicle enabled.")
 
     def run(self):
 
