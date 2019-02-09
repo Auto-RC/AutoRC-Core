@@ -1,0 +1,8 @@
+1) Implement function to check if controller is connected (Arnav)
+2) Prototype hardware and firmware for Arduino and PCA 9685 (Arnav)
+3) Prototype hardware and firmware for Arudino and IMU (Anish)
+4) Disect pygame to get their bluetooth controller driver (Arnav)
+5) Build and order RC PCB (Anish) 
+	5a) Include RC controller on Arduino (order another RC controller)
+6) Auto delete js* and event* files in /dev/input (Arnav)
+7) Write bach script to pull from Git (Anish)

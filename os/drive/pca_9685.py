@@ -24,8 +24,6 @@ class PCA9685:
         if -1 <= scaled_position <= 1:
             position = int((-scaled_position * (self.steering_max-self.steering_avg)) + self.steering_avg)
 
-        logger.debug("Steering input: {}, pwm value: {}".format(scaled_position, position))
-
         if position > self.steering_max:
             self.pwm.set_pwm(0, 0, self.steering_max)
         elif position < self.steering_min:
