@@ -29,6 +29,7 @@ from memory import Memory
 from iris import Iris
 from pca_9685 import PCA9685
 from drive import Drive
+from memory import Memory
 
 # ==================================================================================================
 #                                           AutoRC
@@ -62,10 +63,15 @@ class AutoRC(threading.Thread):
         # ------------------------------------------------------------------------------------------
         self.pca9685 = PCA9685()
 
+        # Initializing array of running modules
+        # ------------------------------------------------------------------------------------------
+        self.modules = ['controller']
+
         # Initializing flags
         # ------------------------------------------------------------------------------------------
         self.enable_vehicle = False
         self.enable_iris = False
+        self.capturing_data = False
 
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
@@ -102,6 +108,8 @@ class AutoRC(threading.Thread):
             self.enable_iris = True
             logger.debug("Iris enabled")
 
+            self.modules.append('iris')
+
         elif (self.enable_iris == True): # and (self.iris):
 
             self.iris.stop()
@@ -109,6 +117,27 @@ class AutoRC(threading.Thread):
 
             self.enable_iris = False
             logger.debug("Iris disabled")
+
+            self.modules.remove('iris')
+
+    def toggle_memory(self):
+        if (self.capturing_data == False):
+
+            self.memory = Memory(self.modules)
+            self.capturing_data = True
+
+            logger.debug("Started capturing data")
+
+        elif (self.capturing_data == True):
+
+            self.memory.save()
+            del self.memory
+
+            self.capturing_data = False
+            logger.debug("Stopped capturing data")
+
+
+
 
     # ----------------------------------------------------------------------------------------------
     #                                               Run
@@ -125,6 +154,10 @@ class AutoRC(threading.Thread):
                 self.toggle_vehicle()
             if self.controller.ctrl_btn_val['^'] == True:
                 self.toggle_iris()
+            if self.controller.ctrl_btn_val['x'] == True:
+                self.toggle_memory()
+
+
 
             time.sleep(100/1000)
 

@@ -21,7 +21,11 @@ class Memory:
 
     def init_package(self, modules=[]):
 
-        self.data_dir = ''
+
+        self.data_dir = '/dev/sda/data'
+        if not os.path.exists(self.data_dir):
+            os.mkdir(self.data_dir)
+
 
         # Initializing a key in data package for every module in modules
         # ------------------------------------------------------------------------------------------
