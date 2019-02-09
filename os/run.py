@@ -143,6 +143,9 @@ class AutoRC(threading.Thread):
             picture = self.iris.get_current_picture()
             data_packet['camera'] = picture
 
+        if 'controller' in self.modules:
+            data_packet['controller'] = [0]
+
         # if 'controller' in modules:
         #     inputs = self.iris.get_current_picture()
         #     data_packet['camera'] = picture
