@@ -139,9 +139,9 @@ class AutoRC(threading.Thread):
     def add_data_packet(self):
         data_packet = dict()
 
-        if 'camera' in self.modules:
+        if 'iris' in self.modules:
             picture = self.iris.get_current_picture()
-            data_packet['camera'] = picture
+            data_packet['iris'] = picture
 
         if 'controller' in self.modules:
             data_packet['controller'] = [0]
