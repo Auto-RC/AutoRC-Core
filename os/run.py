@@ -124,7 +124,7 @@ class AutoRC(threading.Thread):
         if (self.enable_memory == False):
 
             self.memory = Memory(self.modules)
-            self._enable_memory = True
+            self.enable_memory = True
 
             logger.debug("Started capturing data")
 
