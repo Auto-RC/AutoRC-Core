@@ -6,6 +6,7 @@ import os
 import sys
 import numpy as np
 import datetime
+import time
 
 # ==================================================================================================
 #                                        LOCAL IMPORTS
@@ -36,6 +37,8 @@ class Memory:
 
         self.timestamp = datetime.datetime.now()
         logger.debug('Created a data package at {}'.format(self.timestamp))
+
+        time.sleep(0.5)
 
     def add(self, data_packet):
 
