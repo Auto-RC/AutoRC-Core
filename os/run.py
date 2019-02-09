@@ -176,7 +176,8 @@ class AutoRC(threading.Thread):
             if self.controller.ctrl_btn_val['x'] == True:
                 self.toggle_memory()
 
-
+            if self.controller.ctrl_btn_val['pwr'] == True:
+                break
 
             time.sleep(100/1000)
 
