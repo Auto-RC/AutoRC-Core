@@ -147,7 +147,7 @@ class AutoRC(threading.Thread):
         #     inputs = self.iris.get_current_picture()
         #     data_packet['camera'] = picture
 
-        mem.add(data_packet)
+        self.memory.add(data_packet)
 
 
 
