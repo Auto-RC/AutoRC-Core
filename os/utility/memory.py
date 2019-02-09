@@ -19,7 +19,7 @@ from logger import *
 
 class Memory:
 
-    def init_package(self, modules=[]):
+    def __init__(self, modules=[]):
 
 
         self.data_dir = '/dev/sda/data'
@@ -47,6 +47,8 @@ class Memory:
         for module in self.modules:
             np.save("{}/{}-{}".format(self.data_dir, module,self.timestamp),
                     np.array(self.data_package[module]))
+
+
 
 # ==================================================================================================
 #                                            TEST CODE

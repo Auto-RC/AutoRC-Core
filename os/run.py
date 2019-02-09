@@ -71,7 +71,7 @@ class AutoRC(threading.Thread):
         # ------------------------------------------------------------------------------------------
         self.enable_vehicle = False
         self.enable_iris = False
-        self.capturing_data = False
+        self.enable_memory = False
 
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
@@ -121,21 +121,33 @@ class AutoRC(threading.Thread):
             self.modules.remove('iris')
 
     def toggle_memory(self):
-        if (self.capturing_data == False):
+        if (self.enable_memory == False):
 
             self.memory = Memory(self.modules)
-            self.capturing_data = True
+            self._enable_memory = True
 
             logger.debug("Started capturing data")
 
-        elif (self.capturing_data == True):
+        elif (self.enable_memory == True):
 
             self.memory.save()
             del self.memory
 
-            self.capturing_data = False
+            self.enable_memory = False
             logger.debug("Stopped capturing data")
 
+    def add_data_packet(self):
+        data_packet = dict()
+
+        if 'camera' in modules:
+            picture = self.iris.get_current_picture()
+            data_packet['camera'] = picture
+
+        # if 'controller' in modules:
+        #     inputs = self.iris.get_current_picture()
+        #     data_packet['camera'] = picture
+
+        mem.add(data_packet)
 
 
 
@@ -148,7 +160,11 @@ class AutoRC(threading.Thread):
         logger.debug("AutoRC started")
 
         while True:
-            logger.debug("VEH: {} IRIS: {}".format(self.enable_vehicle,self.enable_iris))
+            logger.debug("VEH: {} IRIS: {} MEM: {}".format(self.enable_vehicle,self.enable_iris,
+                                                           self.enable_memory))
+
+            if self.enable_memory:
+                self.add_data_packet()
 
             if self.controller.ctrl_btn_val['O'] == True:
                 self.toggle_vehicle()
