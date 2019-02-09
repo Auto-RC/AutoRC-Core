@@ -39,6 +39,4 @@ class PCA9685:
         else:
             throttle = 0
 
-        logger.debug("Throttle input: {}, pwm value: {}".format(scaled_throttle, throttle))
-
         self.pwm.set_pwm(1, 0, throttle)
