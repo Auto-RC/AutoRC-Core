@@ -143,6 +143,8 @@ class AutoRC(threading.Thread):
     def add_data_packet(self):
         data_packet = dict()
 
+        logger.debug("Storing memory from {}".format(self.modules))
+
         if 'iris' in self.modules:
             picture = self.iris.get_current_picture()
             data_packet['iris'] = picture
@@ -150,7 +152,7 @@ class AutoRC(threading.Thread):
         if 'drive' in self.modules:
             steering = self.drive.steering
             throttle = self.drive.throttle
-            data_packet['controller'] = [steering, throttle]
+            data_packet['drive'] = [steering, throttle]
 
         self.memory.add(data_packet)
 
