@@ -65,7 +65,7 @@ class AutoRC(threading.Thread):
 
         # Initializing array of running modules
         # ------------------------------------------------------------------------------------------
-        self.modules = ['controller']
+        self.modules = []
 
         # Initializing flags
         # ------------------------------------------------------------------------------------------
@@ -90,6 +90,8 @@ class AutoRC(threading.Thread):
             self.enable_vehicle = True
             logger.debug("Vehicle enabled.")
 
+            self.modules.append('drive')
+
         elif self.enable_vehicle == True:
 
             self.drive.disable()
@@ -97,6 +99,8 @@ class AutoRC(threading.Thread):
 
             self.enable_vehicle = False
             logger.debug("Vehicle disabled.")
+
+            self.modules.remove('drive')
 
     def toggle_iris(self):
 
@@ -143,9 +147,9 @@ class AutoRC(threading.Thread):
             picture = self.iris.get_current_picture()
             data_packet['iris'] = picture
 
-        if 'controller' in self.modules:
-            steering = self.controller.steering
-            throttle = self.controller.throttle
+        if 'drive' in self.modules:
+            steering = self.drive.steering
+            throttle = self.drive.throttle
             data_packet['controller'] = [steering, throttle]
 
         self.memory.add(data_packet)
