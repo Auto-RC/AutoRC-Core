@@ -144,11 +144,9 @@ class AutoRC(threading.Thread):
             data_packet['iris'] = picture
 
         if 'controller' in self.modules:
-            data_packet['controller'] = [0]
-
-        # if 'controller' in modules:
-        #     inputs = self.iris.get_current_picture()
-        #     data_packet['camera'] = picture
+            steering = controller.steering
+            throttle = controller.throttle
+            data_packet['controller'] = [steering, throttle]
 
         self.memory.add(data_packet)
 

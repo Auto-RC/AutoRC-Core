@@ -33,6 +33,9 @@ class Drive(threading.Thread):
         self.pca9685 = pca9685
 
         self.safety_enable = True
+        self.steering = 0
+        self.throttle = 0
+
         time.sleep(0.5)
 
     def run(self):
@@ -56,8 +59,11 @@ class Drive(threading.Thread):
                 self.controller.throttle = -1
                 self.controller.brake = -1
 
-            self.pca9685.set_steering(self.controller.steering)
-            self.pca9685.set_throttle(self.compute_throttle(self.controller.throttle, self.controller.brake))
+            self.steering = self.controller.steering
+            self.throttle = self.compute_throttle(self.controller.throttle, self.controller.brake)
+
+            self.pca9685.set_steering(self.steering)
+            self.pca9685.set_throttle(self.throttle)
 
             time.sleep(self.update_interval_ms/1000)
 
