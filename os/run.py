@@ -131,6 +131,7 @@ class AutoRC(threading.Thread):
             self.enable_memory = True
 
             logger.debug("Started capturing data")
+            logger.debug("Storing memory from {}".format(self.modules))
 
         elif (self.enable_memory == True):
 
@@ -142,8 +143,6 @@ class AutoRC(threading.Thread):
 
     def add_data_packet(self):
         data_packet = dict()
-
-        logger.debug("Storing memory from {}".format(self.modules))
 
         if 'iris' in self.modules:
             picture = self.iris.get_current_picture()
