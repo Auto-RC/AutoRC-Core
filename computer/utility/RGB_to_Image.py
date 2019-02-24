@@ -7,6 +7,7 @@ import sys
 import time
 import numpy as np
 import argparse
+from PIL import Image
 
 
 # ==================================================================================================
@@ -28,15 +29,27 @@ def convert(args):
             print("Found data from", os.path.join(directory, filename))
             rdata = np.load(os.path.join(directory, filename))
 
-            data = []
+            t = time.time()
+            for counter, i in enumerate(rdata[0]):
+                single_rgb = i[0]
 
-            d = rdata[0]
-            for i in d:
-                data.append(i[0])
+                i = numpy2pil(single_rgb)
 
-    data = np.array(data).reshape(-1, 128, 96, 3)
-    data_len = len(data)
-    print("Data size:", data_len)
+                i.save(os.path.join(out_dir, "img{}.png".format(counter)), 'PNG')
+            print("time taken:", time.time() - t)
+
+def numpy2pil(np_array) -> Image:
+    """
+    Convert an HxWx3 numpy array into an RGB Image
+    """
+
+    assert_msg = 'Input shall be a HxWx3 ndarray'
+    assert isinstance(np_array, np.ndarray), assert_msg
+    assert len(np_array.shape) == 3, assert_msg
+    assert np_array.shape[2] == 3, assert_msg
+
+    img = Image.fromarray(np_array, 'RGB')
+    return img
 
 # ==================================================================================================
 #                                            MAIN
