@@ -157,8 +157,6 @@ class AutoRC(threading.Thread):
 
         self.memory.add(data_packet)
 
-
-
     # ----------------------------------------------------------------------------------------------
     #                                               Run
     # ----------------------------------------------------------------------------------------------
@@ -168,8 +166,8 @@ class AutoRC(threading.Thread):
         logger.debug("AutoRC started")
 
         while True:
-            logger.debug("VEH: {} IRIS: {} MEM: {}".format(self.enable_vehicle,self.enable_iris,
-                                                           self.enable_memory))
+
+            logger.debug("VEH: {} IRIS: {} MEM: {}".format(self.enable_vehicle,self.enable_iris,self.enable_memory))
 
             if self.enable_memory:
                 self.add_data_packet()
