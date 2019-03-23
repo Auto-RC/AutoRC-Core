@@ -13,7 +13,7 @@ import threading
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 utility_dir = current_dir + r'/utility'
-controls_dir = current_dir + r'/controls'
+controls_dir = current_dir + r'/controls/rf'
 sensors_dir = current_dir + r'/sensors'
 camera_dir = sensors_dir + r'/camera'
 drive_dir = current_dir + r'/drive'
@@ -125,6 +125,7 @@ class AutoRC(threading.Thread):
             self.modules.remove('iris')
 
     def toggle_memory(self):
+
         if (self.enable_memory == False):
 
             self.memory = Memory(self.modules)
@@ -142,6 +143,7 @@ class AutoRC(threading.Thread):
             logger.debug("Stopped capturing data")
 
     def add_data_packet(self):
+
         data_packet = dict()
 
         if 'iris' in self.modules:

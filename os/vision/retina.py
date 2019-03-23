@@ -89,7 +89,7 @@ class Retina():
             self.img = original_img
             self.x = self.img.shape[0]
             self.y = self.img.shape[1]
-            self.filter_colors([0,0,20],[255,255,200])
+            self.filter_colors([0,0,50],[50,100,150])
 
             converted_img = self.rgb_to_img(self.img)
             converted_img.save(os.path.join(self.img_dir, "img_{}.png".format(index)), 'PNG')
@@ -101,6 +101,7 @@ class Retina():
         logger.info("Time taken to process and convert {} images: {}".format(self.num_images,time_taken))
 
     def rgb_to_img(self, np_array) -> Image:
+
         """
         Convert an HxWx3 numpy array into an RGB Image
         """
