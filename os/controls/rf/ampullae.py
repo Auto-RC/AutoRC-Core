@@ -7,6 +7,7 @@ import os
 import sys
 import time
 from threading import Thread
+from i2c import I2c
 
 # ==================================================================================================
 #                                        LOCAL IMPORTS
@@ -28,59 +29,63 @@ from logger import *
 #                                           Ampullae
 # ==================================================================================================
 
-class Ampullae(Thread.thread):
+class Ampullae(Thread):
 
-    def __init__(self, address):
+    def __init__(self, address, update_interval_ms):
+
+        # Thread parameters
+        # ------------------------------------------------------------------------------------------
+        self.thread_name = "Ampullae"
+        Thread.__init__(self, name=self.thread_name)
 
         # Main parameters
         # ------------------------------------------------------------------------------------------
         self.address = address
+        self.update_interval_ms = update_interval_ms
 
-        self.i2c =
+        self.i2c = I2c(address)
 
         self.throttle = 0
         self.steering = 0
         self.mode = 0
 
+        self.enable_i2c = True
+
+
+    def run(self):
+        logger.info("Drive thread started")
+
+        while self.enable_i2c == True:
+
+            self.read()
+
+            time.sleep(self.update_interval_ms / 1000)
+
 
     def read(self):
-        n = self.bus.read_byte(self.address)
-        n_binary = bin(n)[2:]
+        n_binary = self.i2c.read()
 
         if n_binary[0] == 0 and n_binary[1] == 1:
-            self.throttle = int(n[2:], 2)
+            self.throttle = int(n_binary[2:], 2)
 
         if n_binary[0] == 1 and n_binary[1] == 0:
-            self.steering = int(n[2:], 2)
+            self.steering = int(n_binary[2:], 2)
 
         if n_binary[0] == 1 and n_binary[1] == 1:
-            self.mode = int(n[2:], 2)
+            self.mode = int(n_binary[2:], 2)
 
 
-    def get_current_picture(self):
-        return self.cam.run_threaded()
+    def disable(self):
 
-    def stop(self):
-        self.cam.shutdown()
+        self.enable_i2c = False
 
-        logger.info("Camera thread ended")
+        logger.info("Ampullae thread ended")
+
 
 
 # ==================================================================================================
 #                                            TEST CODE
 # ==================================================================================================
-
-if __name__ == '__main__':
-
-    c = Iris(20, (128, 96), 'rgb')
-
-    c.run()
-
-    for i in range(10):
-        print(c.get_current_picture())
-        time.sleep(.5)
-
-    c.stop()
 
 
 
