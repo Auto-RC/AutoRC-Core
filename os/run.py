@@ -184,7 +184,8 @@ class AutoRC(threading.Thread):
 
             time.sleep(100/1000)
 
-        # logger.debug("AutoRC exited")
+        logger.debug("AutoRC Exited")
+
 
 
 # ==================================================================================================
