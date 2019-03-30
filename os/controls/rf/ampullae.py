@@ -7,7 +7,7 @@ import os
 import sys
 import time
 from threading import Thread
-from i2c import I2c
+
 
 # ==================================================================================================
 #                                        LOCAL IMPORTS
@@ -24,6 +24,7 @@ sys.path.append(utility_dir)
 sys.path.append(controls_dir)
 
 from logger import *
+from i2c import I2c
 
 # ==================================================================================================
 #                                           Ampullae
@@ -31,7 +32,12 @@ from logger import *
 
 class Ampullae(Thread):
 
-    def __init__(self, address, update_interval_ms):
+    ADDRESS = 0x04
+    BUS = 0
+
+    self.MODE
+
+    def __init__(self, update_interval_ms):
 
         # Thread parameters
         # ------------------------------------------------------------------------------------------
@@ -40,10 +46,9 @@ class Ampullae(Thread):
 
         # Main parameters
         # ------------------------------------------------------------------------------------------
-        self.address = address
         self.update_interval_ms = update_interval_ms
 
-        self.i2c = I2c(address)
+        self.i2c = I2c(self.ADDRESS,self.BUS)
 
         self.throttle = 0
         self.steering = 0
@@ -51,35 +56,43 @@ class Ampullae(Thread):
 
         self.enable_i2c = True
 
-
     def run(self):
-        logger.info("Drive thread started")
+
+        logger.info("Controller thread started...")
 
         while self.enable_i2c == True:
 
             self.read()
-
             time.sleep(self.update_interval_ms / 1000)
 
 
     def read(self):
 
-        n_binary = self.i2c.read()
+        byte = self.i2c.read()
 
-        logger.info("Arduino Input: {}".format(n_binary))
 
-        if n_binary[0] == 0 and n_binary[1] == 1:
-            self.throttle = int(n_binary[2:], 2)
+        
+    def decode(self, binary):
 
-        if n_binary[0] == 1 and n_binary[1] == 0:
-            self.steering = int(n_binary[2:], 2)
+        self.throttle = 0 # Throttle zero
+        self.steering = 96 # Middle steering
+        self.swb = 191 # Lower position
+        self.swc = 255 # Lower position
 
-        if n_binary[0] == 1 and n_binary[1] == 1:
-            self.mode = int(n_binary[2:], 2)
+        if binary[2] == 0 and binary[3] == 1:
+            self.throttle = int(binary[4:], 2)
 
-        logger.info("Steering: {}".format(self.throttle))
-        logger.info("Throttle: {}".format(self.steering))
-        logger.info("Mode: {}".format(self.mode))
+        elif binary[2] == 1 and binary[3] == 0:
+            self.steering = int(binary[4:], 2)
+
+        elif binary[2] == 1 and binary[3] == 1:
+            self.mode = int(binary[4:], 2)
+
+        elif binary[2] == 1 and binary[3] == 1:
+            self.mode = int(binary[4:], 2)
+
+        logger.info("Throttle: {}".format(self.throttle))
+
 
     def disable(self):
 
@@ -95,7 +108,7 @@ class Ampullae(Thread):
 
 if __name__ == '__main__':
 
-    ampullae = Ampullae(address=0x04,update_interval_ms=100)
+    ampullae = Ampullae(update_interval_ms=100)
     ampullae.run()
 
 
