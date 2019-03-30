@@ -85,11 +85,11 @@ class Ampullae(Thread):
         elif type == "01":
             self.str = value
         elif type == "10":
-            self.swb = value
-        elif type == "11":
             self.swc = value
+        # elif type == "11":
+        #     self.swc = value
 
-        logger.info("RAW: {} BYTE: {} THR {} STR {} SWB {} SWC {}".format(raw_byte, byte, self.thr,self.str,self.swb,self.swc))
+        logger.info("RAW: {} BYTE: {} THR {} STR {} SWC {}".format(raw_byte, byte, self.thr,self.str,self.swc))
 
     def disable(self):
 
