@@ -78,8 +78,8 @@ class Ampullae(Thread):
 
         logger.info("Byte: {}".format(byte))
 
-        self.throttle = 0 # Throttle zero
-        self.steering = 96 # Middle steering
+        self.thr = 0 # Throttle zero
+        self.str = 96 # Middle steering
         self.swb = 191 # Lower position
         self.swc = 255 # Lower position
 
@@ -87,16 +87,15 @@ class Ampullae(Thread):
         value = int(byte[2:len(byte)],base=2)
 
         if type == "00":
-            self.throttle = value
+            self.thr = value
         elif type == "01":
-            self.steering = value
+            self.str = value
         elif type == "10":
             self.swb = value
         elif type == "11":
             self.swc = value
 
-        logger.info("Throttle: {}".format(self.throttle))
-
+        logger.info("THR {} STR {} SWC {} SWC {}".format(self.thr,self.str,self.swb,self.swc))
 
     def disable(self):
 
@@ -112,7 +111,7 @@ class Ampullae(Thread):
 
 if __name__ == '__main__':
 
-    ampullae = Ampullae(update_interval_ms=100)
+    ampullae = Ampullae(update_interval_ms=10)
     ampullae.run()
 
 

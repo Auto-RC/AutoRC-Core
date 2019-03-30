@@ -24,12 +24,12 @@ sys.path.append(camera_dir)
 sys.path.append(drive_dir)
 
 from logger import *
-from controller import Controller
 from memory import Memory
 from iris import Iris
 from pca_9685 import PCA9685
 from drive import Drive
 from memory import Memory
+from ampullae import Ampullae as Controller
 
 # ==================================================================================================
 #                                           AutoRC
