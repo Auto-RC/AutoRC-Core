@@ -66,14 +66,11 @@ class Ampullae(Thread):
 
     def read(self):
 
-        byte = "00000000"
-
         raw_byte = self.i2c.read()
+        byte = raw_byte
 
-        pos = len(byte) - 1
-        for binary in raw_byte:
-            byte[pos] = binary
-            pos-=1
+        for i in range(0,8-len(raw_byte)):
+            byte = "0" + byte
 
         self.decode(byte)
 
