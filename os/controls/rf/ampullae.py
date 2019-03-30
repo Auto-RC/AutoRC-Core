@@ -73,9 +73,9 @@ class Ampullae(Thread):
         for i in range(0,8-len(raw_byte)):
             byte = "0" + byte
 
-        self.decode(byte)
+        self.decode(byte, raw_byte)
 
-    def decode(self, byte):
+    def decode(self, byte, raw_byte):
 
         type = byte[0:2]
         value = int(byte[2:len(byte)],base=2)
@@ -89,7 +89,7 @@ class Ampullae(Thread):
         elif type == "11":
             self.swc = value
 
-        logger.info("THR {} STR {} SWC {} SWC {}".format(self.thr,self.str,self.swb,self.swc))
+        logger.info("RAW: {} BYTE: {} THR {} STR {} SWB {} SWC {}".format(raw_byte, byte, self.thr,self.str,self.swb,self.swc))
 
     def disable(self):
 
