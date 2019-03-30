@@ -17,24 +17,23 @@ byte SWB = 2;
 byte SWC = 3;
 int I2C_MAX = 64;
 
-
-
 // These hold the input from the receiver
 int thr_input;
 int str_input;
 int swb_input;
 int swc_input;
 
-// These hold the intermediate values
-float thr;
-float str;
-float swb;
-float swc;
-
+// The values to send to the car computer
 int thr_output;
 int str_output;
 int swb_output;
 int swc_output;
+
+// The bytes which are actually sent to the car computer
+unsigned char thr = 0;
+unsigned char str = 0;
+unsigned char swb = 0;
+unsigned char swc = 0;
 
 void setup()
 {
@@ -44,11 +43,32 @@ void setup()
     pinMode(4,INPUT);
     pinMode(6,INPUT);
     pinMode(7,INPUT);
-//    Wire.begin(8);                // join i2c bus with address #8
-//    Wire.onRequest(requestEvent); // register event
+    
+    Wire.begin(0x05);              // join i2c bus with address #5
+    Wire.onRequest(send_controls); // register event
 }
 
 void loop()
+{
+    read_rf();    
+    
+    encode_signal(THR, thr_output);
+    encode_signal(STR, str_output);
+    encode_signal(SWB, swb_output);
+    encode_signal(SWC, swc_output);
+
+    delay(10);
+}
+
+void send_controls()
+{
+    Wire.write(thr);
+    Wire.write(str);
+    Wire.write(swb);
+    Wire.write(swc);
+}
+
+void read_rf()
 {
     thr_input = pulseIn(4,HIGH,1000000);
     str_input = pulseIn(2,HIGH,1000000);
@@ -60,45 +80,50 @@ void loop()
     swb_output = ( (swb_input -SWB_MIN)/(SWB_MAX-SWB_MIN) )*I2C_MAX;
     swc_output = ( (swc_input -SWC_MIN)/(SWC_MAX-SWC_MIN) )*I2C_MAX;
 
-    Serial.print(thr_output);
-    Serial.print(" ");
-    Serial.print(thr_input);
-    Serial.print(" ");
-    Serial.print(str_output);
-    Serial.print(" ");
-    Serial.print(str_input);
-    Serial.print(" ");
-//    Serial.print(swb_output);
-//    Serial.print(" ");
-//    Serial.print(swb_input);
-//    Serial.print(" ");
-//    Serial.print(swc_output);
-//    Serial.print(" ");
-//    Serial.print(swc_input);
-//    Serial.println(" ");
-
-   
-    encode_signal(STR, str_output);
+    // DEBUG PRINTS
+    // -------------------------------------
+    Serial.print("Thr: ");
+    Serial.print(thr);
+    Serial.print(" Str: ");
+    Serial.print(str);
+    Serial.print(" SWB: ");
+    Serial.print(swb);
+    Serial.print(" SWC: ");
+    Serial.println(swc);
+    // -------------------------------------
     
     delay(10);
 }
 
-void encode_signal(int type, byte value)
-{ 
+void encode_signal(int type, int value)
+{   
+    delay(10);
     byte type_bits = type << 6;
     byte val_bits = value;
     byte send_bits = type_bits + val_bits;
 
-    Serial.print(type_bits);
-    Serial.print(" ");
-    Serial.print(val_bits);
-    Serial.print(" ");
-    Serial.println(send_bits);
+    if (type == SWC)
+    {
+      if (send_bits == 0)
+      {
+        send_bits = send_bits - 1;
+      }
+    }
+
+    if (type == THR)
+    {
+      thr = send_bits;
+    }
+    else if (type == STR)
+    {
+      str = send_bits;
+    }
+    else if (type == SWB)
+    {
+      swb = send_bits; 
+    }
+    else if (type == SWC)
+    {
+      swc = send_bits; 
+    }
 }
-//
-//// function that executes whenever data is requested by master
-//// this function is registered as an event, see setup()
-//void requestEvent() {
-//  Wire.write("hello "); // respond with message of 6 bytes
-//  // as expected by master
-//}
