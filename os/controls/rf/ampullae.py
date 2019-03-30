@@ -68,6 +68,8 @@ class Ampullae(Thread):
 
         byte = self.i2c.read()
 
+        logger.info("Byte: {}".format(byte))
+
         self.throttle = 0 # Throttle zero
         self.steering = 96 # Middle steering
         self.swb = 191 # Lower position
