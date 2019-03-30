@@ -48,11 +48,12 @@ class Ampullae(Thread):
 
         self.i2c = I2c(self.ADDRESS,self.BUS)
 
-        self.throttle = 0
-        self.steering = 0
-        self.mode = 0
-
         self.enable_i2c = True
+
+        self.thr = 0  # Throttle zero
+        self.str = 96  # Middle steering
+        self.swb = 191  # Lower position
+        self.swc = 255  # Lower position
 
     def run(self):
 
@@ -77,11 +78,6 @@ class Ampullae(Thread):
     def decode(self, byte):
 
         logger.info("Byte: {}".format(byte))
-
-        self.thr = 0 # Throttle zero
-        self.str = 96 # Middle steering
-        self.swb = 191 # Lower position
-        self.swc = 255 # Lower position
 
         type = byte[0:2]
         value = int(byte[2:len(byte)],base=2)
@@ -111,7 +107,7 @@ class Ampullae(Thread):
 
 if __name__ == '__main__':
 
-    ampullae = Ampullae(update_interval_ms=100)
+    ampullae = Ampullae(update_interval_ms=10)
     ampullae.run()
 
 
