@@ -77,8 +77,6 @@ class Ampullae(Thread):
 
     def decode(self, byte):
 
-        logger.info("Byte: {}".format(byte))
-
         type = byte[0:2]
         value = int(byte[2:len(byte)],base=2)
 
