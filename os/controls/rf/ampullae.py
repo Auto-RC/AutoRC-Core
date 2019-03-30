@@ -63,7 +63,10 @@ class Ampullae(Thread):
 
 
     def read(self):
+
         n_binary = self.i2c.read()
+
+        logger.info("Arduino Input: {}".format(n_binary))
 
         if n_binary[0] == 0 and n_binary[1] == 1:
             self.throttle = int(n_binary[2:], 2)
@@ -74,6 +77,9 @@ class Ampullae(Thread):
         if n_binary[0] == 1 and n_binary[1] == 1:
             self.mode = int(n_binary[2:], 2)
 
+        logger.info("Steering: {}".format(self.throttle))
+        logger.info("Throttle: {}".format(self.steering))
+        logger.info("Mode: {}".format(self.mode))
 
     def disable(self):
 
