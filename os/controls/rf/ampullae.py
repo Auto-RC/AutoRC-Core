@@ -35,8 +35,6 @@ class Ampullae(Thread):
     ADDRESS = 0x04
     BUS = 0
 
-    self.MODE
-
     def __init__(self, update_interval_ms):
 
         # Thread parameters
