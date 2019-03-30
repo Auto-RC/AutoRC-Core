@@ -37,7 +37,7 @@ class I2c:
         # ------------------------------------------------------------------------------------------
         self.address = address
 
-        self.bus = smbus.SMBus(1)
+        self.bus = smbus.SMBus(0)
 
 
     def read(self):
