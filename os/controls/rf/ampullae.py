@@ -68,29 +68,24 @@ class Ampullae(Thread):
 
         byte = self.i2c.read()
 
-
-        
-    def decode(self, binary):
-
         self.throttle = 0 # Throttle zero
         self.steering = 96 # Middle steering
         self.swb = 191 # Lower position
         self.swc = 255 # Lower position
 
-        if binary[2] == 0 and binary[3] == 1:
-            self.throttle = int(binary[4:], 2)
+        if byte[2] == 0 and byte[3] == 1:
+            self.throttle = int(byte[4:], 2)
 
-        elif binary[2] == 1 and binary[3] == 0:
-            self.steering = int(binary[4:], 2)
+        elif byte[2] == 1 and byte[3] == 0:
+            self.steering = int(byte[4:], 2)
 
-        elif binary[2] == 1 and binary[3] == 1:
-            self.mode = int(binary[4:], 2)
+        elif byte[2] == 1 and byte[3] == 1:
+            self.mode = int(byte[4:], 2)
 
-        elif binary[2] == 1 and binary[3] == 1:
-            self.mode = int(binary[4:], 2)
+        elif byte[2] == 1 and byte[3] == 1:
+            self.mode = int(byte[4:], 2)
 
         logger.info("Throttle: {}".format(self.throttle))
-
 
     def disable(self):
 
