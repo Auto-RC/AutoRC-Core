@@ -84,7 +84,7 @@ class Ampullae(Thread):
         self.swc = 255 # Lower position
 
         type = byte[0:2]
-        value = int(bin(byte[2:len(byte)]))
+        value = int(byte[2:len(byte)],base=2)
 
         if type == "00":
             self.throttle = value
@@ -96,6 +96,7 @@ class Ampullae(Thread):
             self.swc = value
 
         logger.info("Throttle: {}".format(self.throttle))
+
 
     def disable(self):
 
