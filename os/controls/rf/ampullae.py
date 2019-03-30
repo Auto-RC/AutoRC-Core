@@ -95,7 +95,7 @@ class Ampullae(Thread):
 
 if __name__ == '__main__':
 
-    ampullae = Ampullae()
+    ampullae = Ampullae(address=8,update_interval_ms=100)
     ampullae.run()
 
 
