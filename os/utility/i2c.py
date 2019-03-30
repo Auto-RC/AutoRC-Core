@@ -38,7 +38,9 @@ class I2c:
 
     def read(self):
 
-        byte = bin(self.bus.read_byte(self.address))
+        raw_byte = self.bus.read_byte(self.address)
+        byte = str(bin(raw_byte)[2:])
+
         return byte
 
 # ==================================================================================================

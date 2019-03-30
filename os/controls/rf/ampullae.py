@@ -66,7 +66,18 @@ class Ampullae(Thread):
 
     def read(self):
 
-        byte = self.i2c.read()
+        byte = "00000000"
+
+        raw_byte = self.i2c.read()
+
+        pos = len(byte) - 1
+        for binary in raw_byte:
+            byte[pos] = binary
+            pos-=1
+
+        self.decode(byte)
+
+    def decode(self, byte):
 
         logger.info("Byte: {}".format(byte))
 
@@ -75,17 +86,17 @@ class Ampullae(Thread):
         self.swb = 191 # Lower position
         self.swc = 255 # Lower position
 
-        if byte[2] == 0 and byte[3] == 1:
-            self.throttle = int(byte[4:], 2)
+        type = byte[0:2]
+        value = int(byte[2:len(byte)])
 
-        elif byte[2] == 1 and byte[3] == 0:
-            self.steering = int(byte[4:], 2)
-
-        elif byte[2] == 1 and byte[3] == 1:
-            self.mode = int(byte[4:], 2)
-
-        elif byte[2] == 1 and byte[3] == 1:
-            self.mode = int(byte[4:], 2)
+        if type == "00":
+            self.throttle = value
+        elif type == "01":
+            self.steering = value
+        elif type == "10":
+            self.swb = value
+        elif type == "11":
+            self.swc = value
 
         logger.info("Throttle: {}".format(self.throttle))
 
