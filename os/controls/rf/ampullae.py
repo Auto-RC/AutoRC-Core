@@ -87,6 +87,9 @@ class Ampullae(Thread):
 #                                            TEST CODE
 # ==================================================================================================
 
+if __name__ == '__main__':
 
+    ampullae = Ampullae()
+    ampullae.run()
 
 
