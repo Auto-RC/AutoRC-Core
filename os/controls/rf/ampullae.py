@@ -84,7 +84,7 @@ class Ampullae(Thread):
         self.swc = 255 # Lower position
 
         type = byte[0:2]
-        value = int(byte[2:len(byte)])
+        value = int(bin(byte[2:len(byte)]))
 
         if type == "00":
             self.throttle = value
