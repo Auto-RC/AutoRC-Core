@@ -26,27 +26,20 @@ from logger import *
 
 
 # ==================================================================================================
-#                                           I2C
+#                                               I2C
 # ==================================================================================================
 
 class I2c:
 
-    def __init__(self, address):
+    def __init__(self, address, bus):
 
-        # Main parameters
-        # ------------------------------------------------------------------------------------------
         self.address = address
-
-        self.bus = smbus.SMBus(0)
-
+        self.bus = smbus.SMBus(bus)
 
     def read(self):
-        n = self.bus.read_byte(self.address)
-        n_binary = bin(n)[2:]
 
-        return n_binary
-
-
+        byte = bin(self.bus.read_byte(self.address))
+        return byte
 
 # ==================================================================================================
 #                                            TEST CODE
