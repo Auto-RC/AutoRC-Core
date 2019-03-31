@@ -29,7 +29,7 @@ from iris import Iris
 from pca_9685 import PCA9685
 from drive import Drive
 from memory import Memory
-from ampullae import Ampullae as Controller
+from ampullae import Ampullae
 
 # ==================================================================================================
 #                                           AutoRC
@@ -56,7 +56,7 @@ class AutoRC(threading.Thread):
 
         # Initializing controller
         # ------------------------------------------------------------------------------------------
-        self.controller = Controller(wait_interval_ms = self.controller_update_ms)
+        self.controller = Ampullae(wait_interval_ms = self.controller_update_ms)
         self.controller.start()
 
         # Initializing PCA9685 driver
@@ -147,10 +147,12 @@ class AutoRC(threading.Thread):
         data_packet = dict()
 
         if 'iris' in self.modules:
+
             picture = self.iris.get_current_picture()
             data_packet['iris'] = picture
 
         if 'drive' in self.modules:
+
             steering = self.drive.steering
             throttle = self.drive.throttle
             data_packet['drive'] = [steering, throttle]
@@ -163,7 +165,7 @@ class AutoRC(threading.Thread):
 
     def run(self):
 
-        logger.debug("AutoRC started")
+        logger.debug("AutoRC live")
 
         while True:
 
@@ -172,20 +174,22 @@ class AutoRC(threading.Thread):
             if self.enable_memory:
                 self.add_data_packet()
 
-            if self.controller.ctrl_btn_val['O'] == True:
+            if (self.controller.swb < 200) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
-            if self.controller.ctrl_btn_val['^'] == True:
+            elif(self.controller.swb > 200) and (self.enable_vehicle == True):
+                self.toggle_vehicle()
+
+            if (self.controller.swc < 240) and (self.enable_iris == False):
                 self.toggle_iris()
-            if self.controller.ctrl_btn_val['x'] == True:
+            elif (self.controller.swc > 240) and (self.enable_iris == True):
+                self.toggle_iris()
+
+            if (self.controller.swc < 240) and (self.enable_memory == False):
+                self.toggle_memory()
+            elif (self.controller.swc > 240) and (self.enable_memory == True):
                 self.toggle_memory()
 
-            if self.controller.ctrl_btn_val['pwr'] == True:
-                break
-
             time.sleep(100/1000)
-
-        logger.debug("AutoRC Exited")
-
 
 
 # ==================================================================================================

@@ -19,6 +19,12 @@ import sys
 
 class Drive(threading.Thread):
 
+    THR_MAX = 64
+    THR_MIN = 0
+
+    STR_MAX = 64
+    STR_MIN = 0
+
     def __init__(self, update_interval_ms, controller, pca9685):
 
         # Thread parameters
@@ -32,7 +38,6 @@ class Drive(threading.Thread):
         self.controller = controller
         self.pca9685 = pca9685
 
-        self.safety_enable = True
         self.steering = 0
         self.throttle = 0
 
@@ -46,21 +51,7 @@ class Drive(threading.Thread):
 
             # Getting values from controller
             # --------------------------------------------------------------------------------------
-            self.controller.throttle = self.controller.ctrl_axis_val['r_t']
-            self.controller.brake = self.controller.ctrl_axis_val['l_t']
-            self.controller.steering = self.controller.ctrl_axis_val['r_j_x']
-
-            if (self.safety_enable == True) and \
-               (self.controller.throttle != 0) and \
-               (self.controller.brake != 0):
-                self.safety_enable = False
-
-            if self.safety_enable == True:
-                self.controller.throttle = -1
-                self.controller.brake = -1
-
-            self.steering = self.controller.steering
-            self.throttle = self.compute_throttle(self.controller.throttle, self.controller.brake)
+            self.compute_controls()
 
             self.pca9685.set_steering(self.steering)
             self.pca9685.set_throttle(self.throttle)
@@ -71,15 +62,20 @@ class Drive(threading.Thread):
 
         self.enable_drive = False
 
-    def compute_throttle(self,
-                         throttle,  # Input Range [-1,1]
-                         brake):  # Input Range [-1,1]
+        self.controller.throttle = -1
+        self.controller.brake = -1
 
-        if brake > -0.8:
-            return -(brake + 1) / 2  # Output range [0,-1]
-        else:
-            return (throttle + 1) / 2  # Output range [0,1]
+        self.pca9685.set_steering(self.steering)
+        self.pca9685.set_throttle(self.throttle)
 
+
+
+    def compute_controls(self):
+
+        if self.enable_drive == True:
+
+            self.throttle = self.controller.thr/65
+            self.steering = (self.controller.str-32)/65
 
 # ==================================================================================================
 #                                            TEST CODE

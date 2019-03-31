@@ -71,12 +71,11 @@ class Ampullae(Thread):
 
         if raw_bytes[0]-192 > 0:
             self.thr = raw_bytes[0]-192
-        if raw_bytes[1] - 192 > 0:
+        if raw_bytes[1]-192 > 0:
             self.str = raw_bytes[1]-192
-        if raw_bytes[2] - 192 > 0:
-            self.swb = raw_bytes[2]-192
-        if raw_bytes[3] - 192 > 0:
-            self.swc = raw_bytes[3]-192
+
+        self.swb = raw_bytes[2]
+        self.swc = raw_bytes[3]
 
         logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
@@ -94,7 +93,7 @@ class Ampullae(Thread):
 
 if __name__ == '__main__':
 
-    ampullae = Ampullae(update_interval_ms=100)
+    ampullae = Ampullae(update_interval_ms=50)
     ampullae.run()
 
 
