@@ -67,31 +67,14 @@ class Ampullae(Thread):
 
     def read(self):
 
-        self.i2c.read()
-        # print(raw_buffer)
+        raw_bytes = self.i2c.read()
 
-        # byte = raw_byte
+        self.thr = raw_bytes[0]-192
+        self.str = raw_bytes[1]-192
+        self.swb = raw_bytes[2]-192
+        self.swc = raw_bytes[3]-192
 
-        # for i in range(0,8-len(raw_byte)):
-        #     byte = "0" + byte
-
-        # self.decode(byte, raw_byte)
-
-    def decode(self, byte, raw_byte):
-
-        type = byte[0:2]
-        value = int(byte[2:len(byte)],base=2)
-
-        if type == "00":
-            self.thr = value
-        elif type == "01":
-            self.str = value
-        elif type == "10":
-            self.swc = value
-        # elif type == "11":
-        #     self.swc = value
-
-        logger.info("BYTE: {} THR {} STR {} SWC {} RAW: {} ".format(byte, self.thr,self.str,self.swc, raw_byte))
+        logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
     def disable(self):
 
