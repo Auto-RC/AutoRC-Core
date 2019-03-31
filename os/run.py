@@ -70,7 +70,7 @@ class AutoRC(threading.Thread):
         # Initializing flags
         # ------------------------------------------------------------------------------------------
         self.enable_vehicle = False
-        self.enable_iris = False
+        self.enable_oculus = False
         self.enable_memory = False
 
     # ----------------------------------------------------------------------------------------------
@@ -102,27 +102,27 @@ class AutoRC(threading.Thread):
 
             self.modules.remove('drive')
 
-    def toggle_iris(self):
+    def toggle_oculus(self):
 
-        if (self.enable_iris == False): # and (not self.iris):
+        if (self.enable_oculus == False): # and (not self.oculus):
 
-            self.iris = Iris(20, (128, 96), 'rgb')
-            self.iris.run()
+            self.oculus = Oculus(20, (128, 96), 'rgb')
+            self.oculus.run()
 
-            self.enable_iris = True
-            logger.debug("Iris enabled")
+            self.enable_oculus = True
+            logger.debug("oculus enabled")
 
-            self.modules.append('iris')
+            self.modules.append('oculus')
 
-        elif (self.enable_iris == True): # and (self.iris):
+        elif (self.enable_oculus == True): # and (self.oculus):
 
-            self.iris.stop()
-            del self.iris
+            self.oculus.stop()
+            del self.oculus
 
-            self.enable_iris = False
-            logger.debug("Iris disabled")
+            self.enable_oculus = False
+            logger.debug("oculus disabled")
 
-            self.modules.remove('iris')
+            self.modules.remove('oculus')
 
     def toggle_memory(self):
 
@@ -146,10 +146,10 @@ class AutoRC(threading.Thread):
 
         data_packet = dict()
 
-        if 'iris' in self.modules:
+        if 'oculus' in self.modules:
 
-            picture = self.iris.get_current_picture()
-            data_packet['iris'] = picture
+            picture = self.oculus.get_current_picture()
+            data_packet['oculus'] = picture
 
         if 'drive' in self.modules:
 
@@ -169,7 +169,7 @@ class AutoRC(threading.Thread):
 
         while True:
 
-            logger.debug("VEH: {} IRIS: {} MEM: {}".format(self.enable_vehicle,self.enable_iris,self.enable_memory))
+            logger.debug("VEH: {} OCULUS: {} MEM: {}".format(self.enable_vehicle,self.enable_oculus,self.enable_memory))
 
             if self.enable_memory:
                 self.add_data_packet()
@@ -179,10 +179,10 @@ class AutoRC(threading.Thread):
             elif(self.controller.swb > 200) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
 
-            if (self.controller.swc < 240) and (self.enable_iris == False):
-                self.toggle_iris()
-            elif (self.controller.swc > 240) and (self.enable_iris == True):
-                self.toggle_iris()
+            if (self.controller.swc < 240) and (self.enable_oculus == False):
+                self.toggle_oculus()
+            elif (self.controller.swc > 240) and (self.enable_oculus == True):
+                self.toggle_oculus()
 
             if (self.controller.swc < 240) and (self.enable_memory == False):
                 self.toggle_memory()
