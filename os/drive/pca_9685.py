@@ -51,5 +51,6 @@ if __name__ == '__main__':
     while(True):
         time.sleep(1)
         pca.set_pwm(0, 0, 350)
+        print(1)
         time.sleep(1)
         pca.set_pwm(0, 0, 450)
