@@ -50,3 +50,5 @@ if __name__ == '__main__':
     pca = Adafruit_PCA9685.PCA9685()
 
     pca.set_pwm(0, 0, 350)
+    time.sleep(1)
+    pca.set_pwm(0, 0, 450)
