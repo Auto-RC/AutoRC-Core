@@ -67,13 +67,15 @@ class Ampullae(Thread):
 
     def read(self):
 
-        raw_byte = self.i2c.read()
-        byte = raw_byte
+        raw_buffer = self.i2c.read()
+        print(raw_buffer)
 
-        for i in range(0,8-len(raw_byte)):
-            byte = "0" + byte
+        # byte = raw_byte
 
-        self.decode(byte, raw_byte)
+        # for i in range(0,8-len(raw_byte)):
+        #     byte = "0" + byte
+
+        # self.decode(byte, raw_byte)
 
     def decode(self, byte, raw_byte):
 

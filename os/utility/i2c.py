@@ -31,6 +31,8 @@ from logger import *
 
 class I2c:
 
+    self.OFFSET = 0
+
     def __init__(self, address, bus):
 
         self.address = address
@@ -38,7 +40,7 @@ class I2c:
 
     def read(self):
 
-        raw_byte = self.bus.read_byte(self.address)
+        raw_byte = self.bus.read_i2c_block_data(self.address,self.OFFSET,4)
         byte = str(bin(raw_byte)[2:])
 
         return byte
