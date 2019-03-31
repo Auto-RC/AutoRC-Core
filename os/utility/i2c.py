@@ -41,9 +41,11 @@ class I2c:
     def read(self):
 
         raw_byte = self.bus.read_i2c_block_data(self.address,self.OFFSET,4)
-        byte = str(bin(raw_byte)[2:])
+        # byte = str(bin(raw_byte)[2:])
 
-        return byte
+        print(raw_byte)
+
+        # return byte
 
 # ==================================================================================================
 #                                            TEST CODE

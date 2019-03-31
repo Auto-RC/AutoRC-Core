@@ -67,8 +67,8 @@ class Ampullae(Thread):
 
     def read(self):
 
-        raw_buffer = self.i2c.read()
-        print(raw_buffer)
+        self.i2c.read()
+        # print(raw_buffer)
 
         # byte = raw_byte
 
