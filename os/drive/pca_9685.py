@@ -1,6 +1,5 @@
 from __future__ import division
 import time
-from logger import *
 
 import Adafruit_PCA9685
 
