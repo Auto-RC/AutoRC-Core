@@ -25,7 +25,7 @@ sys.path.append(drive_dir)
 
 from logger import *
 from memory import Memory
-from iris import Iris
+from oculus import Oculus
 from pca_9685 import PCA9685
 from drive import Drive
 from memory import Memory
