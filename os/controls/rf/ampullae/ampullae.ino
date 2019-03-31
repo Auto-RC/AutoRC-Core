@@ -35,6 +35,11 @@ unsigned char str = 0;
 unsigned char swb = 0;
 unsigned char swc = 0;
 
+int signal_toggle = 0;
+
+byte sig_buf[4];
+
+
 void setup()
 {
     Serial.begin(9600);
@@ -44,7 +49,7 @@ void setup()
     pinMode(6,INPUT);
     pinMode(7,INPUT);
     
-    Wire.begin(0x05);              // join i2c bus with address #5
+    Wire.begin(0x04);              // join i2c bus with address #5
     Wire.onRequest(send_controls); // register event
 }
 
@@ -57,15 +62,27 @@ void loop()
     encode_signal(SWB, swb_output);
     encode_signal(SWC, swc_output);
 
+    sig_buf[0] = thr;
+    sig_buf[1] = str;
+    sig_buf[2] = swb;
+    sig_buf[3] = swc;
+        
     delay(10);
 }
 
 void send_controls()
 {
-    Wire.write(thr);
-    Wire.write(str);
-    Wire.write(swb);
-    Wire.write(swc);
+
+    Wire.write(sig_buf, 4);
+    Serial.print("Thr: ");
+    Serial.print(sig_buf[0]);
+    Serial.print(" Str: ");
+    Serial.print(sig_buf[1]);
+    Serial.print(" SWB: ");
+    Serial.print(sig_buf[2]);
+    Serial.print(" SWC: ");
+    Serial.println(sig_buf[3]);
+
 }
 
 void read_rf()
@@ -82,14 +99,14 @@ void read_rf()
 
     // DEBUG PRINTS
     // -------------------------------------
-    Serial.print("Thr: ");
-    Serial.print(thr);
-    Serial.print(" Str: ");
-    Serial.print(str);
-    Serial.print(" SWB: ");
-    Serial.print(swb);
-    Serial.print(" SWC: ");
-    Serial.println(swc);
+//    Serial.print("Thr: ");
+//    Serial.print(sig_buf[0]);
+//    Serial.print(" Str: ");
+//    Serial.print(sig_buf[1]);
+//    Serial.print(" SWB: ");
+//    Serial.print(sig_buf[2]);
+//    Serial.print(" SWC: ");
+//    Serial.println(sig_buf[3]);
     // -------------------------------------
     
     delay(10);
@@ -98,7 +115,7 @@ void read_rf()
 void encode_signal(int type, int value)
 {   
     delay(10);
-    byte type_bits = type << 6;
+    byte type_bits = 3   << 6;
     byte val_bits = value;
     byte send_bits = type_bits + val_bits;
 
