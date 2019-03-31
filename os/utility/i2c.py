@@ -31,7 +31,7 @@ from logger import *
 
 class I2c:
 
-    self.OFFSET = 0
+    OFFSET = 0
 
     def __init__(self, address, bus):
 
