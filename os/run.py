@@ -56,7 +56,7 @@ class AutoRC(threading.Thread):
 
         # Initializing controller
         # ------------------------------------------------------------------------------------------
-        self.controller = Ampullae(wait_interval_ms = self.controller_update_ms)
+        self.controller = Ampullae(update_interval_ms = self.controller_update_ms)
         self.controller.start()
 
         # Initializing PCA9685 driver
