@@ -50,6 +50,10 @@ class Ampullae(Thread):
         self.ser = Ser(self.baudrate, self.timeout)
 
         self.enable_ser = True
+        self.thr = 10
+        self.str = 55
+        self.swc = 99
+        self.swb = 99
 
 
     def run(self):
