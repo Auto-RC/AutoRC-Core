@@ -68,13 +68,14 @@ class Ampullae(Thread):
         raw = raw.replace('b','')
         raw = raw.replace("'",'')
         print(len(raw))
-        print(raw[0:1])
-        self.thr = int(raw[0:1])
-        self.str = int(raw[2:3])
-        self.swb = int(raw[4:5])
-        self.swc = int(raw[6:7])
+        if len(raw) > 0:
+            print(raw[0:1])
+            self.thr = int(raw[0:1])
+            self.str = int(raw[2:3])
+            self.swb = int(raw[4:5])
+            self.swc = int(raw[6:7])
 
-        logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
+            logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
     def disable(self):
 
