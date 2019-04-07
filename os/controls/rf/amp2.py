@@ -65,6 +65,7 @@ class Ampullae(Thread):
     def read(self):
 
         raw = str(self.ser.read())
+        print(raw)
         raw = raw.replace('b','')
         raw = raw.replace("'",'')
         raw = raw.replace("/", '')
