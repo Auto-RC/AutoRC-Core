@@ -71,7 +71,7 @@ class Ampullae(Thread):
         raw = raw.replace("/", '')
         print(len(raw))
         print(raw)
-        if len(raw) > 0:
+        if len(raw) == 8:
             print(raw[0:1])
             self.thr = int(raw[0:1])
             self.str = int(raw[2:3])
