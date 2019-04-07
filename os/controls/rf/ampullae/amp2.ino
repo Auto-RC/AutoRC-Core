@@ -48,15 +48,15 @@ void setup()
     pinMode(4,INPUT);
     pinMode(6,INPUT);
     pinMode(7,INPUT);
-    
+
     Wire.begin(0x04);              // join i2c bus with address #5
     Wire.onRequest(send_controls); // register event
 }
 
 void loop()
 {
-    read_rf();    
-    
+    read_rf();
+
 //    encode_signal(THR, thr_output);
 //    encode_signal(STR, str_output);
 //    encode_signal(SWB, swb_output);
@@ -66,12 +66,12 @@ void loop()
 //    sig_buf[1] = str;
 //    sig_buf[2] = swb;
 //    sig_buf[3] = swc;
-       
+
     Serial.print(thr_output);
     Serial.print(str_output);
     Serial.print(swc_output);
     Serial.print(swb_output);
-        
+
     delay(100);
 }
 
@@ -91,7 +91,7 @@ void send_controls()
 //    Serial.print(" SWC: ");
 //    Serial.println(sig_buf[3]);
     // -------------------------------------
-    
+
 
 
 }
@@ -111,7 +111,7 @@ void read_rf()
 }
 
 void encode_signal(int type, int value)
-{   
+{
     byte type_bits = 0   << 6;
     byte val_bits = value;
     byte send_bits = type_bits + val_bits;
@@ -134,10 +134,10 @@ void encode_signal(int type, int value)
     }
     else if (type == SWB)
     {
-      swb = send_bits; 
+      swb = send_bits;
     }
     else if (type == SWC)
     {
-      swc = send_bits; 
+      swc = send_bits;
     }
 }
