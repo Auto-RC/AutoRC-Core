@@ -29,7 +29,7 @@ from oculus import Oculus
 from pca_9685 import PCA9685
 from drive import Drive
 from memory import Memory
-from ampullae import Ampullae
+from amp2 import Ampullae
 
 # ==================================================================================================
 #                                           AutoRC
@@ -56,7 +56,7 @@ class AutoRC(threading.Thread):
 
         # Initializing controller
         # ------------------------------------------------------------------------------------------
-        self.controller = Ampullae(update_interval_ms = self.controller_update_ms)
+        self.controller = Ampullae(baudrate = 9600, timeout = 0.01, update_interval_ms = self.controller_update_ms)
         self.controller.start()
 
         # Initializing PCA9685 driver
@@ -174,19 +174,19 @@ class AutoRC(threading.Thread):
             if self.enable_memory:
                 self.add_data_packet()
 
-            if (self.controller.swb < 200) and (self.enable_vehicle == False):
+            if (self.controller.swb < 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
-            elif(self.controller.swb > 200) and (self.enable_vehicle == True):
+            elif(self.controller.swb > 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
 
-            if (self.controller.swc < 240) and (self.enable_oculus == False):
+            if (self.controller.swc < 50) and (self.enable_oculus == False):
                 self.toggle_oculus()
-            elif (self.controller.swc > 240) and (self.enable_oculus == True):
+            elif (self.controller.swc > 50) and (self.enable_oculus == True):
                 self.toggle_oculus()
 
-            if (self.controller.swc < 240) and (self.enable_memory == False):
+            if (self.controller.swc < 50) and (self.enable_memory == False):
                 self.toggle_memory()
-            elif (self.controller.swc > 240) and (self.enable_memory == True):
+            elif (self.controller.swc > 50) and (self.enable_memory == True):
                 self.toggle_memory()
 
             time.sleep(100/1000)
@@ -200,6 +200,6 @@ if __name__ == '__main__':
 
     logger.setLevel(logging.DEBUG)
 
-    instance = AutoRC(controller_update_ms=100)
+    instance = AutoRC(controller_update_ms=20)
 
     instance.run()

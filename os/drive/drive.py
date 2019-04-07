@@ -74,8 +74,8 @@ class Drive(threading.Thread):
 
         if self.enable_drive == True:
 
-            self.throttle = self.controller.thr/65
-            self.steering = (self.controller.str-32)/65
+            self.throttle = (self.controller.thr - 10) / 90
+            self.steering = (self.controller.str - 55) / 45
 
 # ==================================================================================================
 #                                            TEST CODE
