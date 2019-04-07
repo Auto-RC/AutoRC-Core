@@ -71,10 +71,10 @@ class Ampullae(Thread):
         print(raw)
         if len(raw) == 8:
             print(raw[0:1])
-            self.thr = int(raw[0:1])
-            self.str = int(raw[2:3])
-            self.swb = int(raw[4:5])
-            self.swc = int(raw[6:7])
+            self.thr = int(raw[0:2])
+            self.str = int(raw[2:4])
+            self.swb = int(raw[4:6])
+            self.swc = int(raw[6:8])
 
             logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
