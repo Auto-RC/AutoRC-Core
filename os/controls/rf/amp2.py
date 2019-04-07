@@ -65,11 +65,9 @@ class Ampullae(Thread):
     def read(self):
 
         raw = str(self.ser.read())
-        print(raw)
         raw = raw.replace('b','')
         raw = raw.replace("'",'')
         raw = raw.replace("/", '')
-        print(len(raw))
         print(raw)
         if len(raw) == 8:
             print(raw[0:1])
