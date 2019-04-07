@@ -72,7 +72,7 @@ void loop()
     Serial.print(swc_output);
     Serial.print(swb_output);
         
-    delay(100);
+    delay(20);
 }
 
 void send_controls()
@@ -110,34 +110,34 @@ void read_rf()
 
 }
 
-void encode_signal(int type, int value)
-{   
-    byte type_bits = 0   << 6;
-    byte val_bits = value;
-    byte send_bits = type_bits + val_bits;
-
-    if (type == SWC)
-    {
-      if (send_bits == 0)
-      {
-        send_bits = send_bits - 1;
-      }
-    }
-
-    if (type == THR)
-    {
-      thr = send_bits;
-    }
-    else if (type == STR)
-    {
-      str = send_bits;
-    }
-    else if (type == SWB)
-    {
-      swb = send_bits; 
-    }
-    else if (type == SWC)
-    {
-      swc = send_bits; 
-    }
-}
+//void encode_signal(int type, int value)
+//{   
+//    byte type_bits = 0   << 6;
+//    byte val_bits = value;
+//    byte send_bits = type_bits + val_bits;
+//
+//    if (type == SWC)
+//    {
+//      if (send_bits == 0)
+//      {
+//        send_bits = send_bits - 1;
+//      }
+//    }
+//
+//    if (type == THR)
+//    {
+//      thr = send_bits;
+//    }
+//    else if (type == STR)
+//    {
+//      str = send_bits;
+//    }
+//    else if (type == SWB)
+//    {
+//      swb = send_bits; 
+//    }
+//    else if (type == SWC)
+//    {
+//      swc = send_bits; 
+//    }
+//}
