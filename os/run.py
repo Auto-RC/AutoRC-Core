@@ -184,10 +184,10 @@ class AutoRC(threading.Thread):
             elif (self.controller.swc > 50) and (self.enable_oculus == True):
                 self.toggle_oculus()
 
-            if (self.controller.swc < 50) and (self.enable_memory == False):
-                self.toggle_memory()
-            elif (self.controller.swc > 50) and (self.enable_memory == True):
-                self.toggle_memory()
+            # if (self.controller.swc < 50) and (self.enable_memory == False):
+            #     self.toggle_memory()
+            # elif (self.controller.swc > 50) and (self.enable_memory == True):
+            #     self.toggle_memory()
 
             time.sleep(100/1000)
 
