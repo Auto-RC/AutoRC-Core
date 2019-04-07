@@ -69,7 +69,6 @@ class Ampullae(Thread):
         raw = raw.replace("'",'')
         raw = raw.replace("/", '')
         if len(raw) == 8:
-            print(raw)
             self.thr = int(raw[0:2])
             self.str = int(raw[2:4])
             self.swb = int(raw[4:6])
@@ -91,7 +90,7 @@ class Ampullae(Thread):
 
 if __name__ == '__main__':
 
-    ampullae = Ampullae(9600, 0.01, update_interval_ms=50)
+    ampullae = Ampullae(9600, 0.01, update_interval_ms=10)
     ampullae.run()
 
 
