@@ -65,7 +65,9 @@ class Ampullae(Thread):
     def read(self):
 
         raw = str(self.ser.read())
-        print(raw)
+        raw = raw.replace('b','')
+        raw = raw.replace("'",'')
+        print(len(raw))
         print(raw[0:1])
         self.thr = int(raw[0:1])
         self.str = int(raw[2:3])
