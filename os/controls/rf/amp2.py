@@ -80,7 +80,7 @@ class Ampullae(Thread):
             self.swc = int(raw[4:6])
             self.swb = int(raw[6:8])
 
-            logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
+            # logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
     def disable(self):
 
