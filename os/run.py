@@ -33,6 +33,7 @@ sys.path.append(utility_dir)
 sys.path.append(controls_dir)
 sys.path.append(camera_dir)
 sys.path.append(drive_dir)
+sys.path.append(imu_dir)
 
 from memory import Memory
 from oculus import Oculus
