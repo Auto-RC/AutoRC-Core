@@ -84,6 +84,10 @@ class Drive(threading.Thread):
             self.throttle = (self.controller.thr - 10) / 90
             self.steering = (self.controller.str - 55) / 45
 
+    def stopped(self):
+
+        return self._stop_event.is_set()
+
 # ==================================================================================================
 #                                            UNIT TEST
 # ==================================================================================================
