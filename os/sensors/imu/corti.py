@@ -44,24 +44,18 @@ class Corti(threading.Thread):
         logger.info("Corti enabled...")
 
         self.enabled = True
-        while self.enabled == True:
+        while True:
 
-            self.acceleration = round(list(self.imu.acceleration)[0],3)
+            if self.enabled == True:
 
-            logger.debug("Acceleration: {}g".format(self.acceleration))
+                self.acceleration = round(list(self.imu.acceleration)[0],3)
+                logger.debug("Acceleration: {}g".format(self.acceleration))
 
-            time.sleep(self.update_interval_ms/1000)
-
-        logger.info("Corti disabled.")
+            time.sleep(self.update_interval_ms / 1000)
 
     def disable(self):
 
         self.enabled = False
-        self._stop_event.set()
-
-    def stopped(self):
-
-        return self._stop_event.is_set()
 
 # ==================================================================================================
 #                                           UNIT TEST

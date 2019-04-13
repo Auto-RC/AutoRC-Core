@@ -34,7 +34,6 @@ class Drive(threading.Thread):
         # Thread parameters
         self.thread_name = "Drive"
         threading.Thread.__init__(self, name=self.thread_name)
-        self._stop_event = threading.Event()
 
         self.enabled = False
         self.update_interval_ms = update_interval_ms
@@ -52,18 +51,18 @@ class Drive(threading.Thread):
         logger.info("Drive thread started")
 
         self.enabled = True
-        while self.enabled == True:
+        while True:
 
-            # Getting values from controller
-            # --------------------------------------------------------------------------------------
-            self.compute_controls()
+            if self.enabled == True:
 
-            self.pca9685.set_steering(self.steering)
-            self.pca9685.set_throttle(self.throttle)
+                # Getting values from controller
+                # --------------------------------------------------------------------------------------
+                self.compute_controls()
 
-            time.sleep(self.update_interval_ms/1000)
+                self.pca9685.set_steering(self.steering)
+                self.pca9685.set_throttle(self.throttle)
 
-        logger.info("Drive thread stopped")
+            time.sleep(self.update_interval_ms / 1000)
 
     def disable(self):
 
@@ -75,8 +74,6 @@ class Drive(threading.Thread):
         self.pca9685.set_steering(self.steering)
         self.pca9685.set_throttle(self.throttle)
 
-        self._stop_event.set()
-
     def compute_controls(self):
 
         if self.enabled == True:
@@ -84,10 +81,6 @@ class Drive(threading.Thread):
             self.throttle = (self.controller.thr - 10) / 90
             self.steering = (self.controller.str - 55) / 45
 
-    def stopped(self):
-
-        return self._stop_event.is_set()
-
 # ==================================================================================================
-#                                            UNIT TEST
+#                                            UNIT TESTS
 # ==================================================================================================
