@@ -43,7 +43,6 @@ class Corti(threading.Thread):
 
         logger.info("Corti enabled...")
 
-        self.enabled = True
         while True:
 
             if self.enabled == True:
@@ -53,9 +52,15 @@ class Corti(threading.Thread):
 
             time.sleep(self.update_interval_ms / 1000)
 
+    def enable(self):
+
+        self.enabled = True
+
     def disable(self):
 
         self.enabled = False
+
+
 
 # ==================================================================================================
 #                                           UNIT TEST

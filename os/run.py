@@ -80,12 +80,16 @@ class AutoRC(threading.Thread):
         self.enable_memory = False
         self.enable_corti = False
 
-        # Initializing drive module
+        # Initializing modules
         # ------------------------------------------------------------------------------------------
         self.drive = Drive(controller=self.controller, pca9685=self.pca9685,update_interval_ms=10)
+        self.drive.start()
+
+        self.corti = Corti(update_interval_ms=50)
+        self.corti.start()
+
         self.oculus = Oculus(20, (128, 96), 'rgb')
         self.memory = Memory(self.modules)
-        self.corti = Corti(update_interval_ms=50)
 
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
@@ -95,7 +99,7 @@ class AutoRC(threading.Thread):
 
         if self.enable_vehicle == False:
 
-            self.drive.start()
+            self.drive.enable()
 
             self.enable_vehicle = True
             logger.debug("Vehicle enabled.")
@@ -152,7 +156,7 @@ class AutoRC(threading.Thread):
 
         if (self.enable_corti == False):
 
-            self.corti.start()
+            self.corti.enable()
             logger.debug("Started Corti...")
 
         elif (self.enable_corti == True):

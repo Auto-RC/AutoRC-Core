@@ -50,7 +50,6 @@ class Drive(threading.Thread):
 
         logger.info("Drive thread started")
 
-        self.enabled = True
         while True:
 
             if self.enabled == True:
@@ -63,6 +62,10 @@ class Drive(threading.Thread):
                 self.pca9685.set_throttle(self.throttle)
 
             time.sleep(self.update_interval_ms / 1000)
+
+    def enable(self):
+
+        self.enabled = True
 
     def disable(self):
 
