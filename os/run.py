@@ -188,7 +188,8 @@ class AutoRC(threading.Thread):
 
         while True:
 
-            logger.info("VEH: {} OCULUS: {} MEM: {}".format(self.enable_vehicle,self.enable_oculus,self.enable_memory))
+
+            logger.info("VEH: {} OCULUS: {} MEM: {} THR: {} STR: {} SWB: {} SWC: {}".format(self.enable_vehicle,self.enable_oculus,self.enable_memory, self.controller.thr, self.controller.str, self.controller.swb, self.controller.swc))
 
             if self.enable_memory:
                 self.add_data_packet()

@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
                             datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # ==================================================================================================
 #                                              CORTI
@@ -49,7 +49,7 @@ class Corti(threading.Thread):
 
             logger.debug("Acceleration: {}g".format(self.acceleration))
 
-        time.sleep(self.update_interval_ms)
+        time.sleep(self.update_interval_ms/1000)
 
         logger.info("Corti disabled.")
 
