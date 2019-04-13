@@ -155,6 +155,8 @@ class AutoRC(threading.Thread):
             self.enable_corti = True
             self.corti.enabled = self.enable_corti
 
+            self.corti.start()
+
             logger.debug("Started Corti...")
 
         elif (self.enable_corti == True):

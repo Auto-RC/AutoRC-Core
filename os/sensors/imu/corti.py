@@ -42,13 +42,13 @@ class Corti(threading.Thread):
 
         logger.info("Corti enabled...")
 
-        while self.enabled == True:
+        if self.enabled == True:
 
             self.acceleration = round(list(self.imu.acceleration)[0],3)
 
             logger.debug("Acceleration: {}g".format(self.acceleration))
 
-            time.sleep(self.update_interval_ms)
+        time.sleep(self.update_interval_ms)
 
         logger.info("Corti disabled.")
 
