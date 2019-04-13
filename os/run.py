@@ -225,6 +225,6 @@ if __name__ == '__main__':
 
     logger.setLevel(logging.DEBUG)
 
-    instance = AutoRC(controller_update_ms=20)
+    instance = AutoRC()
 
     instance.run()
