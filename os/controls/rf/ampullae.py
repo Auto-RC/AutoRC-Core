@@ -55,9 +55,9 @@ class Ampullae(Thread):
         self.timeout = timeout
         self.update_interval_ms = update_interval_ms
 
-        self.ser = Ser(self.baudrate, self.timeout)
+        self.srl = Srl(self.baudrate, self.timeout)
 
-        self.enable_ser = True
+        self.enable_srl = True
         self.thr = 10
         self.str = 55
         self.swc = 99
@@ -68,7 +68,7 @@ class Ampullae(Thread):
 
         logger.info("Controller thread started...")
 
-        while self.enable_ser == True:
+        while self.enable_srl == True:
 
             self.read()
             time.sleep(self.update_interval_ms / 1000)
@@ -76,7 +76,7 @@ class Ampullae(Thread):
 
     def read(self):
 
-        raw = str(self.ser.read())
+        raw = str(self.srl.read())
         raw = raw.replace('b','')
         raw = raw.replace("'",'')
         raw = raw.replace("/", '')
@@ -93,7 +93,7 @@ class Ampullae(Thread):
 
     def disable(self):
 
-        self.enable_ser = False
+        self.enable_srl = False
 
         logger.info("Ampullae thread ended")
 

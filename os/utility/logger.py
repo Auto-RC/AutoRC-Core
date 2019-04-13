@@ -13,7 +13,6 @@ logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
                             datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 logger.setLevel(logging.INFO)
 
-
 # --------------------------------------------------------------------------------------------------
 # Instructions 
 # --------------------------------------------------------------------------------------------------
