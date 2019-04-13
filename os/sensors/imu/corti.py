@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
                             datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # ==================================================================================================
 #                                              CORTI
@@ -45,6 +45,8 @@ class Corti(threading.Thread):
         while self.enabled == True:
 
             self.acceleration = round(list(self.imu.acceleration)[0],3)
+
+            logger.debug("Acceleration: {}g".format(self.acceleration))
 
             time.sleep(self.update_interval_ms)
 
