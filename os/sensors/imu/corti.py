@@ -50,7 +50,7 @@ class Corti(threading.Thread):
 
             logger.debug("Acceleration: {}g".format(self.acceleration))
 
-        time.sleep(self.update_interval_ms/1000)
+            time.sleep(self.update_interval_ms/1000)
 
         logger.info("Corti disabled.")
 
