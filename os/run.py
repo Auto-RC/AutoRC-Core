@@ -40,7 +40,7 @@ from oculus import Oculus
 from pca_9685 import PCA9685
 from drive import Drive
 from memory import Memory
-from amp2 import Ampullae
+from ampullae import Ampullae
 from corti import Corti
 
 # ==================================================================================================
@@ -152,18 +152,12 @@ class AutoRC(threading.Thread):
 
         if (self.enable_corti == False):
 
-            self.enable_corti = True
-            self.corti.enabled = self.enable_corti
-
             self.corti.start()
-
             logger.debug("Started Corti...")
 
         elif (self.enable_corti == True):
 
-            self.enable_corti = False
-            self.corti.enabled = self.enable_corti
-
+            self.corti.disable()
             logger.debug("Stopped Corti.")
 
 

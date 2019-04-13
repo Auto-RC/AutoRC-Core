@@ -7,7 +7,16 @@ import os
 import sys
 import time
 from threading import Thread
+import logging
 
+# ==================================================================================================
+#                                            LOGGER SETUP
+# ==================================================================================================
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # ==================================================================================================
 #                                        LOCAL IMPORTS
@@ -23,8 +32,7 @@ controls_dir = current_dir + r'/controls'
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
 
-from logger import *
-from i2c import I2c
+from srl import Srl
 
 # ==================================================================================================
 #                                           Ampullae
@@ -32,10 +40,9 @@ from i2c import I2c
 
 class Ampullae(Thread):
 
-    ADDRESS = 0x04
-    BUS = 0
+    port = '/dev/ttyUSB0'
 
-    def __init__(self, update_interval_ms):
+    def __init__(self, baudrate, timeout, update_interval_ms):
 
         # Thread parameters
         # ------------------------------------------------------------------------------------------
@@ -44,22 +51,24 @@ class Ampullae(Thread):
 
         # Main parameters
         # ------------------------------------------------------------------------------------------
+        self.baudrate = baudrate
+        self.timeout = timeout
         self.update_interval_ms = update_interval_ms
 
-        self.i2c = I2c(self.ADDRESS,self.BUS)
+        self.ser = Ser(self.baudrate, self.timeout)
 
-        self.enable_i2c = True
+        self.enable_ser = True
+        self.thr = 10
+        self.str = 55
+        self.swc = 99
+        self.swb = 99
 
-        self.thr = 0  # Throttle zero
-        self.str = 96  # Middle steering
-        self.swb = 191  # Lower position
-        self.swc = 255  # Lower position
 
     def run(self):
 
         logger.info("Controller thread started...")
 
-        while self.enable_i2c == True:
+        while self.enable_ser == True:
 
             self.read()
             time.sleep(self.update_interval_ms / 1000)
@@ -67,21 +76,24 @@ class Ampullae(Thread):
 
     def read(self):
 
-        raw_bytes = self.i2c.read()
+        raw = str(self.ser.read())
+        raw = raw.replace('b','')
+        raw = raw.replace("'",'')
+        raw = raw.replace("/", '')
+        raw = raw.replace(r"\\", '')
+        raw = raw.replace("x", '')
 
-        if raw_bytes[0]-192 > 0:
-            self.thr = raw_bytes[0]-192
-        if raw_bytes[1]-192 > 0:
-            self.str = raw_bytes[1]-192
+        if len(raw) == 8:
+            self.thr = int(raw[0:2])
+            self.str = int(raw[2:4])
+            self.swc = int(raw[4:6])
+            self.swb = int(raw[6:8])
 
-        self.swb = raw_bytes[2]
-        self.swc = raw_bytes[3]
-
-        logger.info("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
+            logger.debug("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
     def disable(self):
 
-        self.enable_i2c = False
+        self.enable_ser = False
 
         logger.info("Ampullae thread ended")
 
@@ -93,7 +105,7 @@ class Ampullae(Thread):
 
 if __name__ == '__main__':
 
-    ampullae = Ampullae(update_interval_ms=50)
+    ampullae = Ampullae(9600, 0.01, update_interval_ms=20)
     ampullae.run()
 
 

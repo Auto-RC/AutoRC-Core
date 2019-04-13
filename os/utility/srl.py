@@ -7,29 +7,22 @@ import os
 import sys
 import time
 from threading import Thread
+import logging
 
 # ==================================================================================================
-#                                        LOCAL IMPORTS
+#                                            LOGGER SETUP
 # ==================================================================================================
 
-current_dir = os.path.dirname(os.path.realpath(__file__))
-sensors_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
-parent_dir = os.path.abspath(os.path.join(sensors_dir, os.pardir))
-
-utility_dir = parent_dir + r'/utility'
-controls_dir = current_dir + r'/controls'
-
-sys.path.append(utility_dir)
-sys.path.append(controls_dir)
-
-from logger import *
-
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # ==================================================================================================
 #                                               I2C
 # ==================================================================================================
 
-class Ser:
+class Srl:
 
     OFFSET = 0
 

@@ -42,7 +42,8 @@ class Corti(threading.Thread):
 
         logger.info("Corti enabled...")
 
-        if self.enabled == True:
+        self.enabled = True
+        while self.enabled == True:
 
             self.acceleration = round(list(self.imu.acceleration)[0],3)
 
@@ -51,6 +52,10 @@ class Corti(threading.Thread):
         time.sleep(self.update_interval_ms)
 
         logger.info("Corti disabled.")
+
+    def disable(self):
+
+        self.enabled = False
 
 # ==================================================================================================
 #                                           UNIT TEST
