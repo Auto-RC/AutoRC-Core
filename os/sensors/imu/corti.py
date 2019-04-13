@@ -33,8 +33,8 @@ class Corti(threading.Thread):
         self.enabled = False
         self.update_interval_ms = update_interval_ms
 
-        self.conn = i2c.busio.I2C(board.SCL,board.SCA)
-        self.imu = adafruit_lsm9ds1.LSM9DS1_I2C(i2c)
+        self.conn = busio.I2C(board.SCL,board.SCA)
+        self.imu = adafruit_lsm9ds1.LSM9DS1_I2C(self.conn)
 
         self.acceleration = 0
 
