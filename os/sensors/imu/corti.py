@@ -29,7 +29,7 @@ class Corti(threading.Thread):
         # Thread parameters
         self.thread_name = "Drive"
         threading.Thread.__init__(self, name=self.thread_name)
-        self.disable = threading.Event()
+        self._stop_event = threading.Event()
 
         self.enabled = False
         self.update_interval_ms = update_interval_ms
@@ -57,7 +57,7 @@ class Corti(threading.Thread):
     def disable(self):
 
         self.enabled = False
-        self.disable.set()
+        self._stop_event.set()
 
 # ==================================================================================================
 #                                           UNIT TEST

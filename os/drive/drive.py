@@ -34,7 +34,7 @@ class Drive(threading.Thread):
         # Thread parameters
         self.thread_name = "Drive"
         threading.Thread.__init__(self, name=self.thread_name)
-        self.disable = threading.Event()
+        self._stop_event = threading.Event()
 
         self.enabled = False
         self.update_interval_ms = update_interval_ms
@@ -75,7 +75,7 @@ class Drive(threading.Thread):
         self.pca9685.set_steering(self.steering)
         self.pca9685.set_throttle(self.throttle)
 
-        self.disable.set()
+        self._stop_event.set()
 
     def compute_controls(self):
 
