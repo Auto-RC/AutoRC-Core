@@ -69,8 +69,8 @@ class Drive(threading.Thread):
 
         self.enabled = False
 
-        self.controller.throttle = -1
-        self.controller.steering = 0
+        self.throttle = -1
+        self.steering = 0
 
         self.pca9685.set_steering(self.steering)
         self.pca9685.set_throttle(self.throttle)
