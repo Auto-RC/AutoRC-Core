@@ -203,12 +203,15 @@ class AutoRC(threading.Thread):
             elif(self.controller.swb < 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
 
+            if (self.controller.swc > 50) and (self.enable_corti == False):
+                self.toggle_corti()
+            elif (self.controller.swc < 50) and (self.enable_corti == True):
+                self.toggle_corti()
+
             if (self.controller.swc > 50) and (self.enable_oculus == False):
                 self.toggle_oculus()
-                self.toggle_corti()
             elif (self.controller.swc < 50) and (self.enable_oculus == True):
                 self.toggle_oculus()
-                self.toggle_corti()
 
             # if (self.controller.swc < 50) and (self.enable_memory == False):
             #     self.toggle_memory()
