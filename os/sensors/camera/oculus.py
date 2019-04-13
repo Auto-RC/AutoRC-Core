@@ -45,6 +45,7 @@ class Oculus:
         self.cam = PiCamera(self.resolution, self.frame_rate, self.format)
 
     def run(self):
+
         logger.info("Initializing Oculus thread...")
 
         t = Thread(target=self.cam.update, args=())
@@ -57,7 +58,7 @@ class Oculus:
 
         return self.cam.run_threaded()
 
-    def stop(self):
+    def disable(self):
 
         self.cam.shutdown()
 

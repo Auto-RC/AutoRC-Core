@@ -6,12 +6,16 @@ import threading
 import time
 import os
 import sys
+import logging
 
 # ==================================================================================================
-#                                           LOCAL IMPORTS
+#                                            LOGGER SETUP
 # ==================================================================================================
 
-
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+logger.setLevel(logging.INFO)
 
 # ==================================================================================================
 #                                               DRIVE
@@ -25,14 +29,13 @@ class Drive(threading.Thread):
     STR_MAX = 64
     STR_MIN = 0
 
-    def __init__(self, update_interval_ms, controller, pca9685):
+    def __init__(self, controller, pca9685, update_interval_ms=10):
 
         # Thread parameters
-        # ------------------------------------------------------------------------------------------
         self.thread_name = "Drive"
         threading.Thread.__init__(self, name=self.thread_name)
 
-        self.enable_drive = True
+        self.enabled = True
         self.update_interval_ms = update_interval_ms
 
         self.controller = controller
@@ -45,9 +48,9 @@ class Drive(threading.Thread):
 
     def run(self):
 
-        print("Drive thread started")
+        logger.info("Drive thread started")
 
-        while self.enable_drive == True:
+        while self.enabled == True:
 
             # Getting values from controller
             # --------------------------------------------------------------------------------------
@@ -58,9 +61,11 @@ class Drive(threading.Thread):
 
             time.sleep(self.update_interval_ms/1000)
 
+        logger.info("Drive thread stopped")
+
     def disable(self):
 
-        self.enable_drive = False
+        self.enabled = False
 
         self.controller.throttle = -1
         self.controller.brake = -1
@@ -68,15 +73,13 @@ class Drive(threading.Thread):
         self.pca9685.set_steering(self.steering)
         self.pca9685.set_throttle(self.throttle)
 
-
-
     def compute_controls(self):
 
-        if self.enable_drive == True:
+        if self.enabled == True:
 
             self.throttle = (self.controller.thr - 10) / 90
             self.steering = (self.controller.str - 55) / 45
 
 # ==================================================================================================
-#                                            TEST CODE
+#                                            UNIT TEST
 # ==================================================================================================
