@@ -210,7 +210,7 @@ class AutoRC(threading.Thread):
             # elif (self.controller.swc > 50) and (self.enable_memory == True):
             #     self.toggle_memory()
 
-            time.sleep(100)
+            time.sleep(100/1000)
 
 
 # ==================================================================================================
