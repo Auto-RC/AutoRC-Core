@@ -198,19 +198,19 @@ class AutoRC(threading.Thread):
             if self.enable_memory:
                 self.add_data_packet()
 
-            if (self.controller.swb > 50) and (self.enable_vehicle == False):
+            if (self.controller.swb < 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
-            elif(self.controller.swb < 50) and (self.enable_vehicle == True):
+            elif(self.controller.swb > 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
 
-            if (self.controller.swc > 50) and (self.enable_corti == False):
+            if (self.controller.swc < 50) and (self.enable_corti == False):
                 self.toggle_corti()
-            elif (self.controller.swc < 50) and (self.enable_corti == True):
+            elif (self.controller.swc > 50) and (self.enable_corti == True):
                 self.toggle_corti()
 
-            if (self.controller.swc > 50) and (self.enable_oculus == False):
+            if (self.controller.swc < 50) and (self.enable_oculus == False):
                 self.toggle_oculus()
-            elif (self.controller.swc < 50) and (self.enable_oculus == True):
+            elif (self.controller.swc > 50) and (self.enable_oculus == True):
                 self.toggle_oculus()
 
             # if (self.controller.swc < 50) and (self.enable_memory == False):

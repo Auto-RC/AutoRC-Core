@@ -48,8 +48,6 @@ class Drive(threading.Thread):
 
     def run(self):
 
-        logger.info("Drive thread started")
-
         while True:
 
             if self.enabled == True:
