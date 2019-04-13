@@ -122,7 +122,7 @@ class AutoRC(threading.Thread):
             self.oculus.run()
 
             self.enable_oculus = True
-            logger.debug("oculus enabled")
+            logger.debug("Oculus enabled")
 
             self.modules.append('oculus')
 
@@ -131,7 +131,7 @@ class AutoRC(threading.Thread):
             self.oculus.disable()
 
             self.enable_oculus = False
-            logger.debug("oculus disabled")
+            logger.debug("Oculus disabled")
 
             self.modules.remove('oculus')
 

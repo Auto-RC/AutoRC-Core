@@ -41,8 +41,6 @@ class Corti(threading.Thread):
 
     def run(self):
 
-        logger.info("Corti enabled...")
-
         while True:
 
             if self.enabled == True:
