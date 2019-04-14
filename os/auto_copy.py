@@ -49,3 +49,14 @@ class Auto_Copy():
                 copyfile(file_path,self.dst_dir)
 
         logger.info("Done copying files")
+
+# ==================================================================================================
+#                                              UNIT TEST
+# ==================================================================================================
+
+if __name__ == '__main__':
+
+    source_dir = r'/home/arnavgupta/data'
+    destination_dir = r'/mnt/pidrive/data'
+
+    auto_copy = Auto_Copy()
