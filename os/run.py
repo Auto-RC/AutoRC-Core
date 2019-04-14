@@ -151,6 +151,8 @@ class AutoRC(threading.Thread):
             self.memory.save()
             del self.memory
 
+            self.modules = []
+
             self.enable_memory = False
             logger.debug("Stopped capturing data")
 
