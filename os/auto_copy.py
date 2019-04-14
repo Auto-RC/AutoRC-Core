@@ -60,7 +60,7 @@ class Auto_Copy():
 if __name__ == '__main__':
 
     source_dir = r'/home/arnavgupta/data'
-    destination_dir = r'/mnt/pidrive/data'
+    destination_dir = r'/media/usb/data'
 
     auto_copy = Auto_Copy(source_dir,destination_dir)
 
