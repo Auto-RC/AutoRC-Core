@@ -26,6 +26,9 @@ class Auto_Copy():
         self.src_dir = source_dir
         self.dst_dir = destination_dir
 
+        if not os.path.exists(destination_dir):
+            os.makedirs(destination_dir)
+
         logger.info("Source dir: {}".format(source_dir))
         logger.info("Destination dir: {}".format(source_dir))
 
