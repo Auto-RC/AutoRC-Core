@@ -46,7 +46,7 @@ class Auto_Copy():
             if file_path not in self.dst_file_paths:
 
                 logger.info("Copying file {}...".format(file_path))
-                copyfile(file_path,self.dst_dir)
+                copyfile(os.path.join(self.src_dir,file_path),self.dst_dir)
 
         logger.info("Done copying files")
 
