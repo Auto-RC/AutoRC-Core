@@ -89,6 +89,8 @@ class AutoRC(threading.Thread):
         self.corti.start()
 
         self.oculus = Oculus(20, (128, 96), 'rgb')
+        self.oculus.run()
+
         self.memory = Memory(self.modules)
 
     # ----------------------------------------------------------------------------------------------
@@ -212,10 +214,10 @@ class AutoRC(threading.Thread):
             elif (self.controller.swc > 50) and (self.enable_corti == True):
                 self.toggle_corti()
 
-            if (self.controller.swc < 50) and (self.enable_oculus == False):
-                self.toggle_oculus()
-            elif (self.controller.swc > 50) and (self.enable_oculus == True):
-                self.toggle_oculus()
+            # if (self.controller.swc < 50) and (self.enable_oculus == False):
+            #     self.toggle_oculus()
+            # elif (self.controller.swc > 50) and (self.enable_oculus == True):
+            #     self.toggle_oculus()
 
             # if (self.controller.swc < 50) and (self.enable_memory == False):
             #     self.toggle_memory()

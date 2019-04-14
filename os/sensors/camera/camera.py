@@ -1,4 +1,18 @@
+# ==================================================================================================
+#                                           GLOBAL IMPORTS
+# ==================================================================================================
+
 import time
+import logging
+
+# ==================================================================================================
+#                                            LOGGER SETUP
+# ==================================================================================================
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+logger.setLevel(logging.INFO)
 
 
 class PiCamera:
@@ -23,7 +37,7 @@ class PiCamera:
         self.frame = None
         self.on = True
 
-        print('PiCamera loaded ... warming camera')
+        logger.info('PiCamera loaded, warming camera...')
         time.sleep(1)
 
     def run(self):
@@ -33,6 +47,7 @@ class PiCamera:
         return frame
 
     def update(self):
+
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
@@ -44,13 +59,10 @@ class PiCamera:
             if not self.on:
                 break
 
-    def run_threaded(self):
-        return self.frame
-
     def shutdown(self):
         # indicate that the thread should be stopped
         self.on = False
-        print('stopping PiCamera')
+        logger.info('Stopping PiCamera')
         time.sleep(.5)
         self.stream.close()
         self.rawCapture.close()

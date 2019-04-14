@@ -63,9 +63,9 @@ class Oculus:
 
         logger.info("Camera thread running")
 
-    def get_current_picture(self):
+    def get_frame(self):
 
-        return self.cam.run_threaded()
+        return self.cam.frame
 
     def disable(self):
 
