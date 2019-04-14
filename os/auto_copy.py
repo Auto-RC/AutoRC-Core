@@ -60,3 +60,5 @@ if __name__ == '__main__':
     destination_dir = r'/mnt/pidrive/data'
 
     auto_copy = Auto_Copy(source_dir,destination_dir)
+
+    auto_copy.run()
