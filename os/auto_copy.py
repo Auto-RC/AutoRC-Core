@@ -45,6 +45,8 @@ class Auto_Copy():
         self.list_dst()
         self.list_src()
 
+        os.system("mount /dev/sdd1 /mnt/usb")
+
         for file_path in self.src_file_paths:
             if file_path not in self.dst_file_paths:
 
