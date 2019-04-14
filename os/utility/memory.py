@@ -52,7 +52,7 @@ class Memory:
     def save(self):
 
         for module in self.modules:
-            np.save("{}/{}-{}".format(self.data_dir, module,self.timestamp),
+            np.save("{}/{}-{}".format(self.data_dir, module,str(self.timestamp).replace(":",";")),
                     np.array(self.data_package[module]))
 
 
