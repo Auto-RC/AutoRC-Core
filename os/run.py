@@ -181,7 +181,7 @@ class AutoRC(threading.Thread):
 
         if 'oculus' in self.modules:
 
-            picture = self.oculus.get_current_picture()
+            picture = self.oculus.get_frame()
             data_packet['oculus'] = picture
 
         if 'drive' in self.modules:
