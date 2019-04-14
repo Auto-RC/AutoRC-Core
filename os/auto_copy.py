@@ -3,7 +3,7 @@
 # ==================================================================================================
 
 import os
-from shutil import copyfile
+from shutil import copy
 import logging
 
 # ==================================================================================================
@@ -46,7 +46,7 @@ class Auto_Copy():
             if file_path not in self.dst_file_paths:
 
                 logger.info("Copying file {}...".format(file_path))
-                copyfile(os.path.join(self.src_dir,file_path),self.dst_dir)
+                copy(os.path.join(self.src_dir,file_path),self.dst_dir)
 
         logger.info("Done copying files")
 
