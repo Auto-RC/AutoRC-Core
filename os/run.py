@@ -92,8 +92,6 @@ class AutoRC(threading.Thread):
         self.oculus.run()
         self.modules.append('oculus')
 
-        self.memory = Memory(self.modules)
-
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
     # ----------------------------------------------------------------------------------------------
@@ -143,6 +141,7 @@ class AutoRC(threading.Thread):
         if (self.enable_memory == False):
 
             self.enable_memory = True
+            self.memory = Memory(self.modules)
 
             logger.debug("Started capturing data")
             logger.debug("Storing memory from {}".format(self.modules))
