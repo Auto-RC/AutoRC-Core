@@ -59,4 +59,4 @@ if __name__ == '__main__':
     source_dir = r'/home/arnavgupta/data'
     destination_dir = r'/mnt/pidrive/data'
 
-    auto_copy = Auto_Copy()
+    auto_copy = Auto_Copy(source_dir,destination_dir)
