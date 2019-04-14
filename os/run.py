@@ -90,6 +90,7 @@ class AutoRC(threading.Thread):
 
         self.oculus = Oculus(20, (128, 96), 'rgb')
         self.oculus.run()
+        self.modules.append('oculus')
 
         self.memory = Memory(self.modules)
 
@@ -163,6 +164,8 @@ class AutoRC(threading.Thread):
             self.enable_corti = True
             logger.debug("Started Corti...")
 
+            self.modules.append('corti')
+
         elif (self.enable_corti == True):
 
             self.corti.disable()
@@ -170,6 +173,7 @@ class AutoRC(threading.Thread):
             self.enable_corti = False
             logger.debug("Stopped Corti.")
 
+            self.modules.append('corti')
 
     def add_data_packet(self):
 
@@ -185,6 +189,11 @@ class AutoRC(threading.Thread):
             steering = self.drive.steering
             throttle = self.drive.throttle
             data_packet['drive'] = [steering, throttle]
+
+        if 'corti' in self.modules:
+
+            acceleration = self.corti.acceleration
+            data_packet['corti'] = [acceleration]
 
         self.memory.add(data_packet)
 
