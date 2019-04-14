@@ -125,7 +125,7 @@ class AutoRC(threading.Thread):
             self.enable_oculus = True
             logger.debug("Oculus enabled")
 
-            self.modules.append('oculus')
+            # self.modules.append('oculus')
 
         elif (self.enable_oculus == True): # and (self.oculus):
 
@@ -134,7 +134,7 @@ class AutoRC(threading.Thread):
             self.enable_oculus = False
             logger.debug("Oculus disabled")
 
-            self.modules.remove('oculus')
+            # self.modules.remove('oculus')
 
     def toggle_memory(self):
 
@@ -150,8 +150,6 @@ class AutoRC(threading.Thread):
 
             self.memory.save()
             del self.memory
-
-            self.modules = []
 
             self.enable_memory = False
             logger.debug("Stopped capturing data")
@@ -174,7 +172,7 @@ class AutoRC(threading.Thread):
             self.enable_corti = False
             logger.debug("Stopped Corti.")
 
-            self.modules.append('corti')
+            self.modules.remove('corti')
 
     def add_data_packet(self):
 
