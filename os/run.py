@@ -76,7 +76,7 @@ class AutoRC(threading.Thread):
         # Initializing flags
         # ------------------------------------------------------------------------------------------
         self.enable_vehicle = False
-        self.enable_oculus = False
+        self.enable_oculus = True
         self.enable_memory = False
         self.enable_corti = False
 
@@ -199,7 +199,7 @@ class AutoRC(threading.Thread):
         while True:
 
 
-            logger.info("VEH: {} OCULUS: {} MEM: {} THR: {} STR: {} SWB: {} SWC: {}".format(self.enable_vehicle,self.enable_oculus,self.enable_memory, self.controller.thr, self.controller.str, self.controller.swb, self.controller.swc))
+            logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} THR: {} STR: {} SWB: {} SWC: {}".format(self.enable_vehicle,self.enable_corti, self.enable_oculus,self.enable_memory, self.controller.thr, self.controller.str, self.controller.swb, self.controller.swc))
 
             if self.enable_memory:
                 self.add_data_packet()
