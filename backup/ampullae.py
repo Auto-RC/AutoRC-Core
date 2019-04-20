@@ -27,7 +27,7 @@ sensors_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 parent_dir = os.path.abspath(os.path.join(sensors_dir, os.pardir))
 
 utility_dir = parent_dir + r'/utility'
-controls_dir = current_dir + r'/controls'
+controls_dir = current_dir + r'/input'
 
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)

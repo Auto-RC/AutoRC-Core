@@ -23,11 +23,12 @@ logger.setLevel(logging.INFO)
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 utility_dir = current_dir + r'/utility'
-controls_dir = current_dir + r'/controls/rf'
+controls_dir = current_dir + r'/input/rf'
 sensors_dir = current_dir + r'/sensors'
 camera_dir = sensors_dir + r'/camera'
 imu_dir = sensors_dir + r'/imu'
 drive_dir = current_dir + r'/drive'
+cortex_dir = current_dir + r'/cortex'
 
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
@@ -42,6 +43,7 @@ from drive import Drive
 from memory import Memory
 from ampullae import Ampullae
 from corti import Corti
+from cortex import Cortex
 
 # ==================================================================================================
 #                                           AutoRC
@@ -79,6 +81,7 @@ class AutoRC(threading.Thread):
         self.enable_oculus = True
         self.enable_memory = False
         self.enable_corti = False
+        self.enable_cortex = False
 
         # Initializing modules
         # ------------------------------------------------------------------------------------------
@@ -91,6 +94,8 @@ class AutoRC(threading.Thread):
         self.oculus = Oculus(20, (128, 96), 'rgb')
         self.oculus.run()
         self.modules.append('oculus')
+
+        self.cortex = Cortex(update_interval_ms=50,oculus=self.oculus)
 
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
@@ -174,6 +179,22 @@ class AutoRC(threading.Thread):
 
             self.modules.remove('corti')
 
+    def toggle_cortex(self):
+
+        if (self.enable_cortex == False):
+
+            self.cortex.enable()
+
+            self.enable_cortex = True
+            logger.debug("Started Cortex...")
+
+        elif (self.enable_cortex == True):
+
+            self.cortex.disable()
+
+            self.enable_cortex = False
+            logger.debug("Stopped Cortex")
+
     def add_data_packet(self):
 
         data_packet = dict()
@@ -207,29 +228,26 @@ class AutoRC(threading.Thread):
         while True:
 
 
-            logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} THR: {} STR: {} SWB: {} SWC: {}".format(self.enable_vehicle,self.enable_corti, self.enable_oculus,self.enable_memory, self.controller.thr, self.controller.str, self.controller.swb, self.controller.swc))
+            logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}".format(self.enable_vehicle,self.enable_corti, self.enable_oculus,self.enable_memory, self.enable_cortex, self.controller.thr, self.controller.str, self.controller.swb, self.controller.swc))
 
             if self.enable_memory:
                 self.add_data_packet()
 
-            if (self.controller.swb < 50) and (self.enable_vehicle == False):
+            if (self.controller.swb > 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
-            elif(self.controller.swb > 50) and (self.enable_vehicle == True):
-                self.toggle_vehicle()
-
-            if (self.controller.swc < 50) and (self.enable_corti == False):
                 self.toggle_corti()
-            elif (self.controller.swc > 50) and (self.enable_corti == True):
+            elif(self.controller.swb < 50) and (self.enable_vehicle == True):
+                self.toggle_vehicle()
                 self.toggle_corti()
 
-            # if (self.controller.swc < 50) and (self.enable_oculus == False):
-            #     self.toggle_oculus()
-            # elif (self.controller.swc > 50) and (self.enable_oculus == True):
-            #     self.toggle_oculus()
+            if (self.controller.swc > 20) and (self.enable_cortex == True):
+                self.toggle_cortex()
+            elif (self.controller.swc < 20) and (self.enable_cortex == False):
+                self.toggle_cortex()
 
-            if (self.controller.swc < 50) and (self.enable_memory == False):
+            if (self.controller.swc < 70) and (self.controller.swc > 20) and (self.enable_memory == False):
                 self.toggle_memory()
-            elif (self.controller.swc > 50) and (self.enable_memory == True):
+            elif ( (self.controller.swc < 70) or (self.controller.swc > 20) ) and (self.enable_memory == True):
                 self.toggle_memory()
 
             time.sleep(100/1000)

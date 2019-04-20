@@ -7,6 +7,7 @@ from time import time
 import numpy as np
 import logging
 from PIL import Image
+import cv2
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -23,44 +24,24 @@ logger.setLevel(logging.INFO)
 
 class Retina():
 
+    RHO = 1
+    THETA = 90
+    LINE_THRESHOLD = 20
+
     def __init__(self):
 
         self.data_path = r'C:\Users\Veda Sadhak\Desktop\auto-rc_data'
 
-    def set_img(self,img):
+    # ----------------------------------------------------------------------------------------------
+    # UTILITY
+    # ----------------------------------------------------------------------------------------------
 
-        self.origin = img
-        self.img = img
-        self.x = img.shape[1]
-        self.y = img.shape[2]
+    def set_frame(self,frame):
 
-    def filter_colors(self,lower_rgb_range,upper_rgb_range):
-
-        """
-        Only keeps the colors between the specified color range, that is,
-        between lower rgb and upper rgb
-        """
-
-        for x in range(0,self.x):
-            for y in range(0,self.y):
-
-                orignal_rgb = self.img[x][y]
-
-                keep_red = (orignal_rgb[0] > lower_rgb_range[0]) and \
-                           (orignal_rgb[0] < upper_rgb_range[0])
-
-                keep_green = (orignal_rgb[1] > lower_rgb_range[1]) and \
-                             (orignal_rgb[1] < upper_rgb_range[1])
-
-                keep_blue = (orignal_rgb[2] > lower_rgb_range[2]) and \
-                            (orignal_rgb[2] < upper_rgb_range[2])
-
-                if (keep_red) and (keep_green) and (keep_blue):
-                    new_rgb = orignal_rgb
-                else:
-                    new_rgb = [0,0,0]
-
-                self.img[x][y] = new_rgb
+        self.origin = frame
+        self.frame = frame
+        self.x = frame.shape[1]
+        self.y = frame.shape[2]
 
     def load_npy(self,file_name):
 
@@ -68,37 +49,25 @@ class Retina():
         self.npy_path = os.path.join(self.data_path, 'raw_npy', file_name)
 
         # Where the raw images will be stored
-        self.img_dir = os.path.join(self.data_path, 'processed_png')
-        if not os.path.exists(self.img_dir):
-            os.makedirs(self.img_dir)
-            logger.info("Made dir {}".format(self.img_dir))
+        self.raw_img_dir = os.path.join(self.data_path, 'raw_png')
+        if not os.path.exists(self.raw_img_dir):
+            os.makedirs(self.raw_img_dir)
+            logger.info("Made dir {}".format(self.raw_img_dir))
+
+        # Where the raw images will be stored
+        self.proc_img_dir = os.path.join(self.data_path, 'processed_png')
+        if not os.path.exists(self.proc_img_dir):
+            os.makedirs(self.proc_img_dir)
+            logger.info("Made dir {}".format(self.proc_img_dir))
 
         # Loading the npy data package
         self.npy = np.load(self.npy_path)
         self.num_images = self.npy.shape[0]
         logger.info("Number of images in npy: {}".format(self.num_images))
 
-    def run_npy(self):
-
-        # Converting the images
-        starting_time = time()
-        for index, original_img in enumerate(self.npy):
-
-            logger.debug("Converting image {}...".format(index))
-
-            self.img = original_img
-            self.x = self.img.shape[0]
-            self.y = self.img.shape[1]
-            self.filter_colors([0,0,50],[50,100,150])
-
-            converted_img = self.rgb_to_img(self.img)
-            converted_img.save(os.path.join(self.img_dir, "img_{}.png".format(index)), 'PNG')
-
-            logger.debug("Done converting image {}.".format(index))
-
-        ending_time = time()
-        time_taken = ending_time - starting_time
-        logger.info("Time taken to process and convert {} images: {}".format(self.num_images,time_taken))
+    # ----------------------------------------------------------------------------------------------
+    # SAVING
+    # ----------------------------------------------------------------------------------------------
 
     def rgb_to_img(self, np_array) -> Image:
 
@@ -114,6 +83,111 @@ class Retina():
         img = Image.fromarray(np_array, 'RGB')
         return img
 
+    def save_cv_img(self, cv_img, dir):
+
+        cv2.imwrite(dir, cv_img)
+
+    # ----------------------------------------------------------------------------------------------
+    # LINE DETECTION
+    # ----------------------------------------------------------------------------------------------
+
+    def line_detection_unit_test(self):
+
+        # Converting the images
+        starting_time = time()
+
+
+        self.line_detection_dir = os.path.join(self.data_path,r'line_detector')
+        if not os.path.exists(self.line_detection_dir):
+            os.makedirs(self.line_detection_dir)
+            logger.info("Made dir {}".format(self.line_detection_dir))
+
+        for index, original_img in enumerate(self.npy):
+
+            logger.debug("Converting image {}...".format(index))
+
+            self.set_img(original_img)
+
+            self.filter_colors(np.array([0,45,60]), np.array([100, 250, 250]))
+            self.find_lines()
+            self.save_cv_img(self.img,os.path.join(self.line_detection_dir, "img_{}.png".format(index)))
+
+            logger.debug("Done converting image {}.".format(index))
+
+        ending_time = time()
+        time_taken = ending_time - starting_time
+        logger.info("Time taken to process and convert {} images: {}".format(self.num_images,time_taken))
+
+    def detect_lines(self):
+
+        lines = cv2.HoughLines(self.frame,self.RHO,np.pi/self.THETA,self.LINE_THRESHOLD)
+        angles = []
+        midpoints = []
+
+        for line in lines[0]:
+            for rho,theta in line:
+
+                a = np.cos(theta)
+                b = np.sin(theta)
+                x0 = a*rho
+                y0 = b*rho
+                x1 = int(x0 + 1000*(-b))
+                y1 = int(y0 + 1000*(a))
+                x2 = int(x0 - 1000*(-b))
+                y2 = int(y0 - 1000*(a))
+
+                angles.append(np.arctan( (y2-y1)/(x2-x1) ))
+                midpoints.append([ (x2-x1)/2+x1 , (y2-y1)/2+y1 ])
+
+                self.frame = cv2.line(self.frame,(x1,y1),(x2,y2),(255,255,255),2)
+
+        return { "lines" : lines , "angles" : angles , 'midpoints' : midpoints}
+
+    # ----------------------------------------------------------------------------------------------
+    # COLOR DETECTION
+    # ----------------------------------------------------------------------------------------------
+
+    def color_detection_unit_test(self):
+
+        # Converting the images
+        starting_time = time()
+
+        r_l = 0
+        g_l = 45
+        b_l = 60
+        # b_u = 255
+
+        for b_u in range(100,255,50):
+            for r_u in range(50, 255, 50):
+                for g_u in range(50, 255, 50):
+
+                    self.filter_detection_dir = os.path.join(self.data_path,r'filter_detector','{}-{}-{}_{}-{}-{}'.format(r_l,g_l,b_l,r_u,g_u,b_u))
+                    if not os.path.exists(self.filter_detection_dir):
+                        os.makedirs(self.filter_detection_dir)
+                        logger.info("Made dir {}".format(self.filter_detection_dir))
+
+                    for index, original_img in enumerate(self.npy):
+
+                        logger.debug("Converting image {}...".format(index))
+
+                        self.set_img(original_img)
+
+                        # converted_img = self.rgb_to_img(self.origin)
+                        # converted_img.save(os.path.join(self.raw_img_dir, "img_{}.png".format(index)), 'PNG')
+
+                        self.filter_colors(np.array([r_l,g_l,b_l]),np.array([r_u,g_u,b_u]))
+                        self.save_cv_img(self.img,os.path.join(self.filter_detection_dir, "img_{}.png".format(index)))
+
+                        logger.debug("Done converting image {}.".format(index))
+
+                    ending_time = time()
+                    time_taken = ending_time - starting_time
+                    logger.info("Time taken to process and convert {} images: {}".format(self.num_images,time_taken))
+
+    def filter_colors(self,lower_rgb_range,upper_rgb_range):
+
+        self.frame = cv2.inRange(self.frame,lower_rgb_range,upper_rgb_range)
+
 # ------------------------------------------------------------------------------
 #                                 SAMPLE CODE
 # ------------------------------------------------------------------------------
@@ -122,9 +196,8 @@ if __name__ == '__main__':
 
     retina = Retina()
 
-    retina.load_npy(file_name='iris.npy')
-    retina.run_npy()
-    # retina.conv_npy_package(file_name='iris_new.npy', type='processed')
+    retina.load_npy(file_name='oculus-2019-04-19 18;16;06.500887.npy')
+    retina.line_detection_unit_test()
 
 
 
