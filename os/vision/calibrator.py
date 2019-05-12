@@ -38,7 +38,7 @@ class Calibrator(threading.Thread):
     IMG_WIDTH = 192
     IMG_HEIGHT = 256
 
-    INITAL_IMG_INDEX = 124
+    INITAL_IMG_INDEX = 155
 
     ADJ_MAG = 5
 
@@ -201,9 +201,11 @@ class Calibrator(threading.Thread):
     def adjust_lower_fil(self, index, vector="increase", mag=5):
 
         if vector == "increase":
-            self.retina.fil_1_l[index] += mag
+            if self.retina.fil_1_l[index] < 255:
+                self.retina.fil_1_l[index] += mag
         elif vector == "decrease":
-            self.retina.fil_1_l[index] -= mag
+            if self.retina.fil_1_l[index] > 0:
+                self.retina.fil_1_l[index] -= mag
 
         logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
 
@@ -212,9 +214,11 @@ class Calibrator(threading.Thread):
     def adjust_upper_fil(self, index, vector="increase", mag=5):
 
         if vector == "increase":
-            self.retina.fil_1_u[index] += mag
+            if self.retina.fil_1_u[index] < 255:
+                self.retina.fil_1_u[index] += mag
         elif vector == "decrease":
-            self.retina.fil_1_u[index] -= mag
+            if self.retina.fil_1_u[index] > 0:
+                self.retina.fil_1_u[index] -= mag
 
         logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
 
