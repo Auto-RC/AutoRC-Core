@@ -32,15 +32,22 @@ logger.setLevel(logging.DEBUG)
 
 class Calibrator(threading.Thread):
 
-    UI_HEIGHT = 400
-    UI_WIDTH = 600
+    UI_HEIGHT = 350
+    UI_WIDTH = 430
 
-    IMG_WIDTH = 200
-    IMG_HEIGHT = 200
+    IMG_WIDTH = 192
+    IMG_HEIGHT = 256
+
+    INITAL_IMG_INDEX = 124
+
+    ADJ_MAG = 5
 
     # -------------------------- Initialization --------------------------------
 
     def __init__(self):
+
+        self.video_active = False
+        self.apply_retina = True
 
         self.init_ui()
 
@@ -49,13 +56,9 @@ class Calibrator(threading.Thread):
 
         self.init_img_ctrls()
 
-        self.img_index = 0
-        self.get_image(self.img_index)
+        self.img_index = self.INITAL_IMG_INDEX
+        self.change_img(self.img_index)
         self.update_img()
-
-        self.video_active = False
-
-        self.apply_retina = True
 
     def init_ui(self):
 
@@ -68,23 +71,89 @@ class Calibrator(threading.Thread):
 
         self.canvas_img = self.canvas.create_image((10,10), image=(), anchor='nw')
 
+        self.canvas.bind("<Button 1>", self.mouse_click_event)
+
     def init_img_ctrls(self):
 
         self.next = tk.Button(self.ui, text="  Next  ", command=lambda:self.next_img())
         self.next.config(width=8)
-        self.next.place(x=20,y=230)
+        self.next.place(x=15,y=280)
 
         self.previous = tk.Button(self.ui, text="Previous", command=lambda:self.previous_img())
         self.previous.config(width=8)
-        self.previous.place(x=120, y=230)
+        self.previous.place(x=120, y=280)
 
         self.start = tk.Button(self.ui, text="Play",command=lambda: self.start_video())
         self.start.config(width=8)
-        self.start.place(x=20, y=260)
+        self.start.place(x=15, y=310)
 
         self.stop = tk.Button(self.ui, text="Stop",command=lambda: self.stop_video())
         self.stop.config(width=8)
-        self.stop.place(x=120, y=260)
+        self.stop.place(x=120, y=310)
+
+        self.fil_l_1_increase = tk.Button(self.ui, text="Inc R/H L Fil", command=lambda: self.adjust_lower_fil(index=0,vector="increase", mag=self.ADJ_MAG))
+        self.fil_l_1_increase.config(width=8)
+        self.fil_l_1_increase.place(x=220, y=20)
+
+        self.fil_l_2_increase = tk.Button(self.ui, text="Inc G/S L Fil",command=lambda: self.adjust_lower_fil(index=1, vector="increase",mag=self.ADJ_MAG))
+        self.fil_l_2_increase.config(width=8)
+        self.fil_l_2_increase.place(x=220, y=50)
+
+        self.fil_l_3_increase = tk.Button(self.ui, text="Inc B/V L Fil",command=lambda: self.adjust_lower_fil(index=2, vector="increase",mag=self.ADJ_MAG))
+        self.fil_l_3_increase.config(width=8)
+        self.fil_l_3_increase.place(x=220, y=80)
+
+        self.fil_l_1_decrease = tk.Button(self.ui, text="Dec R/H L Fil",command=lambda: self.adjust_lower_fil(index=0, vector="decrease",mag=self.ADJ_MAG))
+        self.fil_l_1_decrease.config(width=8)
+        self.fil_l_1_decrease.place(x=320, y=20)
+
+        self.fil_l_2_decrease = tk.Button(self.ui, text="Dec G/S L Fil",command=lambda: self.adjust_lower_fil(index=1, vector="decrease",mag=self.ADJ_MAG))
+        self.fil_l_2_decrease.config(width=8)
+        self.fil_l_2_decrease.place(x=320, y=50)
+
+        self.fil_l_3_decrease = tk.Button(self.ui, text="Dec B/V L Fil",command=lambda: self.adjust_lower_fil(index=2, vector="decrease",mag=self.ADJ_MAG))
+        self.fil_l_3_decrease.config(width=8)
+        self.fil_l_3_decrease.place(x=320, y=80)
+
+        self.fil_u_1_increase = tk.Button(self.ui, text="Inc R/H U Fil", command=lambda: self.adjust_upper_fil(index=0, vector="increase", mag=self.ADJ_MAG))
+        self.fil_u_1_increase.config(width=8)
+        self.fil_u_1_increase.place(x=220, y=120)
+
+        self.fil_u_2_increase = tk.Button(self.ui, text="Inc G/S U Fil", command=lambda: self.adjust_upper_fil(index=1, vector="increase", mag=self.ADJ_MAG))
+        self.fil_u_2_increase.config(width=8)
+        self.fil_u_2_increase.place(x=220, y=150)
+
+        self.fil_u_3_increase = tk.Button(self.ui, text="Inc B/V U Fil", command=lambda: self.adjust_upper_fil(index=2, vector="increase", mag=self.ADJ_MAG))
+        self.fil_u_3_increase.config(width=8)
+        self.fil_u_3_increase.place(x=220, y=180)
+
+        self.fil_u_1_decrease = tk.Button(self.ui, text="Dec R/H U Fil", command=lambda: self.adjust_upper_fil(index=0, vector="decrease", mag=self.ADJ_MAG))
+        self.fil_u_1_decrease.config(width=8)
+        self.fil_u_1_decrease.place(x=320, y=120)
+
+        self.fil_u_2_decrease = tk.Button(self.ui, text="Dec G/S U Fil", command=lambda: self.adjust_upper_fil(index=1, vector="decrease", mag=self.ADJ_MAG))
+        self.fil_u_2_decrease.config(width=8)
+        self.fil_u_2_decrease.place(x=320, y=150)
+
+        self.fil_u_3_decrease = tk.Button(self.ui, text="Dec B/V U Fil", command=lambda: self.adjust_upper_fil(index=2, vector="decrease", mag=self.ADJ_MAG))
+        self.fil_u_3_decrease.config(width=8)
+        self.fil_u_3_decrease.place(x=320, y=180)
+
+        self.display_lanes = tk.Button(self.ui, text="Display Lanes",command=lambda: self.enable_lanes())
+        self.display_lanes.config(width=8)
+        self.display_lanes.place(x=220, y=220)
+
+        self.remove_lanes = tk.Button(self.ui, text="Remove Lanes",command=lambda: self.disable_lanes())
+        self.remove_lanes.config(width=8)
+        self.remove_lanes.place(x=320, y=220)
+
+        self.enable_vision = tk.Button(self.ui, text="Enable Vision", command=lambda: self.enable_retina())
+        self.enable_vision.config(width=8)
+        self.enable_vision.place(x=220, y=260)
+
+        self.disable_vision = tk.Button(self.ui, text="Disable Vision", command=lambda: self.disable_retina())
+        self.disable_vision.config(width=8)
+        self.disable_vision.place(x=320, y=260)
 
     def init_vision_ctrls(self):
 
@@ -126,6 +195,50 @@ class Calibrator(threading.Thread):
             self.change_img(self.img_index)
 
             time.sleep(0.25)
+
+    # ----------------------------- Calibration --------------------------------
+
+    def adjust_lower_fil(self, index, vector="increase", mag=5):
+
+        if vector == "increase":
+            self.retina.fil_1_l[index] += mag
+        elif vector == "decrease":
+            self.retina.fil_1_l[index] -= mag
+
+        logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
+
+        self.change_img(self.img_index)
+
+    def adjust_upper_fil(self, index, vector="increase", mag=5):
+
+        if vector == "increase":
+            self.retina.fil_1_u[index] += mag
+        elif vector == "decrease":
+            self.retina.fil_1_u[index] -= mag
+
+        logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
+
+        self.change_img(self.img_index)
+
+    def enable_lanes(self):
+
+        self.retina.enable_lines = True
+        self.change_img(self.img_index)
+
+    def disable_lanes(self):
+
+        self.retina.enable_lines = False
+        self.change_img(self.img_index)
+
+    def enable_retina(self):
+
+        self.apply_retina = True
+        self.change_img(self.img_index)
+
+    def disable_retina(self):
+
+        self.apply_retina = False
+        self.change_img(self.img_index)
 
     # ---------------------------- Image Change --------------------------------
 
@@ -172,13 +285,22 @@ class Calibrator(threading.Thread):
 
     def update_img(self):
 
-        self.canvas.itemconfigure(self.canvas_img,image=self.img)
+        self.canvas.itemconfigure(self.canvas_img, image=self.img)
 
     # ---------------------------- GUI Startup ---------------------------------
 
     def run(self):
 
         self.ui.mainloop()
+
+    # ---------------------------- Pixel Info ----------------------------------
+
+    def mouse_click_event(self, event_origin):
+
+        global x0, y0
+        x0 = event_origin.x
+        y0 = event_origin.y
+        print("Pixel: ({},{}) Shape:({}) RGB: ({})".format(x0,y0,self.raw.shape,self.raw[y0][x0]))
 
 # ------------------------------------------------------------------------------
 #                                  ENTRY POINT

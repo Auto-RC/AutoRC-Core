@@ -30,9 +30,16 @@ class Retina():
     def __init__(self):
 
         self.frame = None
+        self.enable_lines = False
 
         self.calibration_parser = ConfigParser()
         self.read_calibration()
+        self.init_filters()
+
+    def init_filters(self):
+
+        self.fil_1_l = np.array([80, 0, 0])
+        self.fil_1_u = np.array([110, 100, 255])
 
     def read_calibration(self):
 
@@ -69,23 +76,27 @@ class Retina():
 
         logger.info("Set new calibration parameters for {} parameters".format(type))
 
-    # def filter_splitter(self):
-    #
-    #
-    #
-    #     # self. = cv2.inRange(self.frame, )
-    #     # self.
-    #
-    # def detect_splitter(self):
-    #
-    # def filter_lanes(self):
-    #
-    #     self.frame = cv2.inRange(self.frame, lower_rgb_range, upper_rgb_range)
+    def hsv_transformation(self):
 
-    def detect_lines(self, frame):
+        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+        return self.frame
+
+    def print_blue_hvs(self):
+
+        blue = np.uint8([[[0, 0, 255]]])
+        hsv_blue = cv2.cvtColor(blue, cv2.COLOR_BGR2HSV)
+        print(hsv_blue)
+
+    def filter_color(self, lower_rgb_range, upper_rgb_range):
+
+        mask = cv2.inRange(self.frame, lower_rgb_range, upper_rgb_range)
+        self.frame = cv2.bitwise_and(self.frame, self.frame, mask=mask)
+        return self.frame
+
+    def detect_lanes(self):
 
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(gray, 50, 150, apertureSize=3)
         lines = cv2.HoughLines(edges,self.RHO,np.pi/self.THETA,self.LINE_THRESHOLD)
         angles = []
@@ -107,13 +118,26 @@ class Retina():
                     angles.append(np.arctan( (y2-y1)/(x2-x1) ))
                     midpoints.append([ (x2-x1)/2+x1 , (y2-y1)/2+y1 ])
 
-                cv2.line(frame,(x1,y1),(x2,y2),(255,255,255),2)
+                cv2.line(self.frame,(x1,y1),(x2,y2),(255,255,255),2)
 
-        return { "frame" : frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
+        return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
 
     def process(self):
 
-        return self.detect_lanes()['frame']
+        # This works for the initial images
+        # fil_1_l = np.array([30, 0, 0])
+        # fil_1_u = np.array([80, 105, 255])
+
+
+
+        # self.filter_color(fil_1_l,fil_1_u)
+        self.hsv_transformation()
+        self.filter_color(self.fil_1_l,self.fil_1_u)
+
+        if self.enable_lines:
+            self.detect_lanes()
+
+        return self.frame
 
 # ------------------------------------------------------------------------------
 #                                      RETINA
@@ -122,5 +146,7 @@ class Retina():
 if __name__ == '__main__':
 
     retina = Retina()
-    retina.set_calibration('splitter', [20,20,20], [255,255,250])
-    retina.set_calibration('lane', [40, 120, 21], [215, 155, 50])
+    # retina.set_calibration('splitter', [20,20,20], [255,255,250])
+    # retina.set_calibration('lane', [40, 120, 21], [215, 155, 50])
+
+    retina.print_blue_hvs()
