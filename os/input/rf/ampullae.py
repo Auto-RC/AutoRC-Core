@@ -32,7 +32,7 @@ controls_dir = current_dir + r'/input'
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
 
-from srl import Srl
+from serial import Serial
 
 # ==================================================================================================
 #                                           Ampullae
@@ -55,7 +55,7 @@ class Ampullae(Thread):
         self.timeout = timeout
         self.update_interval_ms = update_interval_ms
 
-        self.srl = Srl(self.baudrate, self.timeout)
+        self.srl = Serial(self.baudrate, self.timeout)
 
         self.enable_srl = True
         self.thr = 10
