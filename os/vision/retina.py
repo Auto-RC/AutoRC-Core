@@ -5,7 +5,7 @@
 import sys
 import numpy as np
 import logging
-import cv2
+# import opencv as cv2
 from configparser import ConfigParser
 
 # ------------------------------------------------------------------------------
