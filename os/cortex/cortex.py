@@ -27,7 +27,7 @@ vision_dir = parent_dir + r'/vision'
 
 sys.path.append(vision_dir)
 
-from retina import Retina
+from retina_backup import Retina
 
 # ==================================================================================================
 #                                             CORTEX
