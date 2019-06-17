@@ -7,7 +7,7 @@ from time import time
 import numpy as np
 import logging
 from PIL import Image
-import cv2
+# import cv2
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
