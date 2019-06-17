@@ -42,6 +42,8 @@ class Calibrator(threading.Thread):
 
     ADJ_MAG = 5
 
+    TYPE = 'lane' # 'splitter'
+
     # -------------------------- Initialization --------------------------------
 
     def __init__(self):
@@ -163,7 +165,7 @@ class Calibrator(threading.Thread):
 
     def init_recall(self):
 
-        self.recall = Recall(r"/media/sf_VM_Shared/autorc_data/oculus-2019-04-20 17;48;15.783634.npy")
+        self.recall = Recall("/Users/arnavgupta/car_data/raw_npy/oculus-2019-04-20 17;48;15.783634.npy")
         self.recall.load()
 
     # ------------------------- Retina Integration -----------------------------
@@ -207,6 +209,8 @@ class Calibrator(threading.Thread):
             if self.retina.fil_1_l[index] > 0:
                 self.retina.fil_1_l[index] -= mag
 
+        self.retina.set_calibration(self.TYPE, self.retina.fil_1_l, self.retina.fil_1_u)
+
         logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
 
         self.change_img(self.img_index)
@@ -219,6 +223,8 @@ class Calibrator(threading.Thread):
         elif vector == "decrease":
             if self.retina.fil_1_u[index] > 0:
                 self.retina.fil_1_u[index] -= mag
+
+        self.retina.set_calibration(self.TYPE, self.retina.fil_1_l, self.retina.fil_1_u)
 
         logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
 

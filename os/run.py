@@ -92,7 +92,7 @@ class AutoRC(threading.Thread):
         self.corti = Corti(update_interval_ms=50)
         self.corti.start()
 
-        self.oculus = Oculus(20, (128, 96), 'rgb')
+        self.oculus = Oculus(20, (96, 128), 'rgb')
         self.oculus.run()
         self.modules.append('oculus')
 
