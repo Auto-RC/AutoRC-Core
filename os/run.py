@@ -248,7 +248,7 @@ class AutoRC(threading.Thread):
 
             if (self.controller.swc < 70) and (self.controller.swc > 20) and (self.enable_memory == False):
                 self.toggle_memory()
-            elif ( (self.controller.swc < 70) or (self.controller.swc > 20) ) and (self.enable_memory == True):
+            elif ( (self.controller.swc > 70) or (self.controller.swc < 20) ) and (self.enable_memory == True):
                 self.toggle_memory()
 
             time.sleep(100/1000)
