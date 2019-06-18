@@ -27,7 +27,7 @@ vision_dir = parent_dir + r'/vision'
 
 sys.path.append(vision_dir)
 
-from retina_backup import Retina
+from retina import Retina
 
 # ==================================================================================================
 #                                             CORTEX
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     retina = Retina()
 
-    retina.load_npy(file_name='oculus-2019-04-19 18;16;06.500887.npy')
+    retina.load_npy(file_name='/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-16 20;49;28.264824.npy')
     retina.test_line_detection()
 
 

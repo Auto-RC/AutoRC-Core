@@ -5,7 +5,7 @@
 import sys
 import numpy as np
 import logging
-# import opencv as cv2
+import cv2
 from configparser import ConfigParser
 
 # ------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ class Retina():
 
     def read_calibration(self):
 
-        self.calibration_parser.read("calibration.ini")
+        self.calibration_parser.read("/Users/arnavgupta/auto-rc_poc/os/vision/calibration.ini")
 
         self.spl_rgb_lower_filter = [int(self.calibration_parser.get('splitter_parameters','l_r')),
                                      int(self.calibration_parser.get('splitter_parameters','l_g')),
@@ -122,6 +122,7 @@ class Retina():
 
         return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
 
+
     def process(self):
 
         # This works for the initial images
@@ -131,8 +132,9 @@ class Retina():
 
 
         # self.filter_color(fil_1_l,fil_1_u)
-        self.hsv_transformation()
+
         self.filter_color(self.fil_1_l,self.fil_1_u)
+        self.hsv_transformation()
 
         if self.enable_lines:
             self.detect_lanes()
