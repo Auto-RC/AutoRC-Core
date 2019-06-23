@@ -25,12 +25,13 @@ class Retina():
 
     RHO = 1
     THETA = 90
-    LINE_THRESHOLD = 20
+    LINE_THRESHOLD = 15
 
     def __init__(self):
 
         self.frame = None
         self.enable_lines = False
+        self.mode = 'RGB'
 
         self.calibration_parser = ConfigParser()
         self.read_calibration()
@@ -38,8 +39,10 @@ class Retina():
 
     def init_filters(self):
 
-        self.fil_1_l = np.array([80, 0, 0])
-        self.fil_1_u = np.array([110, 100, 255])
+        self.fil_rgb_l = np.array([0, 0, 0])
+        self.fil_rgb_u = np.array([255, 255, 255])
+        self.fil_hsv_l = np.array([0, 0, 0])
+        self.fil_hsv_u = np.array([255, 255, 255])
 
     def read_calibration(self):
 
@@ -61,6 +64,24 @@ class Retina():
                                       int(self.calibration_parser.get('splitter_parameters', 'u_g')),
                                       int(self.calibration_parser.get('splitter_parameters', 'u_b'))]
 
+        self.spl_hsv_lower_filter = [int(self.calibration_parser.get('splitter_parameters', 'l_h')),
+                                     int(self.calibration_parser.get('splitter_parameters', 'l_s')),
+                                     int(self.calibration_parser.get('splitter_parameters', 'l_v'))]
+
+        self.spl_hsv_upper_filter = [int(self.calibration_parser.get('splitter_parameters', 'u_h')),
+                                     int(self.calibration_parser.get('splitter_parameters', 'u_s')),
+                                     int(self.calibration_parser.get('splitter_parameters', 'u_v'))]
+
+        self.lane_hsv_lower_filter = [
+            int(self.calibration_parser.get('splitter_parameters', 'l_h')),
+            int(self.calibration_parser.get('splitter_parameters', 'l_s')),
+            int(self.calibration_parser.get('splitter_parameters', 'l_v'))]
+
+        self.lane_hsv_upper_filter = [
+            int(self.calibration_parser.get('splitter_parameters', 'u_h')),
+            int(self.calibration_parser.get('splitter_parameters', 'u_s')),
+            int(self.calibration_parser.get('splitter_parameters', 'u_v'))]
+
     def set_calibration(self,type,lower_rgb,upper_rgb):
 
         self.calibration_parser.set('{}_parameters'.format(type),'l_r', str(lower_rgb[0]))
@@ -70,6 +91,14 @@ class Retina():
         self.calibration_parser.set('{}_parameters'.format(type), 'u_r',str(upper_rgb[0]))
         self.calibration_parser.set('{}_parameters'.format(type), 'u_g',str(upper_rgb[1]))
         self.calibration_parser.set('{}_parameters'.format(type), 'u_b',str(upper_rgb[2]))
+
+        self.calibration_parser.set('{}_parameters'.format(type), 'l_h', str(lower_rgb[0]))
+        self.calibration_parser.set('{}_parameters'.format(type), 'l_s', str(lower_rgb[1]))
+        self.calibration_parser.set('{}_parameters'.format(type), 'l_v', str(lower_rgb[2]))
+
+        self.calibration_parser.set('{}_parameters'.format(type), 'u_h', str(upper_rgb[0]))
+        self.calibration_parser.set('{}_parameters'.format(type), 'u_s', str(upper_rgb[1]))
+        self.calibration_parser.set('{}_parameters'.format(type), 'u_v', str(upper_rgb[2]))
 
         calibration_file = open("calibration.ini", "w")
         self.calibration_parser.write(calibration_file)
@@ -102,7 +131,7 @@ class Retina():
         angles = []
         midpoints = []
 
-        for line in lines[0:2]:
+        for line in lines[0:1]:
             for rho,theta in line:
 
                 a = np.cos(theta)
@@ -132,14 +161,22 @@ class Retina():
 
 
         # self.filter_color(fil_1_l,fil_1_u)
+        print(self.enable_lines, self.mode)
+        self.filter_color(self.fil_rgb_l, self.fil_rgb_u)
+        rgb_frame = self.frame
 
-        self.filter_color(self.fil_1_l,self.fil_1_u)
-        self.hsv_transformation()
+        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+        self.filter_color(self.fil_hsv_l, self.fil_hsv_u)
 
         if self.enable_lines:
             self.detect_lanes()
 
-        return self.frame
+        if self.mode == 'HSV':
+            return self.frame
+        elif self.mode == 'RGB':
+            return rgb_frame
+
+
 
 # ------------------------------------------------------------------------------
 #                                      RETINA

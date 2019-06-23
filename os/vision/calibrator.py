@@ -33,10 +33,10 @@ logger.setLevel(logging.DEBUG)
 class Calibrator(threading.Thread):
 
     UI_HEIGHT = 350
-    UI_WIDTH = 430
+    UI_WIDTH = 750
 
-    IMG_WIDTH = 192
-    IMG_HEIGHT = 256
+    IMG_WIDTH = 400
+    IMG_HEIGHT = 200
 
     INITAL_IMG_INDEX = 155
 
@@ -93,69 +93,161 @@ class Calibrator(threading.Thread):
         self.stop.config(width=8)
         self.stop.place(x=120, y=310)
 
-        self.fil_l_1_increase = tk.Button(self.ui, text="Inc R/H L Fil", command=lambda: self.adjust_lower_fil(index=0,vector="increase", mag=self.ADJ_MAG))
-        self.fil_l_1_increase.config(width=8)
-        self.fil_l_1_increase.place(x=220, y=20)
+        self.fil_l_rgb1_increase = tk.Button(self.ui, text="Inc R L Fil", command=lambda: self.adjust_lower_fil(index=0,vector="increase", mag=self.ADJ_MAG))
+        self.fil_l_rgb1_increase.config(width=8)
+        self.fil_l_rgb1_increase.place(x=320, y=20)
 
-        self.fil_l_2_increase = tk.Button(self.ui, text="Inc G/S L Fil",command=lambda: self.adjust_lower_fil(index=1, vector="increase",mag=self.ADJ_MAG))
-        self.fil_l_2_increase.config(width=8)
-        self.fil_l_2_increase.place(x=220, y=50)
+        self.fil_l_rgb2_increase = tk.Button(self.ui, text="Inc G L Fil",command=lambda: self.adjust_lower_fil(index=1, vector="increase",mag=self.ADJ_MAG))
+        self.fil_l_rgb2_increase.config(width=8)
+        self.fil_l_rgb2_increase.place(x=320, y=50)
 
-        self.fil_l_3_increase = tk.Button(self.ui, text="Inc B/V L Fil",command=lambda: self.adjust_lower_fil(index=2, vector="increase",mag=self.ADJ_MAG))
-        self.fil_l_3_increase.config(width=8)
-        self.fil_l_3_increase.place(x=220, y=80)
+        self.fil_l_rgb3_increase = tk.Button(self.ui, text="Inc B L Fil",command=lambda: self.adjust_lower_fil(index=2, vector="increase",mag=self.ADJ_MAG))
+        self.fil_l_rgb3_increase.config(width=8)
+        self.fil_l_rgb3_increase.place(x=320, y=80)
 
-        self.fil_l_1_decrease = tk.Button(self.ui, text="Dec R/H L Fil",command=lambda: self.adjust_lower_fil(index=0, vector="decrease",mag=self.ADJ_MAG))
-        self.fil_l_1_decrease.config(width=8)
-        self.fil_l_1_decrease.place(x=320, y=20)
+        self.fil_l_rgb1_decrease = tk.Button(self.ui, text="Dec R L Fil",command=lambda: self.adjust_lower_fil(index=0, vector="decrease",mag=self.ADJ_MAG))
+        self.fil_l_rgb1_decrease.config(width=8)
+        self.fil_l_rgb1_decrease.place(x=420, y=20)
 
-        self.fil_l_2_decrease = tk.Button(self.ui, text="Dec G/S L Fil",command=lambda: self.adjust_lower_fil(index=1, vector="decrease",mag=self.ADJ_MAG))
-        self.fil_l_2_decrease.config(width=8)
-        self.fil_l_2_decrease.place(x=320, y=50)
+        self.fil_l_rgb2_decrease = tk.Button(self.ui, text="Dec G L Fil",command=lambda: self.adjust_lower_fil(index=1, vector="decrease",mag=self.ADJ_MAG))
+        self.fil_l_rgb2_decrease.config(width=8)
+        self.fil_l_rgb2_decrease.place(x=420, y=50)
 
-        self.fil_l_3_decrease = tk.Button(self.ui, text="Dec B/V L Fil",command=lambda: self.adjust_lower_fil(index=2, vector="decrease",mag=self.ADJ_MAG))
-        self.fil_l_3_decrease.config(width=8)
-        self.fil_l_3_decrease.place(x=320, y=80)
+        self.fil_l_rgb3_decrease = tk.Button(self.ui, text="Dec B L Fil",command=lambda: self.adjust_lower_fil(index=2, vector="decrease",mag=self.ADJ_MAG))
+        self.fil_l_rgb3_decrease.config(width=8)
+        self.fil_l_rgb3_decrease.place(x=420, y=80)
 
-        self.fil_u_1_increase = tk.Button(self.ui, text="Inc R/H U Fil", command=lambda: self.adjust_upper_fil(index=0, vector="increase", mag=self.ADJ_MAG))
-        self.fil_u_1_increase.config(width=8)
-        self.fil_u_1_increase.place(x=220, y=120)
+        self.fil_u_rgb1_increase = tk.Button(self.ui, text="Inc R U Fil", command=lambda: self.adjust_upper_fil(index=0, vector="increase", mag=self.ADJ_MAG))
+        self.fil_u_rgb1_increase.config(width=8)
+        self.fil_u_rgb1_increase.place(x=320, y=120)
 
-        self.fil_u_2_increase = tk.Button(self.ui, text="Inc G/S U Fil", command=lambda: self.adjust_upper_fil(index=1, vector="increase", mag=self.ADJ_MAG))
-        self.fil_u_2_increase.config(width=8)
-        self.fil_u_2_increase.place(x=220, y=150)
+        self.fil_u_rgb2_increase = tk.Button(self.ui, text="Inc G U Fil", command=lambda: self.adjust_upper_fil(index=1, vector="increase", mag=self.ADJ_MAG))
+        self.fil_u_rgb2_increase.config(width=8)
+        self.fil_u_rgb2_increase.place(x=320, y=150)
 
-        self.fil_u_3_increase = tk.Button(self.ui, text="Inc B/V U Fil", command=lambda: self.adjust_upper_fil(index=2, vector="increase", mag=self.ADJ_MAG))
-        self.fil_u_3_increase.config(width=8)
-        self.fil_u_3_increase.place(x=220, y=180)
+        self.fil_u_rgb3_increase = tk.Button(self.ui, text="Inc B U Fil", command=lambda: self.adjust_upper_fil(index=2, vector="increase", mag=self.ADJ_MAG))
+        self.fil_u_rgb3_increase.config(width=8)
+        self.fil_u_rgb3_increase.place(x=320, y=180)
 
-        self.fil_u_1_decrease = tk.Button(self.ui, text="Dec R/H U Fil", command=lambda: self.adjust_upper_fil(index=0, vector="decrease", mag=self.ADJ_MAG))
-        self.fil_u_1_decrease.config(width=8)
-        self.fil_u_1_decrease.place(x=320, y=120)
+        self.fil_u_rgb1_decrease = tk.Button(self.ui, text="Dec R U Fil", command=lambda: self.adjust_upper_fil(index=0, vector="decrease", mag=self.ADJ_MAG))
+        self.fil_u_rgb1_decrease.config(width=8)
+        self.fil_u_rgb1_decrease.place(x=420, y=120)
 
-        self.fil_u_2_decrease = tk.Button(self.ui, text="Dec G/S U Fil", command=lambda: self.adjust_upper_fil(index=1, vector="decrease", mag=self.ADJ_MAG))
-        self.fil_u_2_decrease.config(width=8)
-        self.fil_u_2_decrease.place(x=320, y=150)
+        self.fil_u_rgb2_decrease = tk.Button(self.ui, text="Dec G U Fil", command=lambda: self.adjust_upper_fil(index=1, vector="decrease", mag=self.ADJ_MAG))
+        self.fil_u_rgb2_decrease.config(width=8)
+        self.fil_u_rgb2_decrease.place(x=420, y=150)
 
-        self.fil_u_3_decrease = tk.Button(self.ui, text="Dec B/V U Fil", command=lambda: self.adjust_upper_fil(index=2, vector="decrease", mag=self.ADJ_MAG))
-        self.fil_u_3_decrease.config(width=8)
-        self.fil_u_3_decrease.place(x=320, y=180)
+        self.fil_u_rgb3_decrease = tk.Button(self.ui, text="Dec B U Fil", command=lambda: self.adjust_upper_fil(index=2, vector="decrease", mag=self.ADJ_MAG))
+        self.fil_u_rgb3_decrease.config(width=8)
+        self.fil_u_rgb3_decrease.place(x=420, y=180)
+
+        self.fil_l_hsv1_increase = tk.Button(self.ui, text="Inc H L Fil",
+                                             command=lambda: self.adjust_lower_hsv_fil(index=0,
+                                                                                   vector="increase",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_l_hsv1_increase.config(width=8)
+        self.fil_l_hsv1_increase.place(x=520, y=20)
+
+        self.fil_l_hsv2_increase = tk.Button(self.ui, text="Inc S L Fil",
+                                             command=lambda: self.adjust_lower_hsv_fil(index=1,
+                                                                                   vector="increase",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_l_hsv2_increase.config(width=8)
+        self.fil_l_hsv2_increase.place(x=520, y=50)
+
+        self.fil_l_hsv3_increase = tk.Button(self.ui, text="Inc V L Fil",
+                                             command=lambda: self.adjust_lower_hsv_fil(index=2,
+                                                                                   vector="increase",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_l_hsv3_increase.config(width=8)
+        self.fil_l_hsv3_increase.place(x=520, y=80)
+
+        self.fil_l_hsv1_decrease = tk.Button(self.ui, text="Dec H L Fil",
+                                             command=lambda: self.adjust_lower_hsv_fil(index=0,
+                                                                                   vector="decrease",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_l_hsv1_decrease.config(width=8)
+        self.fil_l_hsv1_decrease.place(x=620, y=20)
+
+        self.fil_l_hsv2_decrease = tk.Button(self.ui, text="Dec S L Fil",
+                                             command=lambda: self.adjust_lower_hsv_fil(index=1,
+                                                                                   vector="decrease",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_l_hsv2_decrease.config(width=8)
+        self.fil_l_hsv2_decrease.place(x=620, y=50)
+
+        self.fil_l_hsv3_decrease = tk.Button(self.ui, text="Dec V L Fil",
+                                             command=lambda: self.adjust_lower_hsv_fil(index=2,
+                                                                                   vector="decrease",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_l_hsv3_decrease.config(width=8)
+        self.fil_l_hsv3_decrease.place(x=620, y=80)
+
+        self.fil_u_hsv1_increase = tk.Button(self.ui, text="Inc H U Fil",
+                                             command=lambda: self.adjust_upper_hsv_fil(index=0,
+                                                                                   vector="increase",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_u_hsv1_increase.config(width=8)
+        self.fil_u_hsv1_increase.place(x=520, y=120)
+
+        self.fil_u_hsv2_increase = tk.Button(self.ui, text="Inc S U Fil",
+                                             command=lambda: self.adjust_upper_hsv_fil(index=1,
+                                                                                   vector="increase",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_u_hsv2_increase.config(width=8)
+        self.fil_u_hsv2_increase.place(x=520, y=150)
+
+        self.fil_u_hsv3_increase = tk.Button(self.ui, text="Inc V U Fil",
+                                             command=lambda: self.adjust_upper_hsv_fil(index=2,
+                                                                                   vector="increase",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_u_hsv3_increase.config(width=8)
+        self.fil_u_hsv3_increase.place(x=520, y=180)
+
+        self.fil_u_hsv1_decrease = tk.Button(self.ui, text="Dec H U Fil",
+                                             command=lambda: self.adjust_upper_hsv_fil(index=0,
+                                                                                   vector="decrease",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_u_hsv1_decrease.config(width=8)
+        self.fil_u_hsv1_decrease.place(x=620, y=120)
+
+        self.fil_u_hsv2_decrease = tk.Button(self.ui, text="Dec S U Fil",
+                                             command=lambda: self.adjust_upper_hsv_fil(index=1,
+                                                                                   vector="decrease",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_u_hsv2_decrease.config(width=8)
+        self.fil_u_hsv2_decrease.place(x=620, y=150)
+
+        self.fil_u_hsv3_decrease = tk.Button(self.ui, text="Dec V U Fil",
+                                             command=lambda: self.adjust_upper_hsv_fil(index=2,
+                                                                                   vector="decrease",
+                                                                                   mag=self.ADJ_MAG))
+        self.fil_u_hsv3_decrease.config(width=8)
+        self.fil_u_hsv3_decrease.place(x=620, y=180)
 
         self.display_lanes = tk.Button(self.ui, text="Display Lanes",command=lambda: self.enable_lanes())
         self.display_lanes.config(width=8)
-        self.display_lanes.place(x=220, y=220)
+        self.display_lanes.place(x=320, y=220)
 
         self.remove_lanes = tk.Button(self.ui, text="Remove Lanes",command=lambda: self.disable_lanes())
         self.remove_lanes.config(width=8)
-        self.remove_lanes.place(x=320, y=220)
+        self.remove_lanes.place(x=420, y=220)
 
         self.enable_vision = tk.Button(self.ui, text="Enable Vision", command=lambda: self.enable_retina())
         self.enable_vision.config(width=8)
-        self.enable_vision.place(x=220, y=260)
+        self.enable_vision.place(x=320, y=260)
 
         self.disable_vision = tk.Button(self.ui, text="Disable Vision", command=lambda: self.disable_retina())
         self.disable_vision.config(width=8)
-        self.disable_vision.place(x=320, y=260)
+        self.disable_vision.place(x=420, y=260)
+
+        self.show_rgb = tk.Button(self.ui, text="RGB", command=lambda: self.enable_RGB())
+        self.show_rgb.config(width=8)
+        self.show_rgb.place(x=320, y=300)
+
+        self.show_hsv = tk.Button(self.ui, text="HSV", command=lambda: self.enable_HSV())
+        self.show_hsv.config(width=8)
+        self.show_hsv.place(x=420, y=300)
 
     def init_vision_ctrls(self):
 
@@ -203,30 +295,60 @@ class Calibrator(threading.Thread):
     def adjust_lower_fil(self, index, vector="increase", mag=5):
 
         if vector == "increase":
-            if self.retina.fil_1_l[index] < 255:
-                self.retina.fil_1_l[index] += mag
+            if self.retina.fil_rgb_l[index] < 255:
+                self.retina.fil_rgb_l[index] += mag
         elif vector == "decrease":
-            if self.retina.fil_1_l[index] > 0:
-                self.retina.fil_1_l[index] -= mag
+            if self.retina.fil_rgb_l[index] > 0:
+                self.retina.fil_rgb_l[index] -= mag
 
-        self.retina.set_calibration(self.TYPE, self.retina.fil_1_l, self.retina.fil_1_u)
+        self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
 
-        logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
+        logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
 
         self.change_img(self.img_index)
 
     def adjust_upper_fil(self, index, vector="increase", mag=5):
 
         if vector == "increase":
-            if self.retina.fil_1_u[index] < 255:
-                self.retina.fil_1_u[index] += mag
+            if self.retina.fil_rgb_u[index] < 255:
+                self.retina.fil_rgb_u[index] += mag
         elif vector == "decrease":
-            if self.retina.fil_1_u[index] > 0:
-                self.retina.fil_1_u[index] -= mag
+            if self.retina.fil_rgb_u[index] > 0:
+                self.retina.fil_rgb_u[index] -= mag
 
-        self.retina.set_calibration(self.TYPE, self.retina.fil_1_l, self.retina.fil_1_u)
+        self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
 
-        logger.info("Lower Filter: {} Upper Filter: {}".format(self.retina.fil_1_l,self.retina.fil_1_u))
+        logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
+
+        self.change_img(self.img_index)
+
+    def adjust_lower_hsv_fil(self, index, vector="increase", mag=5):
+
+        if vector == "increase":
+            if self.retina.fil_hsv_l[index] < 255:
+                self.retina.fil_hsv_l[index] += mag
+        elif vector == "decrease":
+            if self.retina.fil_hsv_l[index] > 0:
+                self.retina.fil_hsv_l[index] -= mag
+
+        self.retina.set_calibration(self.TYPE, self.retina.fil_hsv_l, self.retina.fil_hsv_u)
+
+        logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
+
+        self.change_img(self.img_index)
+
+    def adjust_upper_hsv_fil(self, index, vector="increase", mag=5):
+
+        if vector == "increase":
+            if self.retina.fil_hsv_u[index] < 255:
+                self.retina.fil_hsv_u[index] += mag
+        elif vector == "decrease":
+            if self.retina.fil_hsv_u[index] > 0:
+                self.retina.fil_hsv_u[index] -= mag
+
+        self.retina.set_calibration(self.TYPE, self.retina.fil_hsv_l, self.retina.fil_hsv_u)
+
+        logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
 
         self.change_img(self.img_index)
 
@@ -248,6 +370,16 @@ class Calibrator(threading.Thread):
     def disable_retina(self):
 
         self.apply_retina = False
+        self.change_img(self.img_index)
+
+    def enable_RGB(self):
+
+        self.retina.mode = 'RGB'
+        self.change_img(self.img_index)
+
+    def enable_HSV(self):
+
+        self.retina.mode = 'HSV'
         self.change_img(self.img_index)
 
     # ---------------------------- Image Change --------------------------------
@@ -281,21 +413,27 @@ class Calibrator(threading.Thread):
 
             self.retina.frame = self.raw
             self.processed = self.retina.process()
-            self.img = ImageTk.PhotoImage(self.recall.rgb_to_img(self.processed))
+            self.img = ImageTk.PhotoImage(self.resize_im(self.processed))
 
             self.update_img()
             logger.info("Image {} opened (Retina applied: {})".format(self.img_index,self.apply_retina))
+
+
 
     # -------------------------- Image Utilities -------------------------------
 
     def get_image(self, image_num):
 
         self.raw = self.recall.frames[image_num]
-        self.img = ImageTk.PhotoImage(self.recall.rgb_to_img(self.raw))
+        self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
 
     def update_img(self):
 
         self.canvas.itemconfigure(self.canvas_img, image=self.img)
+
+    def resize_im(self, im):
+        im = self.recall.rgb_to_img(im)
+        return im.resize((256, 60), Image.NEAREST)
 
     # ---------------------------- GUI Startup ---------------------------------
 
