@@ -427,13 +427,6 @@ class Calibrator(threading.Thread):
         self.raw = self.recall.frames[image_num]
         self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
 
-        # self.raw_l = self.raw[0:43, :, :]
-        # self.img_l = ImageTk.PhotoImage(self.resize_im(self.raw_l))
-        #
-        # self.raw_c = self.raw[44:86, :, :]
-        # self.img_c = ImageTk.PhotoImage(self.resize_im(self.raw_c))
-        #
-        # self.raw_r = self.raw[87:128, :, :]
 
     def update_img(self):
 

@@ -30,17 +30,21 @@ class Retina():
     def __init__(self):
 
         self.frame = None
+        self.frame_l = None
+        self.frame_c = None
+        self.frame_r = None
+        self.frames = []
         self.enable_lines = False
         self.mode = 'RGB'
 
         self.calibration_parser = ConfigParser()
-        self.read_calibration()
+        # self.read_calibration()
         self.init_filters()
 
     def init_filters(self):
 
-        self.fil_rgb_l = np.array([0, 0, 0])
-        self.fil_rgb_u = np.array([255, 255, 255])
+        self.fil_rgb_l = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        self.fil_rgb_u = np.array([[255, 255, 255],[255, 255, 255],[255, 255, 255]])
         self.fil_hsv_l = np.array([0, 0, 0])
         self.fil_hsv_u = np.array([255, 255, 255])
 
@@ -116,52 +120,53 @@ class Retina():
         hsv_blue = cv2.cvtColor(blue, cv2.COLOR_BGR2HSV)
         print(hsv_blue)
 
-    def filter_color(self, lower_rgb_range, upper_rgb_range):
+    def filter_color(self, im, lower_rgb_range, upper_rgb_range):
 
-        mask = cv2.inRange(self.frame, lower_rgb_range, upper_rgb_range)
-        self.frame = cv2.bitwise_and(self.frame, self.frame, mask=mask)
-        return self.frame
+        mask = cv2.inRange(im, lower_rgb_range, upper_rgb_range)
+        im = cv2.bitwise_and(im, im, mask=mask)
+        return im
 
     def rgb_red_filter(self):
-        while cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) > 1500:
-            self.fil_rgb_l[0] += 5
-            self.filter_color(self.fil_rgb_l, self.fil_rgb_u)
-            # print(cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)), self.fil_rgb_l)
-        while cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) < 1000:
-            if self.fil_rgb_l[0] == 0:
-                break
-            self.fil_rgb_l[0] -= 5
-            self.filter_color(self.fil_rgb_l, self.fil_rgb_u)
-            # print(cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)), self.fil_rgb_l)
+        for i in range(len(self.frames)):
+            while 1:
+                print(cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)))
+                if cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) > 300:
+                    self.fil_rgb_l[i][0] += 5
+                    self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
+                elif cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) < 200 and self.fil_rgb_l[i][0] != 0:
+                    self.fil_rgb_l[i][0] -= 5
+                    self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
+                else:
+                    break
+        print(self.fil_rgb_l, self.fil_rgb_u)
 
     def detect_lanes(self):
+        for i in range(len(self.frames)):
+            gray = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)
+            edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+            lines = cv2.HoughLines(edges,self.RHO,np.pi/self.THETA,self.LINE_THRESHOLD)
+            angles = []
+            midpoints = []
+            if lines is not None:
+                for line in lines[0:1]:
+                    for rho,theta in line:
 
+                        a = np.cos(theta)
+                        b = np.sin(theta)
+                        x0 = a*rho
+                        y0 = b*rho
+                        x1 = int(x0 + 1000*(-b))
+                        y1 = int(y0 + 1000*(a))
+                        x2 = int(x0 - 1000*(-b))
+                        y2 = int(y0 - 1000*(a))
 
-        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, 50, 150, apertureSize=3)
-        lines = cv2.HoughLines(edges,self.RHO,np.pi/self.THETA,self.LINE_THRESHOLD)
-        angles = []
-        midpoints = []
+                        if (x2-x1) > 0:
+                            angles.append(np.arctan( (y2-y1)/(x2-x1) ))
+                            midpoints.append([ (x2-x1)/2+x1 , (y2-y1)/2+y1 ])
 
-        for line in lines[0:1]:
-            for rho,theta in line:
+                        cv2.line(self.frames[i],(x1,y1),(x2,y2),(255,255,255),2)
 
-                a = np.cos(theta)
-                b = np.sin(theta)
-                x0 = a*rho
-                y0 = b*rho
-                x1 = int(x0 + 1000*(-b))
-                y1 = int(y0 + 1000*(a))
-                x2 = int(x0 - 1000*(-b))
-                y2 = int(y0 - 1000*(a))
-
-                if (x2-x1) > 0:
-                    angles.append(np.arctan( (y2-y1)/(x2-x1) ))
-                    midpoints.append([ (x2-x1)/2+x1 , (y2-y1)/2+y1 ])
-
-                cv2.line(self.frame,(x1,y1),(x2,y2),(255,255,255),2)
-
-        return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
+        # return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
 
 
     def process(self):
@@ -170,18 +175,31 @@ class Retina():
         # fil_1_l = np.array([30, 0, 0])
         # fil_1_u = np.array([80, 105, 255])
 
+        # print(self.frame.shape)
+        self.frame_l = self.frame[:, 0:42, :]
 
+        self.frame_c = self.frame[:, 43:85, :]
+
+        self.frame_r = self.frame[:, 86:128, :]
+
+        # print(self.frame_l.size, self.frame_c.size, self.frame_r.size)
+
+        self.frames = [self.frame_l, self.frame_c, self.frame_r]
 
         # self.filter_color(fil_1_l,fil_1_u)
         print(self.enable_lines, self.mode)
         self.rgb_red_filter()
-        rgb_frame = self.frame
+        rgb_frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-        self.filter_color(self.fil_hsv_l, self.fil_hsv_u)
+
+        for i in range(len(self.frames)):
+            self.frames[i] = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2HSV)
+        # self.filter_color(self.fil_hsv_l, self.fil_hsv_u)
 
         if self.enable_lines:
             self.detect_lanes()
+
+        self.frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
         if self.mode == 'HSV':
             return self.frame
