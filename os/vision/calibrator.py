@@ -257,7 +257,7 @@ class Calibrator(threading.Thread):
 
     def init_recall(self):
 
-        self.recall = Recall("/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-16 20;49;28.264824.npy")
+        self.recall = Recall("/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-26 10;51;31.605013.npy")
         self.recall.load()
 
     # ------------------------- Retina Integration -----------------------------
@@ -427,13 +427,22 @@ class Calibrator(threading.Thread):
         self.raw = self.recall.frames[image_num]
         self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
 
+        # self.raw_l = self.raw[0:43, :, :]
+        # self.img_l = ImageTk.PhotoImage(self.resize_im(self.raw_l))
+        #
+        # self.raw_c = self.raw[44:86, :, :]
+        # self.img_c = ImageTk.PhotoImage(self.resize_im(self.raw_c))
+        #
+        # self.raw_r = self.raw[87:128, :, :]
+
     def update_img(self):
 
         self.canvas.itemconfigure(self.canvas_img, image=self.img)
 
     def resize_im(self, im):
         im = self.recall.rgb_to_img(im)
-        return im.resize((256, 60), Image.NEAREST)
+        return im.resize((128 * 2, 40 * 2), Image.NEAREST)
+        # return im
 
     # ---------------------------- GUI Startup ---------------------------------
 

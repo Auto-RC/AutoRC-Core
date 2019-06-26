@@ -7,7 +7,7 @@ import numpy as np
 import logging
 import cv2
 from configparser import ConfigParser
-
+import time
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
 # ------------------------------------------------------------------------------
@@ -122,6 +122,18 @@ class Retina():
         self.frame = cv2.bitwise_and(self.frame, self.frame, mask=mask)
         return self.frame
 
+    def rgb_red_filter(self):
+        while cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) > 1500:
+            self.fil_rgb_l[0] += 5
+            self.filter_color(self.fil_rgb_l, self.fil_rgb_u)
+            # print(cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)), self.fil_rgb_l)
+        while cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) < 1000:
+            if self.fil_rgb_l[0] == 0:
+                break
+            self.fil_rgb_l[0] -= 5
+            self.filter_color(self.fil_rgb_l, self.fil_rgb_u)
+            # print(cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)), self.fil_rgb_l)
+
     def detect_lanes(self):
 
 
@@ -162,7 +174,7 @@ class Retina():
 
         # self.filter_color(fil_1_l,fil_1_u)
         print(self.enable_lines, self.mode)
-        self.filter_color(self.fil_rgb_l, self.fil_rgb_u)
+        self.rgb_red_filter()
         rgb_frame = self.frame
 
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
