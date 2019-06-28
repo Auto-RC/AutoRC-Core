@@ -23,19 +23,21 @@ logger.setLevel(logging.INFO)
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 utility_dir = current_dir + r'/utility'
-controls_dir = current_dir + r'/input/rf'
+input_dir = current_dir + r'/input/rf'
 sensors_dir = current_dir + r'/sensors'
 camera_dir = sensors_dir + r'/camera'
 imu_dir = sensors_dir + r'/imu'
 drive_dir = current_dir + r'/drive'
 cortex_dir = current_dir + r'/cortex'
+controls_dir = current_dir + r'/controls'
 
 sys.path.append(utility_dir)
-sys.path.append(controls_dir)
+sys.path.append(input_dir)
 sys.path.append(camera_dir)
 sys.path.append(drive_dir)
 sys.path.append(imu_dir)
 sys.path.append(cortex_dir)
+sys.path.append(controls_dir)
 
 from memory import Memory
 from oculus import Oculus
@@ -46,6 +48,7 @@ from ampullae import Ampullae
 from corti import Corti
 from cortex import Cortex
 from retina import Retina
+from cerebellum import Cerebellum
 
 # ==================================================================================================
 #                                           AutoRC
@@ -87,7 +90,10 @@ class AutoRC(threading.Thread):
 
         # Initializing modules
         # ------------------------------------------------------------------------------------------
-        self.drive = Drive(controller=self.controller, pca9685=self.pca9685,update_interval_ms=10)
+        self.cerebellum = Cerebellum(controller=self.controller, update_interval_ms=10)
+        self.cerebellum.start()
+
+        self.drive = Drive(controller=self.cerebellum, pca9685=self.pca9685,update_interval_ms=10)
         self.drive.start()
 
         self.corti = Corti(update_interval_ms=50)

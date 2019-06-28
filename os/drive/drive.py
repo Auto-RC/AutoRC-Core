@@ -29,7 +29,7 @@ class Drive(threading.Thread):
     STR_MAX = 64
     STR_MIN = 0
 
-    def __init__(self, controller, pca9685, update_interval_ms=10):
+    def __init__(self, cerebellum, pca9685, update_interval_ms=10):
 
         # Thread parameters
         self.thread_name = "Drive"
@@ -38,7 +38,7 @@ class Drive(threading.Thread):
         self.enabled = False
         self.update_interval_ms = update_interval_ms
 
-        self.controller = controller
+        self.cerebellum = cerebellum
         self.pca9685 = pca9685
 
         self.steering = 0
@@ -54,7 +54,7 @@ class Drive(threading.Thread):
 
                 # Getting values from controller
                 # --------------------------------------------------------------------------------------
-                self.compute_controls()
+                self.update_controls()
 
                 self.pca9685.set_steering(self.steering)
                 self.pca9685.set_throttle(self.throttle)
@@ -75,12 +75,13 @@ class Drive(threading.Thread):
         self.pca9685.set_steering(self.steering)
         self.pca9685.set_throttle(self.throttle)
 
-    def compute_controls(self):
+    def update_controls(self):
 
         if self.enabled == True:
 
-            self.throttle = (self.controller.thr - 10) / 90
-            self.steering = (self.controller.str - 55) / 45
+            self.throttle = (self.cerebellum.thr - 10) / 90
+            self.steering = (self.cerebellum.str - 55) / 45
+
 
 # ==================================================================================================
 #                                            UNIT TESTS
