@@ -165,9 +165,12 @@ class Retina():
                         x2 = int(x0 - 1000*(-b))
                         y2 = int(y0 - 1000*(a))
 
-                        if (x2-x1) > 0:
-                            self.angles[i] = np.arctan( (y2-y1)/(x2-x1) ) * 180/np.pi
-                            self.midpoints[i] = ((x2-x1)/2+x1 , (y2-y1)/2+y1 )
+                        self.angles[i] = theta
+                        self.midpoints[i] = rho
+
+                        # if (x2-x1) > 0:
+                        #     self.angles[i] = np.arctan( (y2-y1)/(x2-x1) ) * 180/np.pi
+                        #     self.midpoints[i] = ((x2-x1)/2+x1 , (y2-y1)/2+y1 )
 
                         cv2.line(self.frames[i],(x1,y1),(x2,y2),(255,255,255),2)
 
