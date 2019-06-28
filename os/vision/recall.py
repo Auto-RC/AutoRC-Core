@@ -32,7 +32,7 @@ class Recall():
     def load(self):
 
         # Loading the npy data package
-        self.frames = np.load(self.path)[:,40:80,:,:]
+        self.frames = np.load(self.path)
         print(self.frames.shape)
         self.num_images = self.frames.shape[0]
         logger.debug("Number of images in npy: {}".format(self.num_images))
