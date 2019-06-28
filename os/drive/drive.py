@@ -55,7 +55,7 @@ class Drive(threading.Thread):
                 # Getting values from controller
                 # --------------------------------------------------------------------------------------
                 self.update_controls()
-                print(self.steering)
+                
                 self.pca9685.set_steering(self.steering)
                 self.pca9685.set_throttle(self.throttle)
 
