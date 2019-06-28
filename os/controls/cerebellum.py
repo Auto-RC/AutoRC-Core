@@ -55,9 +55,9 @@ class Cerebellum(threading.Thread):
 
         self.state['angles']    = self.cortex.angles
         self.state['midpoints'] = self.cortex.midpoints
-        self.state['x_accel']   = state['x_accel']
-        self.state['y_accel']   = state['y_accel']
-        self.state['z_accel']   = state['z_accel']
+        # self.state['x_accel']   = state['x_accel']
+        # self.state['y_accel']   = state['y_accel']
+        # self.state['z_accel']   = state['z_accel']
 
     def compute_controls(self):
 
