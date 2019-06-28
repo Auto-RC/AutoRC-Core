@@ -219,7 +219,7 @@ class Retina():
         # elif self.mode == 'RGB':
         #     return rgb_frame
 
-        print(np.mean([self.angles[0],self.angles[2]]))
+        # print(np.mean([self.angles[0],self.angles[2]]))
 
         return self.angles, self.midpoints
 

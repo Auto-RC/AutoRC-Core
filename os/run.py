@@ -276,11 +276,6 @@ class AutoRC(threading.Thread):
                 self.toggle_corti()
                 self.toggle_cortex()
 
-            # SWC TOP Position
-            if (self.controller.swc > 20) and (self.enable_memory == True):
-                self.toggle_memory()
-            elif (self.controller.swc < 20) and (self.enable_memory == False):
-                self.toggle_memory()
 
             # SWC Top Position
             if (self.controller.swc > 20) and (self.enable_auto == True):
@@ -288,10 +283,10 @@ class AutoRC(threading.Thread):
             elif (self.controller.swc < 20) and (self.enable_auto == False):
                 self.toggle_auto()
 
-            # SWC Middle Position
-            if (self.controller.swc < 70) and (self.controller.swc > 20) and (self.enable_memory == False):
+            # SWC Bottom Position
+            elif (self.controller.swc > 70) and (self.enable_memory == True):
                 self.toggle_memory()
-            elif ( (self.controller.swc > 70) or (self.controller.swc < 20) ) and (self.enable_memory == True):
+            elif (self.controller.swc < 70) and (self.enable_memory == False):
                 self.toggle_memory()
 
             time.sleep(100/1000)
