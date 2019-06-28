@@ -39,8 +39,8 @@ class Cerebellum(threading.Thread):
 
         self.auto = False
 
-        self.thr = 0
-        self.str = 0
+        self.thr = 10
+        self.str = 55
 
         self.state = dict()
         self.state['angles']    = None
