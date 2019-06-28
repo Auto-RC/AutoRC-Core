@@ -202,7 +202,7 @@ class Retina():
         # self.filter_color(fil_1_l,fil_1_u)
         # print(self.enable_lines, self.mode)
         self.rgb_red_filter()
-        rgb_frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
+        self.rgb_frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
 
         for i in range(len(self.frames)):
