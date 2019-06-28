@@ -27,7 +27,7 @@ class Memory:
     def __init__(self, modules=[]):
 
 
-        self.data_dir = '/home/arnavgupta/data'
+        self.data_dir = '~/data'
         if not os.path.exists(self.data_dir):
             os.mkdir(self.data_dir)
 
