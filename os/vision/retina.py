@@ -129,13 +129,14 @@ class Retina():
     def rgb_red_filter(self):
         for i in range(len(self.frames)):
             while 1:
-                print(cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)))
-                if cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) > 300:
+                # print(cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)))
+                if cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) > 250:
                     self.fil_rgb_l[i][0] += 5
                     self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
                 elif cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) < 200 and self.fil_rgb_l[i][0] != 0:
-                    self.fil_rgb_l[i][0] -= 5
+                    self.fil_rgb_l[i][0] -= 50
                     self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
+                    break
                 else:
                     break
         print(self.fil_rgb_l, self.fil_rgb_u)
