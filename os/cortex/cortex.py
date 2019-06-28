@@ -72,8 +72,6 @@ class Cortex(threading.Thread):
         while True:
 
             if self.enabled == True:
-                logger.info("test2")
-
                 self.process_frame()
 
             time.sleep(self.update_interval_ms / 1000)

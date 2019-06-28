@@ -231,7 +231,6 @@ class AutoRC(threading.Thread):
         while True:
 
 
-            logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}".format(self.enable_vehicle,self.enable_corti, self.enable_oculus,self.enable_memory, self.enable_cortex, self.controller.thr, self.controller.str, self.controller.swb, self.controller.swc))
 
             if self.enable_memory:
                 self.add_data_packet()
@@ -254,7 +253,22 @@ class AutoRC(threading.Thread):
                 self.toggle_memory()
 
             if (self.cortex.enabled == True):
-                logger.info("Angles: {} Midpoints: {}".format(self.cortex.angles,self.cortex.midpoints))
+                logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {} A: {} MP: {}"
+                    .format(
+                            self.enable_vehicle, self.enable_corti, self.enable_oculus,
+                            self.enable_memory, self.enable_cortex, self.controller.thr,
+                            self.controller.str, self.controller.swb, self.controller.swc,
+                            self.cortex.angles, self.cortex.midpoints
+                    )
+                )
+            else:
+                logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
+                        .format(
+                                self.enable_vehicle, self.enable_corti, self.enable_oculus,
+                                self.enable_memory, self.enable_cortex, self.controller.thr,
+                                self.controller.str, self.controller.swb, self.controller.swc
+                        )
+                )
 
             time.sleep(100/1000)
 
