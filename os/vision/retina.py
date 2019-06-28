@@ -137,7 +137,7 @@ class Retina():
                     self.fil_rgb_l[i][0] += 5
                     self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
                 elif cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) < 200 and self.fil_rgb_l[i][0] != 0:
-                    self.fil_rgb_l[i][0] -= 50
+                    self.fil_rgb_l[i][0] -= 15
                     self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
                     break
                 else:
