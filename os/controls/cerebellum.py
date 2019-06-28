@@ -59,7 +59,7 @@ class Cerebellum(threading.Thread):
 
     def compute_controls(self):
 
-        self.thr = 10
+        self.thr = 50
         self.str = 55
 
     def run(self):
