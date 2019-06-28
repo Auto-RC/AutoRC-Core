@@ -59,6 +59,9 @@ class Cortex(threading.Thread):
         # Detecting lines
         self.angles , self.midpoints = self.retina.process()
 
+        logger.info("test")
+        logger.info("angles->{}".format(self.angles))
+
     def enable(self):
 
         self.enabled = True
@@ -72,6 +75,7 @@ class Cortex(threading.Thread):
         while True:
 
             if self.enabled == True:
+                logger.info("test2")
 
                 self.process_frame()
 
