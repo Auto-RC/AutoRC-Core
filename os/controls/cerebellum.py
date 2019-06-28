@@ -72,7 +72,7 @@ class Cerebellum(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
-                update_state()
+                self.update_state()
                 self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)
