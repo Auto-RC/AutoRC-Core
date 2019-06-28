@@ -56,7 +56,9 @@ class Cortex(threading.Thread):
         self.retina.frame = self.oculus.get_frame()
 
         # Detecting lines
-        self.angles , self.midpoints = self.retina.process()
+        if self.retina.frame is not None:
+            logger.info(self.retina.frame)
+            self.angles , self.midpoints = self.retina.process()
 
         logger.info("test")
         logger.info("angles->{}".format(self.angles))
