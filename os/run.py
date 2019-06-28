@@ -209,7 +209,7 @@ class AutoRC(threading.Thread):
 
         if (self.enable_auto == False):
 
-            self.cortex.auto = True
+            self.cerebellum.auto = True
 
             self.enable_auto = True
             logger.debug("Started Auto...")
