@@ -165,7 +165,7 @@ class Retina():
                         x2 = int(x0 - 1000*(-b))
                         y2 = int(y0 - 1000*(a))
 
-                        self.angles[i] = theta
+                        self.angles[i] = theta * 180 / np.pi
                         self.midpoints[i] = rho
 
                         # if (x2-x1) > 0:
