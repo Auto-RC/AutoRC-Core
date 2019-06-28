@@ -33,6 +33,10 @@ class Cerebellum(threading.Thread):
         self.controller = controller
         self.update_interval_ms = update_interval_ms
 
+        # Thread parameters
+        self.thread_name = "Cerebellum"
+        threading.Thread.__init__(self, name=self.thread_name)
+
         self.auto = False
 
         self.thr = 0
