@@ -53,8 +53,7 @@ class Cortex(threading.Thread):
     def process_frame(self):
 
         # Setting the current frame
-        frame = self.oculus.get_frame()
-        self.retina.set_frame(frame)
+        self.retina.frame = self.oculus.get_frame()
 
         # Detecting lines
         self.angles , self.midpoints = self.retina.process()
