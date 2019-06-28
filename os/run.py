@@ -252,6 +252,9 @@ class AutoRC(threading.Thread):
             elif ( (self.controller.swc > 70) or (self.controller.swc < 20) ) and (self.enable_memory == True):
                 self.toggle_memory()
 
+            if (self.cortex.enabled == True):
+                logger.info("Angles: {} Midpoints: {}".format(self.cortex.angles,self.cortex.midpoints))
+
             time.sleep(100/1000)
 
 

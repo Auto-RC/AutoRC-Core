@@ -37,6 +37,9 @@ class Retina():
         self.enable_lines = False
         self.mode = 'RGB'
 
+        self.angles = [0,0,0]
+        self.midpoints = [(0,0),(0,0),(0,0)]
+
         self.calibration_parser = ConfigParser()
         # self.read_calibration()
         self.init_filters()
@@ -142,6 +145,7 @@ class Retina():
         print(self.fil_rgb_l, self.fil_rgb_u)
 
     def detect_lanes(self):
+
         for i in range(len(self.frames)):
             gray = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)
             edges = cv2.Canny(gray, 50, 150, apertureSize=3)
@@ -162,8 +166,8 @@ class Retina():
                         y2 = int(y0 - 1000*(a))
 
                         if (x2-x1) > 0:
-                            angles.append(np.arctan( (y2-y1)/(x2-x1) ))
-                            midpoints.append([ (x2-x1)/2+x1 , (y2-y1)/2+y1 ])
+                            self.angles[i] = np.arctan( (y2-y1)/(x2-x1) )
+                            self.midpoints[i] = ((x2-x1)/2+x1 , (y2-y1)/2+y1 )
 
                         cv2.line(self.frames[i],(x1,y1),(x2,y2),(255,255,255),2)
 
@@ -202,10 +206,12 @@ class Retina():
 
         self.frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
-        if self.mode == 'HSV':
-            return self.frame
-        elif self.mode == 'RGB':
-            return rgb_frame
+        # if self.mode == 'HSV':
+        #     return self.frame
+        # elif self.mode == 'RGB':
+        #     return rgb_frame
+
+        return self.angles, self.midpoints
 
 
 

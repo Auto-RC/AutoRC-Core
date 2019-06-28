@@ -47,19 +47,17 @@ class Cortex(threading.Thread):
         self.enabled = False
         self.update_interval_ms = update_interval_ms
 
-    def process_vision(self):
+        self.angles = None
+        self.midpoints = None
+
+    def process_frame(self):
 
         # Setting the current frame
         frame = self.oculus.get_frame()
         self.retina.set_frame(frame)
 
-        # Filtering color
-        self.retina.filter_colors(lower_rgb_range=[0,45,60],upper_rgb_range=[100,250,250])
-
         # Detecting lines
-        self.lanes = self.retina.detect_lines()
-
-        logger.info("Lane -> Angle: {} Midpoint: {}".format(self.lanes['angles'],self.lanes['midpoints']))
+        self.angles , self.midpoints = self.retina.process()
 
     def enable(self):
 
@@ -75,7 +73,7 @@ class Cortex(threading.Thread):
 
             if self.enabled == True:
 
-                self.process_vision()
+                self.process_frame()
 
             time.sleep(self.update_interval_ms / 1000)
 
