@@ -28,9 +28,11 @@ logger.setLevel(logging.INFO)
 
 class Cerebellum(threading.Thread):
 
-    def __init__(self, controller, update_interval_ms):
+    def __init__(self, controller, cortex, corti, update_interval_ms):
 
         self.controller = controller
+        self.cortex = cortex
+        self.corti = corti
         self.update_interval_ms = update_interval_ms
 
         # Thread parameters
@@ -51,8 +53,8 @@ class Cerebellum(threading.Thread):
 
     def update_state(self, **state):
 
-        self.state['angles']    = state['angles']
-        self.state['midpoints'] = state['angles']
+        self.state['angles']    = self.cortex.angles
+        self.state['midpoints'] = self.cortex.midpoints
         self.state['x_accel']   = state['x_accel']
         self.state['y_accel']   = state['y_accel']
         self.state['z_accel']   = state['z_accel']

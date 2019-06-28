@@ -91,12 +91,6 @@ class AutoRC(threading.Thread):
 
         # Initializing modules
         # ------------------------------------------------------------------------------------------
-        self.cerebellum = Cerebellum(controller=self.controller, update_interval_ms=10)
-        self.cerebellum.start()
-
-        self.drive = Drive(cerebellum=self.cerebellum, pca9685=self.pca9685,update_interval_ms=10)
-        self.drive.start()
-
         self.corti = Corti(update_interval_ms=50)
         self.corti.start()
 
@@ -106,6 +100,12 @@ class AutoRC(threading.Thread):
 
         self.cortex = Cortex(update_interval_ms=50,oculus=self.oculus)
         self.cortex.start()
+
+        self.cerebellum = Cerebellum(controller=self.controller, cortex=self.cortex, update_interval_ms=10)
+        self.cerebellum.start()
+
+        self.drive = Drive(cerebellum=self.cerebellum, pca9685=self.pca9685,  update_interval_ms=10)
+        self.drive.start()
 
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
