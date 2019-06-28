@@ -121,7 +121,7 @@ class Retina():
 
         blue = np.uint8([[[0, 0, 255]]])
         hsv_blue = cv2.cvtColor(blue, cv2.COLOR_BGR2HSV)
-        print(hsv_blue)
+        # print(hsv_blue)
 
     def filter_color(self, im, lower_rgb_range, upper_rgb_range):
 
@@ -142,7 +142,7 @@ class Retina():
                     break
                 else:
                     break
-        print(self.fil_rgb_l, self.fil_rgb_u)
+        # print(self.fil_rgb_l, self.fil_rgb_u)
 
     def detect_lanes(self):
 
@@ -180,7 +180,7 @@ class Retina():
         # fil_1_l = np.array([30, 0, 0])
         # fil_1_u = np.array([80, 105, 255])
 
-        print(self.frame.shape)
+        # print(self.frame.shape)
         self.frame = self.frame[40:80, :, :]
         self.frame_l = self.frame[:, 0:42, :]
 
@@ -193,7 +193,7 @@ class Retina():
         self.frames = [self.frame_l, self.frame_c, self.frame_r]
 
         # self.filter_color(fil_1_l,fil_1_u)
-        print(self.enable_lines, self.mode)
+        # print(self.enable_lines, self.mode)
         self.rgb_red_filter()
         rgb_frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 

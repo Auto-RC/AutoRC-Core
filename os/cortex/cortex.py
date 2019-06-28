@@ -57,11 +57,7 @@ class Cortex(threading.Thread):
 
         # Detecting lines
         if self.retina.frame is not None:
-            logger.info(self.retina.frame)
             self.angles , self.midpoints = self.retina.process()
-
-        logger.info("test")
-        logger.info("angles->{}".format(self.angles))
 
     def enable(self):
 
