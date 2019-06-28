@@ -169,7 +169,7 @@ class Retina():
                         if 90 <= theta < 180:
                             theta -= 180
 
-                   gi     self.angles[i] = theta
+                        self.angles[i] = theta
                         self.midpoints[i] = rho
 
                         # if (x2-x1) > 0:
