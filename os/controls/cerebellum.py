@@ -51,7 +51,7 @@ class Cerebellum(threading.Thread):
         self.state['y_accel']   = None
         self.state['z_accel']   = None
 
-    def update_state(self, **state):
+    def update_state(self):
 
         self.state['angles']    = self.cortex.angles
         self.state['midpoints'] = self.cortex.midpoints
@@ -72,6 +72,7 @@ class Cerebellum(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
+                update_state()
                 self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)

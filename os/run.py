@@ -101,7 +101,7 @@ class AutoRC(threading.Thread):
         self.cortex = Cortex(update_interval_ms=50,oculus=self.oculus)
         self.cortex.start()
 
-        self.cerebellum = Cerebellum(controller=self.controller, cortex=self.cortex, update_interval_ms=10)
+        self.cerebellum = Cerebellum(controller=self.controller, cortex=self.cortex, corti=self.corti, update_interval_ms=10)
         self.cerebellum.start()
 
         self.drive = Drive(cerebellum=self.cerebellum, pca9685=self.pca9685,  update_interval_ms=10)
