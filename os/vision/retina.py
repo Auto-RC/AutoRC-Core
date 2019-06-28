@@ -142,7 +142,7 @@ class Retina():
                     break
                 else:
                     break
-        # print(self.fil_rgb_l, self.fil_rgb_u)
+        print(self.fil_rgb_l, self.fil_rgb_u)
 
     def detect_lanes(self):
 
