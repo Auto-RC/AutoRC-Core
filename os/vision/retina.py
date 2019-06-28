@@ -219,7 +219,7 @@ class Retina():
         # elif self.mode == 'RGB':
         #     return rgb_frame
 
-        return self.angles, self.midpoints, self.frame
+        return self.angles, self.midpoints
 
 
 

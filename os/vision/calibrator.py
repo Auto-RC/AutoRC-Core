@@ -414,7 +414,8 @@ class Calibrator(threading.Thread):
         elif self.apply_retina == True:
 
             self.retina.frame = self.raw
-            theta, rho, self.processed = self.retina.process()
+            theta, rho = self.retina.process()
+            self.processed = self.retina.frame
             print(theta, rho)
             self.img = ImageTk.PhotoImage(self.resize_im(self.processed))
 
