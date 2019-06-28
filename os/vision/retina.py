@@ -34,7 +34,7 @@ class Retina():
         self.frame_c = None
         self.frame_r = None
         self.frames = []
-        self.enable_lines = False
+        self.enable_lines = True
         self.mode = 'RGB'
 
         self.angles = [0,0,0]
