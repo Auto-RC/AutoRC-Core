@@ -59,6 +59,7 @@ class Cortex(threading.Thread):
         if self.retina.frame is not None:
             self.angles , self.midpoints = self.retina.process()
 
+
     def enable(self):
 
         self.enabled = True
