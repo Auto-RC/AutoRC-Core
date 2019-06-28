@@ -98,6 +98,7 @@ class AutoRC(threading.Thread):
         self.modules.append('oculus')
 
         self.cortex = Cortex(update_interval_ms=50,oculus=self.oculus)
+        self.cortex.start()
 
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
