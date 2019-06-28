@@ -87,6 +87,7 @@ class AutoRC(threading.Thread):
         self.enable_memory = False
         self.enable_corti = False
         self.enable_cortex = False
+        self.enable_auto = False
 
         # Initializing modules
         # ------------------------------------------------------------------------------------------
@@ -204,6 +205,22 @@ class AutoRC(threading.Thread):
             self.enable_cortex = False
             logger.debug("Stopped Cortex")
 
+    def toggle_auto(self):
+
+        if (self.enable_auto == False):
+
+            self.cortex.auto = True
+
+            self.enable_auto = True
+            logger.debug("Started Auto...")
+
+        elif (self.enable_auto == True):
+
+            self.cerebellum.auto = False
+
+            self.enable_auto = False
+            logger.debug("Stopped Auto")
+
     def add_data_packet(self):
 
         data_packet = dict()
@@ -236,7 +253,16 @@ class AutoRC(threading.Thread):
 
         while True:
 
-
+            logger.info(
+                "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {} A: {} MP: {}"
+                    .format(
+                    self.enable_vehicle, self.enable_corti, self.enable_oculus,
+                    self.enable_memory, self.enable_cortex, self.controller.thr,
+                    self.controller.str, self.controller.swb,
+                    self.controller.swc,
+                    self.cortex.angles, self.cortex.midpoints
+                )
+            )
 
             if self.enable_memory:
                 self.add_data_packet()
@@ -244,37 +270,29 @@ class AutoRC(threading.Thread):
             if (self.controller.swb > 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
                 self.toggle_corti()
+                self.toggle_cortex()
             elif(self.controller.swb < 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
                 self.toggle_corti()
-
-            if (self.controller.swc > 20) and (self.enable_cortex == True):
-                self.toggle_cortex()
-            elif (self.controller.swc < 20) and (self.enable_cortex == False):
                 self.toggle_cortex()
 
+            # SWC TOP Position
+            if (self.controller.swc > 20) and (self.enable_memory == True):
+                self.toggle_memory()
+            elif (self.controller.swc < 20) and (self.enable_memory == False):
+                self.toggle_memory()
+
+            # SWC Top Position
+            if (self.controller.swc > 20) and (self.enable_auto == True):
+                self.toggle_auto()
+            elif (self.controller.swc < 20) and (self.enable_auto == False):
+                self.toggle_auto()
+
+            # SWC Middle Position
             if (self.controller.swc < 70) and (self.controller.swc > 20) and (self.enable_memory == False):
                 self.toggle_memory()
             elif ( (self.controller.swc > 70) or (self.controller.swc < 20) ) and (self.enable_memory == True):
                 self.toggle_memory()
-
-            if (self.cortex.enabled == True):
-                logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {} A: {} MP: {}"
-                    .format(
-                            self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                            self.enable_memory, self.enable_cortex, self.controller.thr,
-                            self.controller.str, self.controller.swb, self.controller.swc,
-                            self.cortex.angles, self.cortex.midpoints
-                    )
-                )
-            else:
-                logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
-                        .format(
-                                self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                                self.enable_memory, self.enable_cortex, self.controller.thr,
-                                self.controller.str, self.controller.swb, self.controller.swc
-                        )
-                )
 
             time.sleep(100/1000)
 
