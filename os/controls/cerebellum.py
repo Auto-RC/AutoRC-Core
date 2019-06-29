@@ -108,9 +108,9 @@ class Cerebellum(threading.Thread):
             if 50 <= self.prev_thr <= 60:
                 self.thr += 0.5
             else:
-                self.thr = 50
+                self.thr = 55
         else:
-            self.thr = 48
+            self.thr = 50
 
 
 
