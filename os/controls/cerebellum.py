@@ -106,7 +106,7 @@ class Cerebellum(threading.Thread):
             del self.angle_list[0]
         self.angle_list.append(scaled_angle_current)
 
-        scaled_angle = 0.9*scaled_angle_current+0.1*scaled_angle_history_avg
+        scaled_angle = 1*scaled_angle_current#+0*scaled_angle_history_avg
 
         # Detecting which side of steer
         if 45 < scaled_angle < 65:
@@ -127,10 +127,10 @@ class Cerebellum(threading.Thread):
 
         # If straightaway then speed up
         if 50 < scaled_angle < 60:
-            if 70 <= self.prev_thr <= 90:
+            if 60 <= self.prev_thr <= 80:
                 self.thr += 5
             else: # Start at this value
-                self.thr = 70
+                self.thr = 60
         else:
             # Throttle based on turns
             self.thr = 60 - (abs(avg_angle/90))*(60-45)
