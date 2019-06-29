@@ -54,7 +54,7 @@ class Cerebellum(threading.Thread):
         self.state['z_accel']   = None
         self.state['prev_angles'] = self.state['angles']
 
-        self.angle_cnt_max = 10
+        self.angle_cnt_max = 50
         self.angle_list = [0]
 
     def update_state(self):
@@ -106,7 +106,7 @@ class Cerebellum(threading.Thread):
             del self.angle_list[0]
         self.angle_list.append(scaled_angle_current)
 
-        scaled_angle = 0.8*scaled_angle_current+0.2*scaled_angle_history_avg
+        scaled_angle = 0.9*scaled_angle_current+0.1*scaled_angle_history_avg
 
         # Detecting which side of steer
         if 45 < scaled_angle < 65:
