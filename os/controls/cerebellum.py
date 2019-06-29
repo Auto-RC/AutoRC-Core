@@ -145,7 +145,7 @@ class Cerebellum(threading.Thread):
                 self.thr = 70
         else:
             # Throttle based on turns
-            if -35 < avg_angle < 35:
+            if -45 < avg_angle < 45:
                 self.thr = 70 - (abs(avg_angle/90))*(70-45)
             else:
                 self.thr = 60 - (abs(avg_angle / 90)) * (60 - 45)
