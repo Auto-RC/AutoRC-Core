@@ -174,35 +174,38 @@ class Retina():
             lines = cv2.HoughLines(edges,self.RHO,np.pi/self.THETA,self.LINE_THRESHOLD)
             angles = []
             midpoints = []
+            if lines is not None:
+                self.angles[i] = None
+                self.midpoints[i] = None
+                for line in lines[0:1]:
+                    print(i)
+                    for rho,theta in line:
 
-            self.angles[i] = None
-            self.midpoints[i] = None
-            for line in lines[0:1]:
-                print(i)
-                for rho,theta in line:
+                        a = np.cos(theta)
+                        b = np.sin(theta)
+                        x0 = a*rho
+                        y0 = b*rho
+                        x1 = int(x0 + 1000*(-b))
+                        y1 = int(y0 + 1000*(a))
+                        x2 = int(x0 - 1000*(-b))
+                        y2 = int(y0 - 1000*(a))
 
-                    a = np.cos(theta)
-                    b = np.sin(theta)
-                    x0 = a*rho
-                    y0 = b*rho
-                    x1 = int(x0 + 1000*(-b))
-                    y1 = int(y0 + 1000*(a))
-                    x2 = int(x0 - 1000*(-b))
-                    y2 = int(y0 - 1000*(a))
+                        theta *= 180/np.pi
+                        if 90 <= theta < 180:
+                            theta -= 180
 
-                    theta *= 180/np.pi
-                    if 90 <= theta < 180:
-                        theta -= 180
+                        self.angles[i] = theta
+                        self.midpoints[i] = rho
 
-                    self.angles[i] = theta
-                    self.midpoints[i] = rho
+                        # if (x2-x1) > 0:
+                        #     self.angles[i] = np.arctan( (y2-y1)/(x2-x1) ) * 180/np.pi
+                        #     self.midpoints[i] = ((x2-x1)/2+x1 , (y2-y1)/2+y1 )
 
-                    # if (x2-x1) > 0:
-                    #     self.angles[i] = np.arctan( (y2-y1)/(x2-x1) ) * 180/np.pi
-                    #     self.midpoints[i] = ((x2-x1)/2+x1 , (y2-y1)/2+y1 )
-
-                    cv2.line(self.frames[i],(x1,y1),(x2,y2),(255,255,255),2)
-                print(self.angles, self.midpoints)
+                        cv2.line(self.frames[i],(x1,y1),(x2,y2),(255,255,255),2)
+            else:
+                self.angles[i] = None
+                self.midpoints[i] = None
+            print(self.angles, self.midpoints)
 
         # return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
 
