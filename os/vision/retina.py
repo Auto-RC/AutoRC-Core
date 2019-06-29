@@ -135,13 +135,35 @@ class Retina():
                 # print(cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)))
                 if cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) > 250:
                     self.fil_rgb_l[i][0] += 5
-                    self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
-                elif cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) < 200 and self.fil_rgb_l[i][0] != 0:
-                    self.fil_rgb_l[i][0] -= 15
-                    self.frames[i] = self.filter_color(self.frames[i], self.fil_rgb_l[i], self.fil_rgb_u[i])
+                    self.frames[i] = self.filter_color(self.frames[i], np.array([self.fil_rgb_l[i][0], 0, 0]), np.array([255, 255, 255]))
+                elif cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) < 225 and self.fil_rgb_l[i][0] != 0:
+                    if self.fil_rgb_l[i][0] > 200:
+                        self.fil_rgb_l[i][0] = 150
+                    else:
+                        self.fil_rgb_l[i][0] -= 15
+                    self.frames[i] = self.filter_color(self.frames[i], np.array([self.fil_rgb_l[i][0], 0, 0]), np.array([255, 255, 255]))
                     break
                 else:
                     break
+
+    def hsv_s_u_filter(self):
+        while 1:
+            print(cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)))
+            if cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) > 1000:
+                self.fil_hsv_u[1] -= 5
+                self.frame = self.filter_color(self.frame,
+                                                   np.array([0, 0, 0]),
+                                                   np.array([255, self.fil_hsv_u[1], 255]))
+            elif cv2.countNonZero(
+                    cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) < 800 and self.fil_hsv_u[1] != 255:
+                self.fil_hsv_u[1] += 15
+                self.frame = self.filter_color(self.frame,
+                                                   np.array([0, 0, 0]),
+                                                   np.array([255, self.fil_hsv_u[1], 255]))
+                break
+            else:
+                break
+
         # print(self.fil_rgb_l, self.fil_rgb_u)
 
     def detect_lanes(self):
@@ -189,6 +211,10 @@ class Retina():
 
         # print(self.frame.shape)
         self.frame = self.frame[40:80, :, :]
+        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+
+        # self.hsv_s_u_filter()
+
         self.frame_l = self.frame[:, 0:42, :]
 
         self.frame_c = self.frame[:, 43:85, :]
@@ -201,13 +227,22 @@ class Retina():
 
         # self.filter_color(fil_1_l,fil_1_u)
         # print(self.enable_lines, self.mode)
-        self.rgb_red_filter()
+        # self.rgb_red_filter()
+        # self.hsv_s_u_filter()
+        # for i in range(len(self.frames)):
+        #     self.frames[i] = self.filter_color(self.frames[i],
+        #                                        self.fil_rgb_l[i],
+        #                                        self.fil_rgb_u[i])
+
         self.rgb_frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
 
         for i in range(len(self.frames)):
-            self.frames[i] = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2HSV)
-        # self.filter_color(self.fil_hsv_l, self.fil_hsv_u)
+            # self.frames[i] = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2HSV)
+
+            self.frames[i] = self.filter_color(self.frames[i],
+                                               self.fil_hsv_l,
+                                               self.fil_hsv_u)
 
         if self.enable_lines:
             self.detect_lanes()

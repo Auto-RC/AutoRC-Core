@@ -38,7 +38,7 @@ class Calibrator(threading.Thread):
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
 
-    INITAL_IMG_INDEX = 155
+    INITAL_IMG_INDEX = 24
 
     ADJ_MAG = 5
 
@@ -257,7 +257,7 @@ class Calibrator(threading.Thread):
 
     def init_recall(self):
 
-        self.recall = Recall("/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-26 10;51;31.605013.npy")
+        self.recall = Recall("/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 04;03;11.145494.npy")
         self.recall.load()
 
     # ------------------------- Retina Integration -----------------------------
@@ -293,30 +293,30 @@ class Calibrator(threading.Thread):
     # ----------------------------- Calibration --------------------------------
 
     def adjust_lower_fil(self, index, vector="increase", mag=5):
+        for i in range(3):
+            if vector == "increase":
+                if self.retina.fil_rgb_l[i][index] < 255:
+                    self.retina.fil_rgb_l[i][index] += mag
+            elif vector == "decrease":
+                if self.retina.fil_rgb_l[i][index] > 0:
+                    self.retina.fil_rgb_l[i][index] -= mag
 
-        if vector == "increase":
-            if self.retina.fil_rgb_l[index] < 255:
-                self.retina.fil_rgb_l[index] += mag
-        elif vector == "decrease":
-            if self.retina.fil_rgb_l[index] > 0:
-                self.retina.fil_rgb_l[index] -= mag
-
-        self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
+        # self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
 
         logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
 
         self.change_img(self.img_index)
 
     def adjust_upper_fil(self, index, vector="increase", mag=5):
+        for i in range(3):
+            if vector == "increase":
+                if self.retina.fil_rgb_u[i][index] < 255:
+                    self.retina.fil_rgb_u[i][index] += mag
+            elif vector == "decrease":
+                if self.retina.fil_rgb_u[i][index] > 0:
+                    self.retina.fil_rgb_u[i][index] -= mag
 
-        if vector == "increase":
-            if self.retina.fil_rgb_u[index] < 255:
-                self.retina.fil_rgb_u[index] += mag
-        elif vector == "decrease":
-            if self.retina.fil_rgb_u[index] > 0:
-                self.retina.fil_rgb_u[index] -= mag
-
-        self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
+        # self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
 
         logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
 
@@ -331,7 +331,7 @@ class Calibrator(threading.Thread):
             if self.retina.fil_hsv_l[index] > 0:
                 self.retina.fil_hsv_l[index] -= mag
 
-        self.retina.set_calibration(self.TYPE, self.retina.fil_hsv_l, self.retina.fil_hsv_u)
+        # self.retina.set_calibration(self.TYPE, self.retina.fil_hsv_l, self.retina.fil_hsv_u)
 
         logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
 
@@ -346,7 +346,7 @@ class Calibrator(threading.Thread):
             if self.retina.fil_hsv_u[index] > 0:
                 self.retina.fil_hsv_u[index] -= mag
 
-        self.retina.set_calibration(self.TYPE, self.retina.fil_hsv_l, self.retina.fil_hsv_u)
+        # self.retina.set_calibration(self.TYPE, self.retina.fil_hsv_l, self.retina.fil_hsv_u)
 
         logger.info("Lower RGB Filter: {} Upper RGB Filter: {} Lower HSV Filter: {} Upper HSV Filter: {}".format(self.retina.fil_rgb_l,self.retina.fil_rgb_u, self.retina.fil_hsv_l, self.retina.fil_hsv_u))
 
@@ -415,8 +415,10 @@ class Calibrator(threading.Thread):
 
             self.retina.frame = self.raw
             theta, rho = self.retina.process()
-            if 
-            self.processed = self.retina.frame
+            if self.retina.mode == "RGB":
+                self.processed = self.retina.rgb_frame
+            else:
+                self.processed = self.retina.frame
             print(theta, rho)
             self.img = ImageTk.PhotoImage(self.resize_im(self.processed))
 
