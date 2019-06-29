@@ -257,7 +257,7 @@ class Calibrator(threading.Thread):
 
     def init_recall(self):
 
-        self.recall = Recall("/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 17;35;50.903836.npy")
+        self.recall = Recall("/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 17;51;23.724845.npy")
         self.recall.load()
 
     # ------------------------- Retina Integration -----------------------------

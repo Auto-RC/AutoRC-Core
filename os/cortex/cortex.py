@@ -40,7 +40,7 @@ class Cortex(threading.Thread):
         self.oculus = oculus
         self.retina = Retina()
 
-        self.retina.fil_hsv_l[2] = 155
+        self.retina.fil_hsv_l[2] = 185
         # self.retina.fil_hsv_u[1] = 100
         # Thread parameters
         self.thread_name = "Cortex"
