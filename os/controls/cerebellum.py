@@ -51,6 +51,7 @@ class Cerebellum(threading.Thread):
         self.state['x_accel']   = None
         self.state['y_accel']   = None
         self.state['z_accel']   = None
+        self.state['prev_angles'] = self.state['angles']
 
     def update_state(self):
 
@@ -68,6 +69,11 @@ class Cerebellum(threading.Thread):
         avg_angle = 0
 
         for i in range(3):
+
+            if self.state['prev_angles'][i] is not None:
+                if abs(self.state['angles'][i] - self.state['prev_angles'][i]) > 110:
+                    self.state['angles'][i] = None
+
             if self.state['angles'][i] is None:
                 none[i] = True
             else:
@@ -83,10 +89,21 @@ class Cerebellum(threading.Thread):
             # print(avg_angle)
             scaled_angle = (avg_angle/90) * 45 + 55
 
+
+
+        if 45 < scaled_angle < 65:
+            if self.state['angles'][0] is None:
+                scaled_angle += 10
+            if self.state['angles'][2] is None:
+                scaled_angle -= 10
+
+
         self.thr = self.controller.thr
         self.str = scaled_angle
 
         self.prev_str = self.str
+        self.state['prev_angles'] = self.state['angles']
+
 
     def run(self):
 
