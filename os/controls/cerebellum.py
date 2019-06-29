@@ -69,47 +69,56 @@ class Cerebellum(threading.Thread):
 
         avg_angle = 0
 
+        # Iterating across the lines
         for i in range(3):
 
+            # If the lane is a false value or outlier then you ignore it
             if self.state['prev_angles'][i] is not None:
                 if abs(self.state['angles'][i] - self.state['prev_angles'][i]) > 110:
                     self.state['angles'][i] = None
 
+            # Getting average
             if self.state['angles'][i] is None:
                 none[i] = True
             else:
                 avg_angle += self.state['angles'][i]
                 not_none += 1
 
+        # If valid then remember previous value
         if not_none == 0:
             scaled_angle = self.prev_str
-
+        # Computing average
         else:
             avg_angle /= not_none
 
             # print(avg_angle)
             scaled_angle = (avg_angle/90) * 45 + 55
 
-
+        # Detecting which side of steer
         if 45 < scaled_angle < 65:
             if self.state['angles'][0] is None:
-                scaled_angle += 10
+                scaled_angle += 5
             if self.state['angles'][2] is None:
-                scaled_angle -= 10
+                scaled_angle -= 5
 
 
         # self.thr = self.controller.thr
-        self.str = scaled_angle
 
+        # Updating steering
+        self.str = scaled_angle
         self.prev_str = self.str
+
+        # Updating angles for next state
         self.state['prev_angles'] = self.state['angles']
 
+        # If straightaway then speed up
         if 50 < scaled_angle < 60:
-            if 70 <= self.prev_thr <= 75:
-                self.thr += 1
-            else:
+            if 70 <= self.prev_thr <= 80:
+                self.thr += 5
+            else: # Start at this value
                 self.thr = 70
         else:
+            # Throttle based on turns
             self.thr = 52
 
 
