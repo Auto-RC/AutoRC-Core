@@ -54,7 +54,7 @@ class Cerebellum(threading.Thread):
         self.state['z_accel']   = None
         self.state['prev_angles'] = self.state['angles']
 
-        self.angle_cnt_max = 100
+        self.angle_cnt_max = 50
         self.angle_list = [0]
 
         self.current_factor = 1
@@ -98,7 +98,10 @@ class Cerebellum(threading.Thread):
             avg_angle /= not_none
 
             # print(avg_angle)
-            offset_factor = 1
+            if -25 < avg_angle < 25:
+                offset_factor = 0.75
+            else:
+                offset_factor = 1
             avg_angle *= offset_factor
 
             scaled_angle_current = ( (avg_angle/90) * 45 ) + 55
