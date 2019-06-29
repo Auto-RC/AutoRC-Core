@@ -110,8 +110,8 @@ class Cerebellum(threading.Thread):
         self.angle_list.append(scaled_angle_current)
 
         if 45 < scaled_angle_current < 65:
-            self.current_factor = 0.8
-            self.history_factor = 0.2
+            self.current_factor = 0.6
+            self.history_factor = 0.4
         else:
             self.current_factor = 1
             self.history_factor = 0
