@@ -54,6 +54,9 @@ class Cerebellum(threading.Thread):
         self.state['z_accel']   = None
         self.state['prev_angles'] = self.state['angles']
 
+        self.angle_cnt_max = 40
+        self.angle_list = []
+
     def update_state(self):
 
         self.state['angles']    = self.cortex.angles
@@ -86,14 +89,24 @@ class Cerebellum(threading.Thread):
 
         # If valid then remember previous value
         if not_none == 0:
-            scaled_angle = self.prev_str
+            scaled_angle_current = self.prev_str
         # Computing average
         else:
             avg_angle /= not_none
 
             # print(avg_angle)
-            offset_factor = 1
-            scaled_angle = ( (avg_angle/90) * 45 ) * offset_factor + 55
+            offset_factor = .8
+            avg_angle *= offset_factor
+
+            scaled_angle_current = ( (avg_angle/90) * 45 ) + 55
+
+        scaled_angle_history_avg = sum(self.angle_list)/len(self.angle_list)
+
+        if len(self.angle_list) > self.angle_cnt_max:
+            del self.angle_list[0]
+        self.angle_list.append(scaled_angle_current)
+
+        scaled_angle = 0.6*scaled_angle_current+0.4*scaled_angle_history_avg
 
         # Detecting which side of steer
         if 45 < scaled_angle < 65:
@@ -103,7 +116,7 @@ class Cerebellum(threading.Thread):
                 scaled_angle -= 5
 
 
-        # self.thr = self.controller.thr
+        self.thr = self.controller.thr
 
         # Updating steering
         self.str = scaled_angle
@@ -112,15 +125,15 @@ class Cerebellum(threading.Thread):
         # Updating angles for next state
         self.state['prev_angles'] = self.state['angles']
 
-        # If straightaway then speed up
-        if 50 < scaled_angle < 60:
-            if 70 <= self.prev_thr <= 90:
-                self.thr += 5
-            else: # Start at this value
-                self.thr = 70
-        else:
-            # Throttle based on turns
-            self.thr = 70 - (abs(avg_angle/90))*(70-50)
+        # # If straightaway then speed up
+        # if 50 < scaled_angle < 60:
+        #     if 70 <= self.prev_thr <= 90:
+        #         self.thr += 5
+        #     else: # Start at this value
+        #         self.thr = 70
+        # else:
+        #     # Throttle based on turns
+        #     self.thr = 70 - (abs(avg_angle/90))*(70-50)
             # self.thr = 52
 
 
