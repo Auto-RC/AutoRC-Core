@@ -106,11 +106,11 @@ class Cerebellum(threading.Thread):
 
         if 45 < scaled_angle < 65:
             if 50 <= self.prev_thr <= 60:
-                self.thr += 0.1
+                self.thr += 0.5
             else:
                 self.thr = 50
         else:
-            self.thr = 48
+            self.thr = 46
 
 
 
