@@ -98,19 +98,19 @@ class Cerebellum(threading.Thread):
                 scaled_angle -= 10
 
 
-        self.thr = self.controller.thr
+        # self.thr = self.controller.thr
         self.str = scaled_angle
 
         self.prev_str = self.str
         self.state['prev_angles'] = self.state['angles']
 
-        # if 50 < scaled_angle < 60:
-        #     if 50 <= self.prev_thr <= 60:
-        #         self.thr += 0.5
-        #     else:
-        #         self.thr = 50
-        # else:
-        #     self.thr = 48
+        if 50 < scaled_angle < 60:
+            if 50 <= self.prev_thr <= 60:
+                self.thr += 0.5
+            else:
+                self.thr = 50
+        else:
+            self.thr = 48
 
 
 
