@@ -55,7 +55,7 @@ class Cerebellum(threading.Thread):
         self.state['prev_angles'] = self.state['angles']
 
         self.angle_cnt_max = 40
-        self.angle_list = []
+        self.angle_list = [0]
 
     def update_state(self):
 
