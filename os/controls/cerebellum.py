@@ -43,6 +43,7 @@ class Cerebellum(threading.Thread):
 
         self.thr = 10
         self.str = 55
+        self.prev_str = 55
 
         self.state = dict()
         self.state['angles']    = None
@@ -73,13 +74,19 @@ class Cerebellum(threading.Thread):
                 avg_angle += self.state['angles'][i]
                 not_none += 1
 
-        avg_angle /= not_none
+        if not_none == 0:
+            scaled_angle = self.prev_str
 
-        # print(avg_angle)
-        scaled_angle = (avg_angle/90) * 45 + 55
+        else:
+            avg_angle /= not_none
+
+            # print(avg_angle)
+            scaled_angle = (avg_angle/90) * 45 + 55
 
         self.thr = self.controller.thr
         self.str = scaled_angle
+
+        self.prev_str = self.str
 
     def run(self):
 
