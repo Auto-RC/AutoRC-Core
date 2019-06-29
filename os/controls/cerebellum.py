@@ -106,7 +106,7 @@ class Cerebellum(threading.Thread):
             del self.angle_list[0]
         self.angle_list.append(scaled_angle_current)
 
-        scaled_angle = 0.6*scaled_angle_current+0.4*scaled_angle_history_avg
+        scaled_angle = 0.8*scaled_angle_current+0.2*scaled_angle_history_avg
 
         # Detecting which side of steer
         if 45 < scaled_angle < 65:
