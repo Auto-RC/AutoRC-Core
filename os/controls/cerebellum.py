@@ -46,8 +46,8 @@ class Cerebellum(threading.Thread):
         self.prev_str = 55
 
         self.state = dict()
-        self.state['angles']    = None
-        self.state['midpoints'] = None
+        self.state['angles']    = [None, None, None]
+        self.state['midpoints'] = [None, None, None]
         self.state['x_accel']   = None
         self.state['y_accel']   = None
         self.state['z_accel']   = None
