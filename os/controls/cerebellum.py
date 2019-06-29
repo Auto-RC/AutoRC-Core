@@ -54,7 +54,7 @@ class Cerebellum(threading.Thread):
         self.state['z_accel']   = None
         self.state['prev_angles'] = self.state['angles']
 
-        self.angle_cnt_max = 50
+        self.angle_cnt_max = 25
         self.angle_list = [0]
 
         self.current_factor = 1
