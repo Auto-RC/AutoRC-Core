@@ -178,6 +178,7 @@ class Retina():
                 self.angles[i] = None
                 self.midpoints[i] = None
                 for line in lines[0:1]:
+                    print(i)
                     for rho,theta in line:
 
                         a = np.cos(theta)
