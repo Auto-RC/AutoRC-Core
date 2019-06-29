@@ -61,6 +61,22 @@ class Cerebellum(threading.Thread):
 
     def compute_controls(self):
 
+        none = [False, False, False]
+        not_none = 0
+
+        avg_angle = 0
+
+        for i in range(3):
+            if self.state['angles'][i] is None:
+                none[i] = True
+            else:
+                avg_angle += self.state['angles'][i]
+                not_none += 1
+
+        avg_angle /= not_none
+
+        print(avg_angle)
+
         self.thr = self.controller.thr
         self.str = 80
 
