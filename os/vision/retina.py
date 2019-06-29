@@ -175,10 +175,7 @@ class Retina():
             angles = []
             midpoints = []
             if lines is not None:
-                self.angles[i] = None
-                self.midpoints[i] = None
                 for line in lines[0:1]:
-                    print(i)
                     for rho,theta in line:
 
                         a = np.cos(theta)
@@ -205,7 +202,6 @@ class Retina():
             else:
                 self.angles[i] = None
                 self.midpoints[i] = None
-            print(self.angles, self.midpoints)
 
         # return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
 
