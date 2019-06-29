@@ -116,7 +116,7 @@ class Cerebellum(threading.Thread):
                 scaled_angle -= 5
 
 
-        self.thr = self.controller.thr
+        # self.thr = self.controller.thr
 
         # Updating steering
         self.str = scaled_angle
@@ -125,15 +125,15 @@ class Cerebellum(threading.Thread):
         # Updating angles for next state
         self.state['prev_angles'] = self.state['angles']
 
-        # # If straightaway then speed up
-        # if 50 < scaled_angle < 60:
-        #     if 70 <= self.prev_thr <= 90:
-        #         self.thr += 5
-        #     else: # Start at this value
-        #         self.thr = 70
-        # else:
-        #     # Throttle based on turns
-        #     self.thr = 70 - (abs(avg_angle/90))*(70-50)
+        # If straightaway then speed up
+        if 50 < scaled_angle < 60:
+            if 70 <= self.prev_thr <= 90:
+                self.thr += 5
+            else: # Start at this value
+                self.thr = 70
+        else:
+            # Throttle based on turns
+            self.thr = 70 - (abs(avg_angle/90))*(70-50)
             # self.thr = 52
 
 
