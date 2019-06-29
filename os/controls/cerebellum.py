@@ -54,7 +54,7 @@ class Cerebellum(threading.Thread):
         self.state['z_accel']   = None
         self.state['prev_angles'] = self.state['angles']
 
-        self.angle_cnt_max = 40
+        self.angle_cnt_max = 20
         self.angle_list = [0]
 
     def update_state(self):
@@ -95,7 +95,7 @@ class Cerebellum(threading.Thread):
             avg_angle /= not_none
 
             # print(avg_angle)
-            offset_factor = .8
+            offset_factor = 1
             avg_angle *= offset_factor
 
             scaled_angle_current = ( (avg_angle/90) * 45 ) + 55
