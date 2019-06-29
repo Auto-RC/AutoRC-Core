@@ -105,9 +105,9 @@ class Cerebellum(threading.Thread):
         self.state['prev_angles'] = self.state['angles']
 
         if 45 < scaled_angle < 65:
-            self.thr = 15
+            self.thr = 20
         else:
-            self.thr = 12
+            self.thr = 15
 
 
     def run(self):
