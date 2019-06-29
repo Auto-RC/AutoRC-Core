@@ -201,6 +201,7 @@ class Retina():
                         #     self.midpoints[i] = ((x2-x1)/2+x1 , (y2-y1)/2+y1 )
 
                         cv2.line(self.frames[i],(x1,y1),(x2,y2),(255,255,255),2)
+                print(self.angles, self.midpoints)
 
         # return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
 
