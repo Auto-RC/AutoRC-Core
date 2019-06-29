@@ -110,7 +110,7 @@ class Cerebellum(threading.Thread):
             else:
                 self.thr = 50
         else:
-            self.thr = 45
+            self.thr = 48
 
 
 
