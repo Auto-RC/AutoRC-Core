@@ -135,7 +135,7 @@ class Cerebellum(threading.Thread):
         self.state['prev_angles'] = self.state['angles']
 
         # If straightaway then speed up
-        if 50 < scaled_angle < 60:
+        if 50 < scaled_angle_current < 60:
             if 60 <= self.prev_thr <= 80:
                 self.thr += 5
             else: # Start at this value
