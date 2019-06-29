@@ -87,15 +87,10 @@ class AutoRC(threading.Thread):
         self.enable_memory = False
         self.enable_corti = False
         self.enable_cortex = False
+        self.enable_auto = False
 
         # Initializing modules
         # ------------------------------------------------------------------------------------------
-        self.cerebellum = Cerebellum(controller=self.controller, update_interval_ms=10)
-        self.cerebellum.start()
-
-        self.drive = Drive(controller=self.cerebellum, pca9685=self.pca9685,update_interval_ms=10)
-        self.drive.start()
-
         self.corti = Corti(update_interval_ms=50)
         self.corti.start()
 
@@ -105,6 +100,12 @@ class AutoRC(threading.Thread):
 
         self.cortex = Cortex(update_interval_ms=50,oculus=self.oculus)
         self.cortex.start()
+
+        self.cerebellum = Cerebellum(controller=self.controller, cortex=self.cortex, corti=self.corti, update_interval_ms=10)
+        self.cerebellum.start()
+
+        self.drive = Drive(cerebellum=self.cerebellum, pca9685=self.pca9685,  update_interval_ms=10)
+        self.drive.start()
 
     # ----------------------------------------------------------------------------------------------
     #                                        Core Functionality
@@ -204,6 +205,22 @@ class AutoRC(threading.Thread):
             self.enable_cortex = False
             logger.debug("Stopped Cortex")
 
+    def toggle_auto(self):
+
+        if (self.enable_auto == False):
+
+            self.cerebellum.auto = True
+
+            self.enable_auto = True
+            logger.debug("Started Auto...")
+
+        elif (self.enable_auto == True):
+
+            self.cerebellum.auto = False
+
+            self.enable_auto = False
+            logger.debug("Stopped Auto")
+
     def add_data_packet(self):
 
         data_packet = dict()
@@ -236,7 +253,16 @@ class AutoRC(threading.Thread):
 
         while True:
 
-
+            logger.info(
+                "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {} A: {} MP: {}"
+                    .format(
+                    self.enable_vehicle, self.enable_corti, self.enable_oculus,
+                    self.enable_memory, self.enable_cortex, self.controller.thr,
+                    self.controller.str, self.controller.swb,
+                    self.controller.swc,
+                    self.cortex.angles, self.cortex.midpoints
+                )
+            )
 
             if self.enable_memory:
                 self.add_data_packet()
@@ -244,37 +270,24 @@ class AutoRC(threading.Thread):
             if (self.controller.swb > 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
                 self.toggle_corti()
+                self.toggle_cortex()
             elif(self.controller.swb < 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
                 self.toggle_corti()
-
-            if (self.controller.swc > 20) and (self.enable_cortex == True):
-                self.toggle_cortex()
-            elif (self.controller.swc < 20) and (self.enable_cortex == False):
                 self.toggle_cortex()
 
-            if (self.controller.swc < 70) and (self.controller.swc > 20) and (self.enable_memory == False):
-                self.toggle_memory()
-            elif ( (self.controller.swc > 70) or (self.controller.swc < 20) ) and (self.enable_memory == True):
-                self.toggle_memory()
 
-            if (self.cortex.enabled == True):
-                logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {} A: {} MP: {}"
-                    .format(
-                            self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                            self.enable_memory, self.enable_cortex, self.controller.thr,
-                            self.controller.str, self.controller.swb, self.controller.swc,
-                            self.cortex.angles, self.cortex.midpoints
-                    )
-                )
-            else:
-                logger.info("VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
-                        .format(
-                                self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                                self.enable_memory, self.enable_cortex, self.controller.thr,
-                                self.controller.str, self.controller.swb, self.controller.swc
-                        )
-                )
+            # SWC Top Position
+            if (self.controller.swc > 20) and (self.enable_auto == True):
+                self.toggle_auto()
+            elif (self.controller.swc < 20) and (self.enable_auto == False):
+                self.toggle_auto()
+
+            # SWC Bottom Position
+            elif (self.controller.swc > 70) and (self.enable_memory == True):
+                self.toggle_memory()
+            elif (self.controller.swc < 70) and (self.enable_memory == False):
+                self.toggle_memory()
 
             time.sleep(100/1000)
 

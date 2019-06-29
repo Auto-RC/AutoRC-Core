@@ -28,15 +28,21 @@ logger.setLevel(logging.INFO)
 
 class Cerebellum(threading.Thread):
 
-    def __init__(self, controller, update_interval_ms):
+    def __init__(self, controller, cortex, corti, update_interval_ms):
 
         self.controller = controller
+        self.cortex = cortex
+        self.corti = corti
         self.update_interval_ms = update_interval_ms
+
+        # Thread parameters
+        self.thread_name = "Cerebellum"
+        threading.Thread.__init__(self, name=self.thread_name)
 
         self.auto = False
 
-        self.thr = 0
-        self.str = 0
+        self.thr = 10
+        self.str = 55
 
         self.state = dict()
         self.state['angles']    = None
@@ -45,18 +51,18 @@ class Cerebellum(threading.Thread):
         self.state['y_accel']   = None
         self.state['z_accel']   = None
 
-    def update_state(self, **state):
+    def update_state(self):
 
-        self.state['angles']    = state['angles']
-        self.state['midpoints'] = state['angles']
-        self.state['x_accel']   = state['x_accel']
-        self.state['y_accel']   = state['y_accel']
-        self.state['z_accel']   = state['z_accel']
+        self.state['angles']    = self.cortex.angles
+        self.state['midpoints'] = self.cortex.midpoints
+        # self.state['x_accel']   = state['x_accel']
+        # self.state['y_accel']   = state['y_accel']
+        # self.state['z_accel']   = state['z_accel']
 
     def compute_controls(self):
 
-        self.thr = 0
-        self.str = 0
+        self.thr = self.controller.thr
+        self.str = 80
 
     def run(self):
 
@@ -66,6 +72,7 @@ class Cerebellum(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
+                self.update_state()
                 self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)
