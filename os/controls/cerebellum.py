@@ -99,7 +99,7 @@ class Cerebellum(threading.Thread):
 
             # print(avg_angle)
             if -25 < avg_angle < 25:
-                offset_factor = 0.75
+                offset_factor = 0.5
             else:
                 offset_factor = 1
             avg_angle *= offset_factor
