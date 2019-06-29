@@ -43,7 +43,7 @@ class Cerebellum(threading.Thread):
 
         self.thr = 10
         self.str = 55
-        self.prev_str = 55
+        self.prev_str = self.str
 
         self.state = dict()
         self.state['angles']    = [None, None, None]

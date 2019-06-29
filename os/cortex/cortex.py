@@ -49,8 +49,8 @@ class Cortex(threading.Thread):
         self.enabled = False
         self.update_interval_ms = update_interval_ms
 
-        self.angles = None
-        self.midpoints = None
+        self.angles = [None, None, None]
+        self.midpoints = [None, None, None]
 
     def process_frame(self):
 
