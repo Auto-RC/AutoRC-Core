@@ -212,7 +212,7 @@ class Retina():
         # print(self.frame.shape)
         self.frame = self.frame[40:80, :, :]
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-
+        self.frame = self.filter_color(self.frame, self.fil_hsv_l, self.fil_hsv_u)
         # self.hsv_s_u_filter()
 
         self.frame_l = self.frame[:, 0:42, :]
@@ -237,12 +237,12 @@ class Retina():
         self.rgb_frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
 
-        for i in range(len(self.frames)):
-            # self.frames[i] = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2HSV)
-
-            self.frames[i] = self.filter_color(self.frames[i],
-                                               self.fil_hsv_l,
-                                               self.fil_hsv_u)
+        # for i in range(len(self.frames)):
+        #     # self.frames[i] = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2HSV)
+        #
+        #     self.frames[i] = self.filter_color(self.frames[i],
+        #                                        self.fil_hsv_l,
+        #                                        self.fil_hsv_u)
 
         if self.enable_lines:
             self.detect_lanes()
