@@ -118,7 +118,7 @@ class Cerebellum(threading.Thread):
         scaled_angle = self.current_factor*scaled_angle_current+self.history_factor*scaled_angle_history_avg
 
         # Detecting which side of steer
-        if 45 < scaled_angle < 65:
+        if 35 < scaled_angle < 75:
             if self.state['angles'][0] is None:
                 scaled_angle += 5
             if self.state['angles'][2] is None:
