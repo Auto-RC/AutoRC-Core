@@ -139,13 +139,16 @@ class Cerebellum(threading.Thread):
 
         # If straightaway then speed up
         if 50 < scaled_angle_current < 60:
-            if 70 <= self.prev_thr <= 90:
+            if 80 <= self.prev_thr <= 90:
                 self.thr += 5
             else: # Start at this value
-                self.thr = 70
+                self.thr = 80
         else:
             # Throttle based on turns
-            self.thr = 70 - (abs(avg_angle/90))*(70-45)
+            if -45 < avg_angle < 45:
+                self.thr = 80 - (abs(avg_angle/90))*(80-45)
+            else:
+                self.thr = 60 - (abs(avg_angle / 90)) * (60 - 45)
             # self.thr = 52
 
 
