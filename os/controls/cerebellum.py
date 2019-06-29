@@ -92,7 +92,7 @@ class Cerebellum(threading.Thread):
             avg_angle /= not_none
 
             # print(avg_angle)
-            offset_factor = 0.5
+            offset_factor = 1
             scaled_angle = ( (avg_angle/90) * 45 ) * offset_factor + 55
 
         # Detecting which side of steer
