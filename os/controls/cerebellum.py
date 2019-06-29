@@ -75,7 +75,7 @@ class Cerebellum(threading.Thread):
 
         avg_angle /= not_none
 
-        print(avg_angle)
+        # print(avg_angle)
         scaled_angle = (avg_angle/90) * 45 + 55
 
         self.thr = self.controller.thr
