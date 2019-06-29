@@ -175,6 +175,8 @@ class Retina():
             angles = []
             midpoints = []
             if lines is not None:
+                self.angles[i] = None
+                self.midpoints[i] = None
                 for line in lines[0:1]:
                     for rho,theta in line:
 
