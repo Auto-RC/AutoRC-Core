@@ -142,13 +142,13 @@ class Cerebellum(threading.Thread):
             if 75 <= self.prev_thr <= 80:
                 self.thr += 10
             else: # Start at this value
-                self.thr = 75
+                self.thr = 55
         else:
             # Throttle based on turns
             if -40 < avg_angle < 40:
-                self.thr = 70 - (abs(avg_angle/90))*(70-45)
+                self.thr = 55 - (abs(avg_angle/90))*(55-45)
             else:
-                self.thr = 60 - (abs(avg_angle / 90)) * (60 - 45)
+                self.thr = 50 - (abs(avg_angle / 90)) * (50 - 45)
             # self.thr = 52
 
     def run(self):
