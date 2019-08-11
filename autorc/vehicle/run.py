@@ -1,17 +1,15 @@
-import os
-import sys
 import time
 import threading
 import logging
 
-from autorc.utility.memory import Memory
-from autorc.sensors.camera.oculus import Oculus
-from autorc.drive.pca_9685 import PCA9685
-from autorc.drive.drive import Drive
-from autorc.input.rf.ampullae import Ampullae
-from autorc.sensors.imu.corti import Corti
-from autorc.cortex.cortex_select import CortexSelect
-from autorc.controls.cerebellum_select import CerebellumSelect
+from autorc.vehicle.utility.memory import Memory
+from autorc.vehicle.sensors.camera.oculus import Oculus
+from autorc.vehicle.drive import PCA9685
+from autorc.vehicle.drive.drive import Drive
+from autorc.vehicle.input import Ampullae
+from autorc.vehicle.sensors import Corti
+from autorc.vehicle.cortex.cortex_select import CortexSelect
+from autorc.vehicle.controls.cerebellum_select import CerebellumSelect
 
 class AutoRC(threading.Thread):
 

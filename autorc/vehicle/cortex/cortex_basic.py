@@ -1,9 +1,7 @@
-import os
-import sys
 import time
 import logging
 import threading
-from autorc.vision.retina import Retina
+from autorc.vehicle.vision.retina import Retina
 
 class CortexBasic(threading.Thread):
 

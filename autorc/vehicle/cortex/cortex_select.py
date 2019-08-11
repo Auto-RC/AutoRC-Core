@@ -1,6 +1,6 @@
 
-from autorc.cortex.cortex_advanced import CortexAdvanced
-from autorc.cortex.cortex_basic import CortexBasic
+from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
+from autorc.vehicle.cortex.cortex_basic import CortexBasic
 
 class CortexSelect():
 

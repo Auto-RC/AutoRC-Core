@@ -1,5 +1,5 @@
-from autorc.controls.cerebellum_advanced import CerebellumAdvanced
-from autorc.controls.cerebellum_basic import CerebellumBasic
+from autorc.vehicle.controls.cerebellum_advanced import CerebellumAdvanced
+from autorc.vehicle.controls.cerebellum_basic import CerebellumBasic
 
 class CerebellumSelect():
 

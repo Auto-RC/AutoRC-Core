@@ -6,7 +6,7 @@ import time
 import logging
 import threading
 import numpy as np
-from autorc.vision.retina import Retina
+from autorc.vehicle.vision.retina import Retina
 
 class CortexAdvanced(threading.Thread):
 
@@ -43,12 +43,13 @@ class CortexAdvanced(threading.Thread):
         self.observation_space['right_lane_present'] = None
         self.observation_space['splitter_present'] = None
         self.observation_space['left_lane_present'] = None
+        self.observation_space['offroad'] = None
         self.observation_space['vehicle_lane_angle'] = None
-        self.observation_space['vehicle_lane_angle'] = None
+
         self.observation_space['x_acceleration'] = None
         self.observation_space['y_acceleration'] = None
         self.observation_space['z_acceleration'] = None
-        self.observation_space['offroad'] = None
+
         self.observation_space['user_throttle'] = None
         self.observation_space['user_steering'] = None
 
@@ -71,8 +72,11 @@ class CortexAdvanced(threading.Thread):
 
         if self.mode == "IMITATION":
 
-            reward = ()
+            reward = (self.user_thr-self.cerebellum_thr)*(self.user_str - self.cerebellum_str)
 
+        if self.mode == "REINFORCEMENT":
+
+            reward = (1-acceleration)*(1-)
 
     def enable(self):
 
@@ -84,7 +88,7 @@ class CortexAdvanced(threading.Thread):
 
     def set_mode(self, mode):
 
-        self.mode = mode
+        self.mode = mode # Imitation or Reinforcement
 
     def gaussian_function(self, x, mu):
 
