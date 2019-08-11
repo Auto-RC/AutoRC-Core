@@ -1,58 +1,17 @@
-# ==================================================================================================
-#                                       GLOBAL IMPORTS
-# ==================================================================================================
-
 import os
 import sys
 import time
 import threading
 import logging
 
-# ==================================================================================================
-#                                            LOGGER SETUP
-# ==================================================================================================
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
-                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-logger.setLevel(logging.INFO)
-
-# ==================================================================================================
-#                                        LOCAL IMPORTS
-# ==================================================================================================
-
-current_dir = os.path.dirname(os.path.realpath(__file__))
-utility_dir = current_dir + r'/utility'
-input_dir = current_dir + r'/input/rf'
-sensors_dir = current_dir + r'/sensors'
-camera_dir = sensors_dir + r'/camera'
-imu_dir = sensors_dir + r'/imu'
-drive_dir = current_dir + r'/drive'
-cortex_dir = current_dir + r'/cortex'
-controls_dir = current_dir + r'/controls'
-
-sys.path.append(utility_dir)
-sys.path.append(input_dir)
-sys.path.append(camera_dir)
-sys.path.append(drive_dir)
-sys.path.append(imu_dir)
-sys.path.append(cortex_dir)
-sys.path.append(controls_dir)
-
-from memory import Memory
-from oculus import Oculus
-from pca_9685 import PCA9685
-from drive import Drive
-from memory import Memory
-from ampullae import Ampullae
-from corti import Corti
-from cortex import Cortex
-from retina import Retina
-from cerebellum import Cerebellum
-
-# ==================================================================================================
-#                                           AutoRC
-# ==================================================================================================
+from autorc.utility.memory import Memory
+from autorc.sensors.camera.oculus import Oculus
+from autorc.drive.pca_9685 import PCA9685
+from autorc.drive.drive import Drive
+from autorc.input.rf.ampullae import Ampullae
+from autorc.sensors.imu.corti import Corti
+from autorc.cortex.cortex_select import CortexSelect
+from autorc.controls.cerebellum_select import CerebellumSelect
 
 class AutoRC(threading.Thread):
 
@@ -98,10 +57,10 @@ class AutoRC(threading.Thread):
         self.oculus.run()
         self.modules.append('oculus')
 
-        self.cortex = Cortex(update_interval_ms=50,oculus=self.oculus)
+        self.cortex = CortexSelect(update_interval_ms=50, controller=self.controller, oculus=self.oculus, corti=self.corti)
         self.cortex.start()
 
-        self.cerebellum = Cerebellum(controller=self.controller, cortex=self.cortex, corti=self.corti, update_interval_ms=50)
+        self.cerebellum = CerebellumSelect(update_interval_ms=50, controller=self.controller, cortex=self.cortex, corti=self.corti)
         self.cerebellum.start()
 
         self.drive = Drive(cerebellum=self.cerebellum, pca9685=self.pca9685,  update_interval_ms=10)

@@ -1,34 +1,18 @@
-# ==================================================================================================
-#                                          GLOBAL IMPORTS
-# ==================================================================================================
-
-import os
-import sys
 import time
 import logging
 import threading
 
-# ==================================================================================================
-#                                             LOGGING
-# ==================================================================================================
+class CerebellumBasic(threading.Thread):
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
-                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-logger.setLevel(logging.INFO)
+    def __init__(self, update_interval_ms, controller, cortex, corti):
 
-# ==================================================================================================
-#                                          LOCAL IMPORTS
-# ==================================================================================================
-
-
-# ==================================================================================================
-#                                             CORTEX
-# ==================================================================================================
-
-class Cerebellum(threading.Thread):
-
-    def __init__(self, controller, cortex, corti, update_interval_ms):
+        # Logger
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(
+            format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+            datefmt='%m/%d/%Y %I:%M:%S %p',
+            level=logging.INFO)
+        self.logger.setLevel(logging.INFO)
 
         self.controller = controller
         self.cortex = cortex
@@ -163,19 +147,6 @@ class Cerebellum(threading.Thread):
                 self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)
-
-# ------------------------------------------------------------------------------
-#                                 SAMPLE CODE
-# ------------------------------------------------------------------------------
-
-if __name__ == '__main__':
-
-    retina = Retina()
-
-    retina.load_npy(file_name='/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-16 20;49;28.264824.npy')
-    retina.test_line_detection()
-
-
 
 
 
