@@ -4,10 +4,10 @@ import logging
 
 from autorc.vehicle.utility.memory import Memory
 from autorc.vehicle.sensors.camera.oculus import Oculus
-from autorc.vehicle.drive import PCA9685
+from autorc.vehicle.drive.pca_9685 import PCA9685
 from autorc.vehicle.drive.drive import Drive
-from autorc.vehicle.input import Ampullae
-from autorc.vehicle.sensors import Corti
+from autorc.vehicle.input.rf.ampullae import Ampullae
+from autorc.vehicle.sensors.imu.corti import Corti
 from autorc.vehicle.cortex.cortex_select import CortexSelect
 from autorc.vehicle.controls.cerebellum_select import CerebellumSelect
 
