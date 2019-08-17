@@ -1,6 +1,3 @@
-# ------------------------------------------------------------------------------
-#                               GLOBAL IMPORTS
-# ------------------------------------------------------------------------------
 
 import os
 import logging
@@ -17,18 +14,11 @@ import numpy as np
 from recall import Recall
 from retina import Retina
 
-# ------------------------------------------------------------------------------
-#                                SETUP LOGGING
-# ------------------------------------------------------------------------------
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
                             datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 logger.setLevel(logging.DEBUG)
 
-# ------------------------------------------------------------------------------
-#                                  CALIBRATOR
-# ------------------------------------------------------------------------------
 
 class Calibrator(threading.Thread):
 
@@ -43,8 +33,6 @@ class Calibrator(threading.Thread):
     ADJ_MAG = 5
 
     TYPE = 'lane' # 'splitter'
-
-    # -------------------------- Initialization --------------------------------
 
     def __init__(self):
 
