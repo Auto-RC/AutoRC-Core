@@ -1,3 +1,12 @@
+"""
+Simulator is able to load & replay collected racing data,
+train and visualize models, callibrate vision algorithm configurations
+"""
+
+__author__ = "Anish Agarwal, Arnav Gupta"
+__copyright__ = "Copyright 2019, AutoRC"
+__version__ = "0.0.1"
+
 
 import os
 import logging
@@ -7,23 +16,13 @@ import threading
 import time
 import numpy as np
 
-# ------------------------------------------------------------------------------
-#                               LOCAL IMPORTS
-# ------------------------------------------------------------------------------
+from autorc.vehicle.vision.recall import Recall
+from autorc.vehicle.vision.retina import Retina
 
-from recall import Recall
-from retina import Retina
+class Simulator(threading.Thread):
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
-                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-logger.setLevel(logging.DEBUG)
-
-
-class Calibrator(threading.Thread):
-
-    UI_HEIGHT = 350
-    UI_WIDTH = 750
+    UI_HEIGHT = 600
+    UI_WIDTH = 900
 
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
@@ -36,19 +35,27 @@ class Calibrator(threading.Thread):
 
     def __init__(self):
 
+        # Logger
+        logger = logging.getLogger(__name__)
+        logging.basicConfig(
+            format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+            datefmt='%m/%d/%Y %I:%M:%S %p',
+            level=logging.INFO)
+        logger.setLevel(logging.DEBUG)
+
         self.video_active = False
         self.apply_retina = True
 
         self.init_ui()
 
-        self.init_recall()
-        self.init_retina()
+        # self.init_recall()
+        # self.init_retina()
 
-        self.init_img_ctrls()
+        # self.init_img_ctrls()
 
-        self.img_index = self.INITAL_IMG_INDEX
-        self.change_img(self.img_index)
-        self.update_img()
+        # self.img_index = self.INITAL_IMG_INDEX
+        # self.change_img(self.img_index)
+        # self.update_img()
 
     def init_ui(self):
 
@@ -456,6 +463,6 @@ class Calibrator(threading.Thread):
 
 if __name__ == '__main__':
 
-    calibrator = Calibrator()
-    calibrator.run()
+    simulator = Simulator()
+    simulator.run()
 
