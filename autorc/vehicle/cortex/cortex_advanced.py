@@ -43,6 +43,9 @@ class CortexAdvanced(threading.Thread):
         self.observation_space['right_lane_present'] = None
         self.observation_space['splitter_present'] = None
         self.observation_space['left_lane_present'] = None
+        self.observation_space['left_lane_position'] = None
+        self.observation_space['right_lane_position'] = None
+        self.observation_space['splitter_position'] = None
         self.observation_space['offroad'] = None
         self.observation_space['vehicle_lane_angle'] = None
 
@@ -58,6 +61,9 @@ class CortexAdvanced(threading.Thread):
 
         # Training mode
         self.mode = "IMITATION"
+
+        # Offroad State Machine
+        self.offroad_sm = []
 
     def get_state(self):
 
@@ -76,7 +82,7 @@ class CortexAdvanced(threading.Thread):
 
         if self.mode == "REINFORCEMENT":
 
-            reward = (1-acceleration)*(1-)
+            reward = 1
 
     def enable(self):
 
@@ -102,6 +108,37 @@ class CortexAdvanced(threading.Thread):
         sigma = 1
 
         return np.exp(-1*amplitude * (((x - mu) / sigma) ** 2))
+
+    def offroad(self):
+        if len(self.offroad_sm) == 5:
+            del self.offroad_sm[0]
+
+        self.offroad_sm.append([self.observation_space['splitter_present'], self.observation_space['left_lane_present'], self.observation_space['right_lane_present'], self.observation_space['offroad']])
+
+        offroad = True
+
+        left = False
+        right = False
+
+        for i in self.offroad_sm:
+            if i[0]:
+                offroad = False
+            elif i[1]:
+                left = True
+            elif i[2]:
+                right = True
+
+        if offroad:
+            if left and right:
+                offroad = False
+            if left and not right:
+                if self.observation_space['left_lane_position'] < 0.5:
+                    offroad = False
+            if right and not left:
+                if self.observation_space['right_lane_position'] > -0.5:
+                    offroad = False
+
+        self.observation_space['offroad'] = offroad
 
     def run(self):
 

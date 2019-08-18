@@ -7,7 +7,6 @@ import numpy as np
 import logging
 import cv2
 from configparser import ConfigParser
-import itertools
 import time
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -49,8 +48,8 @@ class Retina():
 
         self.fil_rgb_l = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
         self.fil_rgb_u = np.array([[255, 255, 255],[255, 255, 255],[255, 255, 255]])
-        self.fil_hsv_l = np.array([0, 0, 175])
-        self.fil_hsv_u = np.array([120, 255, 255])
+        self.fil_hsv_l = np.array([0, 0, 0])
+        self.fil_hsv_u = np.array([255, 255, 255])
 
     def read_calibration(self):
 
@@ -130,6 +129,41 @@ class Retina():
         im = cv2.bitwise_and(im, im, mask=mask)
         return im
 
+    def rgb_red_filter(self):
+        for i in range(len(self.frames)):
+            while 1:
+                # print(cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)))
+                if cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) > 250:
+                    self.fil_rgb_l[i][0] += 5
+                    self.frames[i] = self.filter_color(self.frames[i], np.array([self.fil_rgb_l[i][0], 0, 0]), np.array([255, 255, 255]))
+                elif cv2.countNonZero(cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)) < 225 and self.fil_rgb_l[i][0] != 0:
+                    if self.fil_rgb_l[i][0] > 200:
+                        self.fil_rgb_l[i][0] = 150
+                    else:
+                        self.fil_rgb_l[i][0] -= 15
+                    self.frames[i] = self.filter_color(self.frames[i], np.array([self.fil_rgb_l[i][0], 0, 0]), np.array([255, 255, 255]))
+                    break
+                else:
+                    break
+
+    def hsv_s_u_filter(self):
+        while 1:
+            print(cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)))
+            if cv2.countNonZero(cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) > 1000:
+                self.fil_hsv_u[1] -= 5
+                self.frame = self.filter_color(self.frame,
+                                                   np.array([0, 0, 0]),
+                                                   np.array([255, self.fil_hsv_u[1], 255]))
+            elif cv2.countNonZero(
+                    cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)) < 800 and self.fil_hsv_u[1] != 255:
+                self.fil_hsv_u[1] += 15
+                self.frame = self.filter_color(self.frame,
+                                                   np.array([0, 0, 0]),
+                                                   np.array([255, self.fil_hsv_u[1], 255]))
+                break
+            else:
+                break
+
         # print(self.fil_rgb_l, self.fil_rgb_u)
 
     def detect_lanes(self):
@@ -179,22 +213,20 @@ class Retina():
         # fil_1_u = np.array([80, 105, 255])
 
         # print(self.frame.shape)
-        self.frame = self.frame[40:73, :, :]
-
+        self.frame = self.frame[40:80, :, :]
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
         self.frame = self.filter_color(self.frame, self.fil_hsv_l, self.fil_hsv_u)
-
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_HSV2RGB)
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
-
-
-
-
-        _, contours, hierarchy = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
         # self.hsv_s_u_filter()
 
+        self.frame_l = self.frame[:, 0:42, :]
 
+        self.frame_c = self.frame[:, 43:85, :]
+
+        self.frame_r = self.frame[:, 86:128, :]
+
+        # print(self.frame_l.size, self.frame_c.size, self.frame_r.size)
+
+        self.frames = [self.frame_l, self.frame_c, self.frame_r]
 
         # self.filter_color(fil_1_l,fil_1_u)
         # print(self.enable_lines, self.mode)
@@ -204,6 +236,8 @@ class Retina():
         #     self.frames[i] = self.filter_color(self.frames[i],
         #                                        self.fil_rgb_l[i],
         #                                        self.fil_rgb_u[i])
+
+        self.rgb_frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
 
         # for i in range(len(self.frames)):
@@ -216,6 +250,7 @@ class Retina():
         if self.enable_lines:
             self.detect_lanes()
 
+        self.frame = np.concatenate((self.frames[0], self.frames[1], self.frames[2]), axis=1)
 
         # if self.mode == 'HSV':
         #     return self.frame
@@ -223,110 +258,9 @@ class Retina():
         #     return rgb_frame
 
         # print(np.mean([self.angles[0],self.angles[2]]))
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2RGB)
-        # print(self.frame.shape)
 
-        splitter = []
-        lanes = []
+        return self.angles, self.midpoints
 
-
-        for c in contours:
-            rect = cv2.minAreaRect(c)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-
-            edges = 0
-            leftmost = tuple(c[c[:, :, 0].argmin()][0])
-            rightmost = tuple(c[c[:, :, 0].argmax()][0])
-            topmost = tuple(c[c[:, :, 1].argmin()][0])
-            bottommost = tuple(c[c[:, :, 1].argmax()][0])
-
-            if leftmost[0] < 3:
-                edges += 1
-            if rightmost[0] > self.frame.shape[1] - 5:
-                edges += 1
-            if topmost[1] < 5:
-                edges += 1
-
-
-            if rect[1][0] != 0 and rect[1][1] != 0:
-                extent = cv2.contourArea(c)/(rect[1][0] * rect[1][1])
-                # print(extent,)
-            else:
-                extent = 0
-
-
-
-            if edges == 2:
-                # print("edged", rect[0], rect[1])
-                # cv2.drawContours(self.frame, [box], 0, (255, 0, 0), 1)
-                lanes.append(c)
-            elif extent < 0.5:
-                # print("not rect", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
-                pass
-
-            elif rect[1][0] * 7 > rect[1][1] and rect[1][1] * 7 > rect[1][0] and rect[1][0] > 1 and rect[1][1] * 8 > 1:
-                cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
-                # print("allowed", rect[0], rect[1])
-                splitter.append(c)
-            else:
-                # print("removed", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
-                cv2.drawContours(self.frame, [box], 0, (0, 255, 0), 1)
-
-                # cons.append([rect[0], cv2.contourArea(c)])
-
-        lanes = sorted(lanes, key=lambda x: cv2.contourArea(x), reverse=False)
-
-        rows, cols = self.frame.shape[:2]
-        self.lane_eqs = []
-        self.splitter_eq = None
-        for c in lanes:
-            if cv2.contourArea(c) > 3:
-                [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
-                lefty = int((-x * vy / vx) + y)
-                righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
-                p1 = (self.frame.shape[1]-1,righty)
-                p2 = (0,lefty)
-                cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
-                p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
-                p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
-                m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-                x_inter = (p1[1] / m) + p1[0]
-                angle = np.tan(1/m)
-                print(m, x_inter, angle)
-                self.lane_eqs.append([angle, x_inter, m])
-
-
-
-        if len(splitter) > 1:
-            c = np.array(list(itertools.chain.from_iterable(splitter)))
-            [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
-            lefty = int((-x * vy / vx) + y)
-            righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
-            p1 = (self.frame.shape[1] - 1, righty)
-            p2 = (0, lefty)
-            cv2.line(self.frame, p1, p2, (0, 0, 255), 1)
-            p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
-            p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
-            m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-            x_inter = (p1[1] / m) + p1[0]
-            angle = np.tan(1 / m)
-            print(m, x_inter, angle)
-            self.splitter_eq = [angle, x_inter, m]
-        elif len(splitter) > 0:
-            rect = cv2.minAreaRect(splitter[0])
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            smallest_dist = 100
-            n = 0
-            for i in range(1, 4):
-                dist = ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5
-                if ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5 < smallest_dist:
-                    smallest_dist = 0
-
-            print(box)
-
-        return 0, 0
 
 
 # ------------------------------------------------------------------------------
