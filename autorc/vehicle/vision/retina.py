@@ -191,7 +191,7 @@ class Retina():
 
         print(self.frame[0])
 
-        _, contours, hierarchy = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
 
         # self.hsv_s_u_filter()
 

@@ -14,13 +14,13 @@ from PIL import ImageTk
 import PIL.Image
 import logging
 from tkinter import *
-import threading
+from threading import Thread
 import time
 
 from autorc.vehicle.vision.recall import Recall
 from autorc.vehicle.vision.retina import Retina
 
-class Simulator(threading.Thread):
+class Simulator(Thread):
 
     UI_HEIGHT = 625
     UI_WIDTH = 785
@@ -28,7 +28,7 @@ class Simulator(threading.Thread):
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
 
-    RESIZE_FACTOR = 2
+    RESIZE_FACTOR = 3
 
     def __init__(self, data_path):
 
@@ -39,6 +39,9 @@ class Simulator(threading.Thread):
             datefmt='%m/%d/%Y %I:%M:%S %p',
             level=logging.INFO)
         self.logger.setLevel(logging.DEBUG)
+
+        # Thread initialization
+        Thread.__init__(self)
 
         # Flags
         self.video_active = False
@@ -135,37 +138,37 @@ class Simulator(threading.Thread):
         h_upper_limit_label = Label(hsv_filter_frame, text="H Upper Lim", pady=5, padx=5)
         h_upper_limit_label.grid(row=1, column=0)
         h_upper_limit_var = DoubleVar()
-        self.h_upper_limit = Scale(hsv_filter_frame, variable=h_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv)
+        self.h_upper_limit = Scale(hsv_filter_frame, variable=h_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
         self.h_upper_limit.grid(row=2, column=0)
 
         s_upper_limit_label = Label(hsv_filter_frame, text="S Upper Lim", pady=5, padx=5)
         s_upper_limit_label.grid(row=1, column=1)
         s_upper_limit_var = DoubleVar()
-        self.s_upper_limit = Scale(hsv_filter_frame, variable=s_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv)
+        self.s_upper_limit = Scale(hsv_filter_frame, variable=s_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
         self.s_upper_limit.grid(row=2, column=1)
 
         v_upper_limit_label = Label(hsv_filter_frame, text="V Upper Lim", pady=5, padx=5)
         v_upper_limit_label.grid(row=1, column=2)
         v_upper_limit_var = DoubleVar()
-        self.v_upper_limit = Scale(hsv_filter_frame, variable=v_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv)
+        self.v_upper_limit = Scale(hsv_filter_frame, variable=v_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
         self.v_upper_limit.grid(row=2, column=2)
 
         h_lower_limit_label = Label(hsv_filter_frame, text="H Lower Lim", pady=5, padx=5)
         h_lower_limit_label.grid(row=3, column=0)
         h_lower_limit_var = DoubleVar()
-        self.h_lower_limit = Scale(hsv_filter_frame, variable=h_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv)
+        self.h_lower_limit = Scale(hsv_filter_frame, variable=h_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
         self.h_lower_limit.grid(row=4, column=0)
 
         s_lower_limit_label = Label(hsv_filter_frame, text="S Lower Lim", pady=5, padx=5)
         s_lower_limit_label.grid(row=3, column=1)
         s_lower_limit_var = DoubleVar()
-        self.s_lower_limit = Scale(hsv_filter_frame, variable=s_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv)
+        self.s_lower_limit = Scale(hsv_filter_frame, variable=s_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
         self.s_lower_limit.grid(row=4, column=1)
 
         v_lower_limit_label = Label(hsv_filter_frame, text="V Lower Lim", pady=5, padx=5)
         v_lower_limit_label.grid(row=3, column=2)
         v_lower_limit_var = DoubleVar()
-        self.v_lower_limit = Scale(hsv_filter_frame, variable=v_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv)
+        self.v_lower_limit = Scale(hsv_filter_frame, variable=v_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
         self.v_lower_limit.grid(row=4, column=2)
 
     def init_vision_controls(self):
@@ -173,7 +176,7 @@ class Simulator(threading.Thread):
         vision_controls_frame = LabelFrame(self.ui, pady=15, padx=15)
         vision_controls_frame.grid(row=11, column=0, rowspan=1, columnspan=10)
 
-        self.toggle_vision = Button(vision_controls_frame, text="Toggle Vision", command=lambda: print("Toggle Vision"))
+        self.toggle_vision = Button(vision_controls_frame, text="Toggle Vision", command=lambda: self.toggle_retina())
         self.toggle_vision.grid(row=0,column=0)
 
         self.toggle_lane_detection = Button(vision_controls_frame, text="Toggle Lane Detection", command=lambda: print("Enable Lane Detection"))
@@ -310,7 +313,7 @@ class Simulator(threading.Thread):
     def start_video(self):
 
         self.video_active = True
-        self.video = threading.Thread(target=self.video_thread, args=())
+        self.video = Thread(target=self.video_thread, args=())
         self.video.start()
 
     def stop_video(self):
@@ -331,17 +334,28 @@ class Simulator(threading.Thread):
 
     def update_hsv(self):
 
-        # self.retina.fil_hsv_u[0] = int(self.h_upper_limit.get())
-        # self.retina.fil_hsv_u[1] = int(self.s_upper_limit.get())
-        # self.retina.fil_hsv_u[2] = int(self.v_upper_limit.get())
-        #
-        # self.retina.fil_hsv_l[0] = int(self.h_lower_limit.get())
-        # self.retina.fil_hsv_l[1] = int(self.s_lower_limit.get())
-        # self.retina.fil_hsv_l[2] = int(self.v_lower_limit.get())
+        self.retina.fil_hsv_u[0] = int(self.h_upper_limit.get())
+        self.retina.fil_hsv_u[1] = int(self.s_upper_limit.get())
+        self.retina.fil_hsv_u[2] = int(self.v_upper_limit.get())
+
+        self.retina.fil_hsv_l[0] = int(self.h_lower_limit.get())
+        self.retina.fil_hsv_l[1] = int(self.s_lower_limit.get())
+        self.retina.fil_hsv_l[2] = int(self.v_lower_limit.get())
 
         # self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
 
         self.change_img(self.img_index)
+
+    def toggle_retina(self):
+
+        if not self.apply_retina:
+            self.apply_retina = True
+
+        elif self.apply_retina:
+            self.apply_retina = False
+
+        self.change_img(self.img_index)
+
 
     def run(self):
 
