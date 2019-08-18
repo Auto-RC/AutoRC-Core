@@ -9,6 +9,7 @@ import cv2
 from configparser import ConfigParser
 import itertools
 import time
+
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
 # ------------------------------------------------------------------------------
@@ -188,7 +189,7 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
 
 
-
+        print(self.frame[0])
 
         _, contours, hierarchy = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
