@@ -28,7 +28,7 @@ class Simulator(threading.Thread):
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
 
-    RESIZE_FACTOR = 3
+    RESIZE_FACTOR = 2
 
     def __init__(self, data_path):
 

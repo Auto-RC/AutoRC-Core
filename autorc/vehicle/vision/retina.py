@@ -50,8 +50,8 @@ class Retina():
 
         self.fil_rgb_l = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
         self.fil_rgb_u = np.array([[255, 255, 255],[255, 255, 255],[255, 255, 255]])
-        self.fil_hsv_l = np.array([0, 0, 175])
-        self.fil_hsv_u = np.array([120, 255, 255])
+        self.fil_hsv_l = np.array([0, 0, 0])
+        self.fil_hsv_u = np.array([255, 255, 255])
 
     def read_calibration(self):
 
