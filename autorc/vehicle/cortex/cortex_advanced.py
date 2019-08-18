@@ -1,6 +1,8 @@
 """
-Provides vehicle perception of the environment
+Vehicle perception
 """
+
+__author__ = "Anish Agarwal, Arnav Gupta"
 
 import time
 import logging
@@ -10,7 +12,20 @@ from autorc.vehicle.vision.retina import Retina
 
 class CortexAdvanced(threading.Thread):
 
+    """
+    Cortex provides perception via vision and inertial systems
+    """
+
     def __init__(self, update_interval_ms, oculus, corti, controller):
+
+        """
+        Constructor
+
+        :param update_interval_ms: Thread execution period
+        :param oculus: Interface to vision systems
+        :param corti: Interface to inertial measurement systems
+        :param controller: Interface to user rf controller module
+        """
 
         # Logger
         self.logger = logging.getLogger(__name__)
@@ -24,6 +39,7 @@ class CortexAdvanced(threading.Thread):
         self.oculus = oculus
         self.retina = Retina()
         self.corti = corti
+        self.controller = controller
 
         # Retina configuration
         self.retina.fil_hsv_l[2] = 180
@@ -37,19 +53,23 @@ class CortexAdvanced(threading.Thread):
         self.enabled = False
         self.update_interval_ms = update_interval_ms
 
-        # Observation space
+        # Observation space flags
         self.observation_space = dict()
         self.observation_space['left_lane_present'] = None
         self.observation_space['right_lane_present'] = None
         self.observation_space['splitter_present'] = None
         self.observation_space['left_lane_present'] = None
         self.observation_space['offroad'] = None
+
+        # Observation space angles
         self.observation_space['vehicle_lane_angle'] = None
 
+        # Observation space acceleration
         self.observation_space['x_acceleration'] = None
         self.observation_space['y_acceleration'] = None
         self.observation_space['z_acceleration'] = None
 
+        # Observation space user controls
         self.observation_space['user_throttle'] = None
         self.observation_space['user_steering'] = None
 
@@ -61,49 +81,63 @@ class CortexAdvanced(threading.Thread):
 
     def get_state(self):
 
+        """
+        Getting the observation space
+        """
+
         # Setting the current frame
         self.retina.frame = self.oculus.get_frame()
 
         # Detecting lines
         if self.retina.frame is not None:
-            self.angles , self.midpoints = self.retina.process()
+            self.angles, self.midpoints = self.retina.process()
 
-    def compute_reward(self, mode):
+    def compute_reward(self, cerebellum_thr, cerebellum_str):
+
+        """
+        Computes the reward given the training mode, throttle and steering
+
+        :param mode: Imitation vs Reinforcement
+        :param cerebellum_thr: Machine computed throttle
+        :param cerebellum_str: Machine computed steerting
+        :return: Returns the reward
+        """
 
         if self.mode == "IMITATION":
-
-            reward = (self.user_thr-self.cerebellum_thr)*(self.user_str - self.cerebellum_str)
+            self.reward = (self.controller.thr - cerebellum_thr)*(self.controller.str - cerebellum_str)
 
         if self.mode == "REINFORCEMENT":
-
-            reward = (1-acceleration)*(1-)
+            self.reward = 0
 
     def enable(self):
+
+        """
+        Enables the cortex thread
+        """
 
         self.enabled = True
 
     def disable(self):
 
+        """
+        Disables the cortex thread
+        """
+
         self.enabled = False
 
     def set_mode(self, mode):
 
-        self.mode = mode # Imitation or Reinforcement
-
-    def gaussian_function(self, x, mu):
-
         """
-        :param sigma: std
-        :param mu: mean
-        :return: value of gaussian function at x
+        Setting the training mode
         """
 
-        amplitude = 0.5
-        sigma = 1
-
-        return np.exp(-1*amplitude * (((x - mu) / sigma) ** 2))
+        self.mode = mode
 
     def run(self):
+
+        """
+        Cortex thread
+        """
 
         while True:
 
@@ -111,22 +145,4 @@ class CortexAdvanced(threading.Thread):
 
                 self.get_state()
 
-
-
             time.sleep(self.update_interval_ms / 1000)
-
-# ------------------------------------------------------------------------------
-#                                 SAMPLE CODE
-# ------------------------------------------------------------------------------
-
-if __name__ == '__main__':
-
-    retina = Retina()
-
-    retina.load_npy(file_name='/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-16 20;49;28.264824.npy')
-    retina.test_line_detection()
-
-
-
-
-
