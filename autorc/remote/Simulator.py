@@ -9,9 +9,12 @@ __version__ = "0.0.1"
 
 
 import os
+import PIL
+from PIL import ImageTk
 import PIL.Image
 import logging
 from tkinter import *
+from autorc.vehicle.vision.recall import Recall
 
 class Simulator():
 
@@ -21,15 +24,17 @@ class Simulator():
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
 
-    def __init__(self):
+    RESIZE_FACTOR = 3
+
+    def __init__(self, data_path):
 
         # Logger
-        logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(__name__)
         logging.basicConfig(
             format='%(asctime)s %(module)s %(levelname)s: %(message)s',
             datefmt='%m/%d/%Y %I:%M:%S %p',
             level=logging.INFO)
-        logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG)
 
         # Init UI
         self.init_ui()
@@ -44,9 +49,19 @@ class Simulator():
         self.init_vision_controls()
         self.init_vision_features()
 
+        # Init recall
+        self.init_recall(data_path)
+
         # Init Canvas
         self.init_canvas()
-        self.update_canvas()
+        self.img_index = 24
+        self.change_img(self.img_index)
+        self.update_img()
+
+    def init_recall(self, data_path):
+
+        self.recall = Recall(data_path)
+        self.recall.load()
 
     def init_ui(self):
 
@@ -203,10 +218,31 @@ class Simulator():
         self.canvas.grid(row=0,column=0, rowspan=10, columnspan=10)
         self.canvas_img = self.canvas.create_image((10, 10), image=(), anchor='nw')
 
-    def update_canvas(self):
+    def change_img(self, img_index):
 
-        self.img = PhotoImage(file=r"/home/veda/git/auto-rc_poc/autorc/remote/resources/tesla-roadster.gif")
+        self.get_image(img_index)
+
+        self.raw = self.raw[40:80:, :]
+        self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
+        self.update_img()
+        self.logger.info("Image {} opened".format(self.img_index))
+
+    def get_image(self, image_num):
+
+        self.raw = self.recall.frames[image_num]
+        self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
+
+    def update_img(self):
+
         self.canvas.itemconfigure(self.canvas_img, image=self.img)
+
+    def resize_im(self, im):
+
+
+
+        im = self.recall.rgb_to_img(im)
+        return im.resize((128 * self.RESIZE_FACTOR, 40 * self.RESIZE_FACTOR), PIL.Image.NEAREST)
+        # return im
 
     def run(self):
 
@@ -214,5 +250,7 @@ class Simulator():
 
 if __name__ == '__main__':
 
-    simulator = Simulator()
+    data_path = r"/home/veda/git/AutoRC-Core/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
+
+    simulator = Simulator(data_path)
     simulator.run()
