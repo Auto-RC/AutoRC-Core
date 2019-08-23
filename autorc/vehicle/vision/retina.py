@@ -9,6 +9,7 @@ import cv2
 from configparser import ConfigParser
 import itertools
 import time
+import platform
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -191,7 +192,11 @@ class Retina():
 
         print(self.frame[0])
 
-        contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+        if platform.platform() == 'Darwin':
+            contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
+        else:
+            contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+
 
         # self.hsv_s_u_filter()
 

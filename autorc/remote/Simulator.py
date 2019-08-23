@@ -363,7 +363,13 @@ class Simulator(Thread):
 
 if __name__ == '__main__':
 
-    data_path = r"/home/veda/git/AutoRC-Core/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
+    import platform
+
+    if platform.platform() == 'Darwin':
+        data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 18;29;43.996328.npy"
+
+    else:
+        data_path = r'Anish/data/path'
 
     simulator = Simulator(data_path)
     simulator.run()
