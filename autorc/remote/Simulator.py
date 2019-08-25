@@ -16,9 +16,12 @@ import logging
 from tkinter import *
 from threading import Thread
 import time
+import platform
 
 from autorc.vehicle.vision.recall import Recall
 from autorc.vehicle.vision.retina import Retina
+from autorc.vehicle.controls.cerebellum_advanced import CerebellumAdvanced
+from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 
 class Simulator(Thread):
 
@@ -53,6 +56,25 @@ class Simulator(Thread):
         # Retina initializaion
         self.retina = Retina()
 
+        # Init recall
+        self.init_recall()
+
+        # Cerebellum Initialization
+        cerebellum_update_interval_ms = 10
+        cortex_update_interval_ms = 100
+        controller = None
+        corti = None
+        mode = True
+        oculus = self.recall
+        model_name = "Test"
+        self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, controller)
+        self.cortex.enable()
+        self.cortex.start()
+        time.sleep(1)
+        self.cerebellum = CerebellumAdvanced(cerebellum_update_interval_ms, controller, self.cortex, corti, model_name, mode, load=False, train=False)
+        self.cerebellum.auto = True
+        self.cerebellum.start()
+
         # Init UI
         self.init_ui()
 
@@ -68,9 +90,6 @@ class Simulator(Thread):
 
         # Init HVS Controls
         self.init_vision_hsv_controls()
-
-        # Init recall
-        self.init_recall()
 
         # Init Canvas
         self.init_canvas()
@@ -283,6 +302,7 @@ class Simulator(Thread):
     def get_image(self, image_num):
 
         self.raw = self.recall.frames[image_num]
+        self.recall.img_num = image_num
         self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
 
     def update_img(self):
@@ -359,20 +379,19 @@ class Simulator(Thread):
 
         self.change_img(self.img_index)
 
-
     def run(self):
 
         self.ui.mainloop()
 
 if __name__ == '__main__':
 
-    import platform
-    print(platform.platform())
+    print("Platform: {}".format(platform.platform()))
+
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 18;29;43.996328.npy"
-
     else:
-        data_path = r'Anish/data/path'
+        data_path = r"/home/veda/git/auto-rc_poc/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
+
 
     simulator = Simulator(data_path)
     simulator.run()

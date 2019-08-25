@@ -5,6 +5,7 @@ Deep reinforcement learning module to learn racing
 import random
 import numpy as np
 import logging
+import threading
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
@@ -12,9 +13,11 @@ from keras.optimizers import Adam
 from keras.models import load_model
 from keras.callbacks import ModelCheckpoint
 from pathlib import Path
+import tensorflow as tf
+import time
 import os
 
-class CerebellumAdvanced():
+class CerebellumAdvanced(threading.Thread):
 
     """
     Cerebellum runs a deep reinforcement learning neural network
@@ -32,8 +35,8 @@ class CerebellumAdvanced():
 
     BATCH_SIZE = 10
 
-    ACTION_SPACE = [ ( i, [ j for j in range(0,10) ]) for i in range(0,10) ]
-    OBSERVATION_SPACE = [0 for 0 in range(0, 12)]
+    ACTION_SPACE = [0 for i in range(0, 100)]#[ ( i, [ j for j in range(0,10) ]) for i in range(0,10) ]
+    OBSERVATION_SPACE = [0 for i in range(0, 12)]
 
     LEARNING_RATE = 0.001
 
@@ -56,8 +59,15 @@ class CerebellumAdvanced():
             level=logging.INFO)
         self.logger.setLevel(logging.INFO)
 
+        # Thread parameters
+        self.thread_name = "Cerebellum"
+        threading.Thread.__init__(self, name=self.thread_name)
+
         # How often to run each step
         self.update_interval_ms = update_interval_ms
+
+        # Default is no auto mode
+        self.auto = False
 
         # External vehicle interfaces
         self.controller = controller
@@ -66,9 +76,6 @@ class CerebellumAdvanced():
 
         # The number of episodes to store
         self.memory = deque(maxlen=self.MEMORY_SIZE)
-
-        # Initialize neural network
-        self.init_neural_network()
 
         # Model Training Config
         self.mode = mode
@@ -81,6 +88,9 @@ class CerebellumAdvanced():
         self.checkpoint = ModelCheckpoint(self.save_path, monitor="loss", verbose=0, save_best_only=False, mode='min')
         self.callbacks_list = [self.checkpoint]
 
+        # Initialize neural network
+        self.init_neural_network()
+
     def init_neural_network(self):
 
         """
@@ -90,12 +100,14 @@ class CerebellumAdvanced():
         # Neural network configuration
         if self.load == False:
             self.model = Sequential()
-            self.model.add(Dense(24, input_shape=(self.OBSERVATION_SPACE,), activation="relu"))
+            self.model.add(Dense(24, input_shape=(len(self.OBSERVATION_SPACE),), activation="relu"))
             self.model.add(Dense(24, activation="relu"))
-            self.model.add(Dense(self.ACTION_SPACE, activation="linear"))
+            self.model.add(Dense(len(self.ACTION_SPACE), activation="linear"))
             self.model.compile(loss="mse", optimizer=Adam(lr=self.LEARNING_RATE))
         else:
             self.model = load_model(self.save_path)
+
+        self.graph = tf.get_default_graph()
 
     def remember(self, state, action, reward, next_state, offroad):
 
@@ -121,10 +133,11 @@ class CerebellumAdvanced():
 
         # If randomness is below threshold choose a random action
         if np.random.rand() < self.EXPLORATION_RATE:
-            return random.randrange(self.ACTION_SPACE)
+            return random.randrange(len(self.ACTION_SPACE))
         # Otherwise choose an action based on the neural network
         else:
-            q_values = self.model.predict(state)
+            with self.graph.as_default():
+                q_values = self.model.predict(state)
             return np.argmax(q_values[0])
 
     def experience_replay(self):
@@ -175,3 +188,23 @@ class CerebellumAdvanced():
         # Capping the exploration rate
         self.exploration_rate = max(self.EXPLORATION_MIN, self.exploration_rate)
 
+    def update_state(self):
+
+        self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+
+    def compute_controls(self):
+
+        print("Act: {}".format(self.act(self.state)))
+
+    def run(self):
+
+        while True:
+
+            if self.auto == False:
+                self.thr = self.controller.thr
+                self.str = self.controller.str
+            elif self.auto == True:
+                self.update_state()
+                self.compute_controls()
+
+            time.sleep(self.update_interval_ms / 1000)

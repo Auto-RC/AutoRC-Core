@@ -16,7 +16,7 @@ class CortexAdvanced(threading.Thread):
     Cortex provides perception via vision and inertial systems
     """
 
-    def __init__(self, update_interval_ms, oculus, corti, controller):
+    def __init__(self, update_interval_ms, oculus, corti, controller, mode="simulation"):
 
         """
         Constructor
@@ -36,10 +36,11 @@ class CortexAdvanced(threading.Thread):
         self.logger.setLevel(logging.INFO)
 
         # External vehicle interfaces
-        self.oculus = oculus
         self.retina = Retina()
         self.corti = corti
         self.controller = controller
+
+        self.oculus = oculus
 
         # Retina configuration
         self.retina.fil_hsv_l[2] = 180
@@ -58,14 +59,13 @@ class CortexAdvanced(threading.Thread):
         self.observation_space['left_lane_present'] = None
         self.observation_space['right_lane_present'] = None
         self.observation_space['splitter_present'] = None
-        self.observation_space['left_lane_present'] = None
         self.observation_space['left_lane_position'] = None
         self.observation_space['right_lane_position'] = None
         self.observation_space['splitter_position'] = None
         self.observation_space['offroad'] = None
 
         # Observation space angles
-        self.observation_space['vehicle_lane_angle'] = None
+        # self.observation_space['vehicle_lane_angle'] = None
 
         # Observation space acceleration
         self.observation_space['x_acceleration'] = None
@@ -140,6 +140,7 @@ class CortexAdvanced(threading.Thread):
         self.mode = mode
 
     def offroad(self):
+
         if len(self.offroad_sm) == 5:
             del self.offroad_sm[0]
 

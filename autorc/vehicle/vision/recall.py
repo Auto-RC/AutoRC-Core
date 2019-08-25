@@ -28,6 +28,7 @@ class Recall():
 
         self.path = path
         self.frames = []
+        self.img_num = 0
 
     def load(self):
 
@@ -36,6 +37,11 @@ class Recall():
         print(self.frames.shape)
         self.num_images = self.frames.shape[0]
         logger.debug("Number of images in npy: {}".format(self.num_images))
+
+    def get_frame(self):
+
+        print("Image num: {}".format(self.img_num))
+        return self.frames[self.img_num]
 
     def rgb_to_img(self, np_array) -> Image:
 
