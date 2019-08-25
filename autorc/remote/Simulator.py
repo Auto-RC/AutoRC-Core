@@ -138,37 +138,40 @@ class Simulator(Thread):
         h_upper_limit_label = Label(hsv_filter_frame, text="H Upper Lim", pady=5, padx=5)
         h_upper_limit_label.grid(row=1, column=0)
         h_upper_limit_var = DoubleVar()
-        self.h_upper_limit = Scale(hsv_filter_frame, variable=h_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
+        self.h_upper_limit = Scale(hsv_filter_frame, variable=h_upper_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
+        self.h_upper_limit.set(255)
         self.h_upper_limit.grid(row=2, column=0)
 
         s_upper_limit_label = Label(hsv_filter_frame, text="S Upper Lim", pady=5, padx=5)
         s_upper_limit_label.grid(row=1, column=1)
         s_upper_limit_var = DoubleVar()
-        self.s_upper_limit = Scale(hsv_filter_frame, variable=s_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
+        self.s_upper_limit = Scale(hsv_filter_frame, variable=s_upper_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
+        self.s_upper_limit.set(255)
         self.s_upper_limit.grid(row=2, column=1)
 
         v_upper_limit_label = Label(hsv_filter_frame, text="V Upper Lim", pady=5, padx=5)
         v_upper_limit_label.grid(row=1, column=2)
         v_upper_limit_var = DoubleVar()
-        self.v_upper_limit = Scale(hsv_filter_frame, variable=v_upper_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
+        self.v_upper_limit = Scale(hsv_filter_frame, variable=v_upper_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
+        self.v_upper_limit.set(255)
         self.v_upper_limit.grid(row=2, column=2)
 
         h_lower_limit_label = Label(hsv_filter_frame, text="H Lower Lim", pady=5, padx=5)
         h_lower_limit_label.grid(row=3, column=0)
         h_lower_limit_var = DoubleVar()
-        self.h_lower_limit = Scale(hsv_filter_frame, variable=h_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
+        self.h_lower_limit = Scale(hsv_filter_frame, variable=h_lower_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
         self.h_lower_limit.grid(row=4, column=0)
 
         s_lower_limit_label = Label(hsv_filter_frame, text="S Lower Lim", pady=5, padx=5)
         s_lower_limit_label.grid(row=3, column=1)
         s_lower_limit_var = DoubleVar()
-        self.s_lower_limit = Scale(hsv_filter_frame, variable=s_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
+        self.s_lower_limit = Scale(hsv_filter_frame, variable=s_lower_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
         self.s_lower_limit.grid(row=4, column=1)
 
         v_lower_limit_label = Label(hsv_filter_frame, text="V Lower Lim", pady=5, padx=5)
         v_lower_limit_label.grid(row=3, column=2)
         v_lower_limit_var = DoubleVar()
-        self.v_lower_limit = Scale(hsv_filter_frame, variable=v_lower_limit_var, from_=0,to=255, command=lambda x: self.update_hsv())
+        self.v_lower_limit = Scale(hsv_filter_frame, variable=v_lower_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
         self.v_lower_limit.grid(row=4, column=2)
 
     def init_vision_controls(self):
@@ -364,8 +367,8 @@ class Simulator(Thread):
 if __name__ == '__main__':
 
     import platform
-
-    if platform.platform() == 'Darwin':
+    print(platform.platform())
+    if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 18;29;43.996328.npy"
 
     else:

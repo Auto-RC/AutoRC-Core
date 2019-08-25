@@ -3,13 +3,15 @@
 # ------------------------------------------------------------------------------
 
 import sys
-import numpy as np
 import logging
-import cv2
 from configparser import ConfigParser
 import itertools
 import time
 import platform
+import cv2
+import numpy as np
+from autorc.vehicle.cortex.environment import *
+from autorc.vehicle.cortex.lap_history import LapHistory
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -32,20 +34,21 @@ class Retina():
 
     def __init__(self):
 
+        self.lap_history = LapHistory(5)
+
         self.frame = None
-        self.frame_l = None
-        self.frame_c = None
-        self.frame_r = None
-        self.frames = []
+
         self.enable_lines = True
         self.mode = 'RGB'
-
-        self.angles = [0,0,0]
-        self.midpoints = [(0,0),(0,0),(0,0)]
 
         self.calibration_parser = ConfigParser()
         # self.read_calibration()
         self.init_filters()
+
+        self.lane_width = 50
+        self.split_m = 0
+
+        self.road = None
 
     def init_filters(self):
 
@@ -120,12 +123,6 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
         return self.frame
 
-    def print_blue_hvs(self):
-
-        blue = np.uint8([[[0, 0, 255]]])
-        hsv_blue = cv2.cvtColor(blue, cv2.COLOR_BGR2HSV)
-        # print(hsv_blue)
-
     def filter_color(self, im, lower_rgb_range, upper_rgb_range):
 
         mask = cv2.inRange(im, lower_rgb_range, upper_rgb_range)
@@ -134,45 +131,49 @@ class Retina():
 
         # print(self.fil_rgb_l, self.fil_rgb_u)
 
-    def detect_lanes(self):
+    def calc_vehicle(self, lines):
+        angle = 0
+        position = 0
+        offroad = False
+        lanes = 0
+        for line in lines:
+            if line.present:
+                angle += line.angle + (line.midpoint * 0.8)
+                lanes += 1
+        angle /= -lanes
 
-        for i in range(len(self.frames)):
-            gray = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2GRAY)
-            edges = cv2.Canny(gray, 50, 150, apertureSize=3)
-            lines = cv2.HoughLines(edges,self.RHO,np.pi/self.THETA,self.LINE_THRESHOLD)
-            angles = []
-            midpoints = []
-            if lines is not None:
-                for line in lines[0:1]:
-                    for rho,theta in line:
+        if self.road.splitter.present:
+            right_l = 0
+            left_l = 0
+            if self.road.right_lane.present:
+                right_l = abs(self.road.right_lane.midpoint - self.road.splitter.midpoint)
+            if self.road.left_lane.present:
+                left_l = abs(self.road.splitter.midpoint - self.road.left_lane.midpoint)
+            if right_l != 0 or left_l != 0:
+                self.lane_width = max(right_l, left_l)
+            position = -self.road.splitter.midpoint / self.lane_width
 
-                        a = np.cos(theta)
-                        b = np.sin(theta)
-                        x0 = a*rho
-                        y0 = b*rho
-                        x1 = int(x0 + 1000*(-b))
-                        y1 = int(y0 + 1000*(a))
-                        x2 = int(x0 - 1000*(-b))
-                        y2 = int(y0 - 1000*(a))
+        elif self.road.right_lane.present:
+            position = (self.lane_width - self.road.right_lane.midpoint) / self.lane_width
 
-                        theta *= 180/np.pi
-                        if 90 <= theta < 180:
-                            theta -= 180
+        elif self.road.left_lane.present or position < 1:
+            position = -(self.road.left_lane.midpoint + self.lane_width) / self.lane_width
 
-                        self.angles[i] = theta
-                        self.midpoints[i] = rho
+        else:
+            offroad = True
 
-                        # if (x2-x1) > 0:
-                        #     self.angles[i] = np.arctan( (y2-y1)/(x2-x1) ) * 180/np.pi
-                        #     self.midpoints[i] = ((x2-x1)/2+x1 , (y2-y1)/2+y1 )
+        if abs(position) > 1.2:
+            offroad = True
 
-                        cv2.line(self.frames[i],(x1,y1),(x2,y2),(255,255,255),2)
-            else:
-                self.angles[i] = None
-                self.midpoints[i] = None
+        vehicle = Vehicle(angle, position, None, None, offroad)
+        return vehicle
 
-        # return { "frame" : self.frame , "lines" : lines , "angles" : angles , 'midpoints' : midpoints }
-
+    def update_line(self, obj, angle, midpoint, cv_line):
+        obj.present = True
+        obj.angle = angle
+        obj.midpoint = midpoint
+        obj.cv_line = cv_line
+        return obj
 
     def process(self):
 
@@ -181,6 +182,7 @@ class Retina():
         # fil_1_u = np.array([80, 105, 255])
 
         # print(self.frame.shape)
+
         self.frame = self.frame[40:73, :, :]
 
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
@@ -190,37 +192,10 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
 
 
-        print(self.frame[0])
-
-        if platform.platform() == 'Darwin':
+        if 'Darwin' in platform.platform():
             contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
         else:
             contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
-
-
-        # self.hsv_s_u_filter()
-
-
-
-        # self.filter_color(fil_1_l,fil_1_u)
-        # print(self.enable_lines, self.mode)
-        # self.rgb_red_filter()
-        # self.hsv_s_u_filter()
-        # for i in range(len(self.frames)):
-        #     self.frames[i] = self.filter_color(self.frames[i],
-        #                                        self.fil_rgb_l[i],
-        #                                        self.fil_rgb_u[i])
-
-
-        # for i in range(len(self.frames)):
-        #     # self.frames[i] = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2HSV)
-        #
-        #     self.frames[i] = self.filter_color(self.frames[i],
-        #                                        self.fil_hsv_l,
-        #                                        self.fil_hsv_u)
-
-        if self.enable_lines:
-            self.detect_lanes()
 
 
         # if self.mode == 'HSV':
@@ -228,11 +203,9 @@ class Retina():
         # elif self.mode == 'RGB':
         #     return rgb_frame
 
-        # print(np.mean([self.angles[0],self.angles[2]]))
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2RGB)
-        # print(self.frame.shape)
 
-        splitter = []
+        splitter_c = []
         lanes = []
 
 
@@ -251,7 +224,7 @@ class Retina():
                 edges += 1
             if rightmost[0] > self.frame.shape[1] - 5:
                 edges += 1
-            if topmost[1] < 5:
+            if topmost[1] < 3:
                 edges += 1
 
 
@@ -271,21 +244,58 @@ class Retina():
                 # print("not rect", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
                 pass
 
-            elif rect[1][0] * 7 > rect[1][1] and rect[1][1] * 7 > rect[1][0] and rect[1][0] > 1 and rect[1][1] * 8 > 1:
+            else:
                 cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
                 # print("allowed", rect[0], rect[1])
-                splitter.append(c)
-            else:
-                # print("removed", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
-                cv2.drawContours(self.frame, [box], 0, (0, 255, 0), 1)
-
-                # cons.append([rect[0], cv2.contourArea(c)])
+                splitter_c.append(c)
 
         lanes = sorted(lanes, key=lambda x: cv2.contourArea(x), reverse=False)
 
         rows, cols = self.frame.shape[:2]
-        self.lane_eqs = []
-        self.splitter_eq = None
+        splitter = TrackLine(False, None, None, None)
+        right_lane = TrackLine(False, None, None, None)
+        left_lane = TrackLine(False, None, None, None)
+
+        if len(splitter_c) > 1:
+            c = np.array(list(itertools.chain.from_iterable(splitter_c)))
+            [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
+            lefty = int((-x * vy / vx) + y)
+            righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
+            p1 = (self.frame.shape[1] - 1, righty)
+            p2 = (0, lefty)
+        elif len(splitter_c) > 0:
+            rect = cv2.minAreaRect(splitter_c[0])
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            smallest_dist = 100
+            n = 0
+            for i in range(1, 4):
+                dist = ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5
+                if dist < smallest_dist:
+                    smallest_dist = dist
+                    n = i
+            p1 = ((box[0][0] + box[n][0])/2, (box[0][1] + box[n][1])/2)
+            p2 = (sum([box[i][0] for i in range(1, 4) if i is not n]) / 2, sum([box[i][1] for i in range(1, 4) if i is not n]) / 2)
+            dy = float(p2[1] - p1[1])
+            dx = float(p2[0] - p1[0])
+            p1 = (int(p1[0] + (dx * 200)), int(p1[1] + (dy * 200)))
+            p2 = (int(p2[0] - (dx * 200)), int(p2[1] - (dy * 200)))
+
+        if splitter_c:
+            cv2.line(self.frame, p1, p2, (0, 0, 255), 1)
+            cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+            cv_b = p1[1] - (cv_m * p1[0])
+            p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
+            p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
+            try: m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+            except: m = 0
+            m += 0.001
+            x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
+            angle = (np.arctan(1 / m) * 180 / np.pi)
+            print("splitter", x_inter, angle)
+            splitter = self.update_line(splitter, angle, x_inter, [cv_m, cv_b])
+            self.split_m = splitter.midpoint
+
         for c in lanes:
             if cv2.contourArea(c) > 3:
                 [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
@@ -293,46 +303,28 @@ class Retina():
                 righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
                 p1 = (self.frame.shape[1]-1,righty)
                 p2 = (0,lefty)
+                cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+                cv_b = p1[1] - (cv_m * p1[0])
                 cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
                 p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
                 p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
                 m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-                x_inter = (p1[1] / m) + p1[0]
-                angle = np.tan(1/m)
-                print(m, x_inter, angle)
-                self.lane_eqs.append([angle, x_inter, m])
+                x_inter = int((((self.frame.shape[0]/2)-p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
+                angle = (np.arctan(1 / m) * 180 / np.pi)
+                if x_inter < self.split_m:
+                    left_lane = self.update_line(left_lane, angle, x_inter, [cv_m, cv_b])
+                    print("left", x_inter, angle)
+                else:
+                    right_lane = self.update_line(right_lane, angle, x_inter, [cv_m, cv_b])
+                    print("right", x_inter, angle)
 
+        lines = [splitter, left_lane, right_lane]
+        self.road = Road(None, splitter, left_lane, right_lane)
+        self.road.vehicle = self.calc_vehicle(lines)
 
+        self.lap_history.add_road_snapshot(self.road)
 
-        if len(splitter) > 1:
-            c = np.array(list(itertools.chain.from_iterable(splitter)))
-            [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
-            lefty = int((-x * vy / vx) + y)
-            righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
-            p1 = (self.frame.shape[1] - 1, righty)
-            p2 = (0, lefty)
-            cv2.line(self.frame, p1, p2, (0, 0, 255), 1)
-            p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
-            p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
-            m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-            x_inter = (p1[1] / m) + p1[0]
-            angle = np.tan(1 / m)
-            print(m, x_inter, angle)
-            self.splitter_eq = [angle, x_inter, m]
-        elif len(splitter) > 0:
-            rect = cv2.minAreaRect(splitter[0])
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            smallest_dist = 100
-            n = 0
-            for i in range(1, 4):
-                dist = ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5
-                if ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5 < smallest_dist:
-                    smallest_dist = 0
-
-            print(box)
-
-        return 0, 0
+        print("veh", self.road.vehicle.angle, self.road.vehicle.position, self.lane_width)
 
 
 # ------------------------------------------------------------------------------
