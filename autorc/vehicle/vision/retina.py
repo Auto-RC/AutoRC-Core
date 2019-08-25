@@ -189,7 +189,7 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
 
 
-        print(self.frame[0])
+        # print(self.frame[0])
 
         contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
 
@@ -294,7 +294,8 @@ class Retina():
                 m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
                 x_inter = (p1[1] / m) + p1[0]
                 angle = np.tan(1/m)
-                print(m, x_inter, angle)
+                # print(m, x_inter, angle)
+                # print("Lanes: {}".format(angle))
                 self.lane_eqs.append([angle, x_inter, m])
 
 
@@ -312,7 +313,8 @@ class Retina():
             m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
             x_inter = (p1[1] / m) + p1[0]
             angle = np.tan(1 / m)
-            print(m, x_inter, angle)
+            # print(m, x_inter, angle)
+            # print("Splitter: {}".format(angle))
             self.splitter_eq = [angle, x_inter, m]
         elif len(splitter) > 0:
             rect = cv2.minAreaRect(splitter[0])
@@ -325,7 +327,7 @@ class Retina():
                 if ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5 < smallest_dist:
                     smallest_dist = 0
 
-            print(box)
+            # print("Box: {}".format(box))
 
         return 0, 0
 
