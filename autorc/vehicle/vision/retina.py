@@ -2,16 +2,14 @@
 #                                   IMPORTS
 # ------------------------------------------------------------------------------
 
-import sys
 import logging
 from configparser import ConfigParser
 import itertools
-import time
 import platform
 import cv2
 import numpy as np
-from autorc.vehicle.cortex.environment import *
-from autorc.vehicle.cortex.lap_history import LapHistory
+from autorc.vehicle.cortex.environment.environment import *
+from autorc.vehicle.cortex.environment.lap_history import LapHistory
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -33,8 +31,6 @@ class Retina():
     LINE_THRESHOLD = 15
 
     def __init__(self):
-
-        self.lap_history = LapHistory(5)
 
         self.frame = None
 
@@ -177,10 +173,6 @@ class Retina():
         obj.cv_line = cv_line
         return obj
 
-    def check_prediction(self):
-        if len(self.lap_history.lap) > 0:
-            self.prediction = self.lap_history.predict()
-
     def need_correction(self):
         pass
 
@@ -301,7 +293,7 @@ class Retina():
             m += 0.001
             x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
             angle = (np.arctan(1 / m) * 180 / np.pi)
-            print("splitter", x_inter, angle)
+            # print("splitter", x_inter, angle)
             splitter = self.update_line(splitter, angle, x_inter, [cv_m, cv_b])
             self.split_m = splitter.midpoint
 
@@ -322,19 +314,18 @@ class Retina():
                 angle = (np.arctan(1 / m) * 180 / np.pi)
                 if x_inter < self.split_m:
                     left_lane = self.update_line(left_lane, angle, x_inter, [cv_m, cv_b])
-                    print("left", x_inter, angle)
+                    # print("left", x_inter, angle)
                 else:
                     right_lane = self.update_line(right_lane, angle, x_inter, [cv_m, cv_b])
-                    print("right", x_inter, angle)
+                    # print("right", x_inter, angle)
 
         lines = [splitter, left_lane, right_lane]
         self.road = Road(None, splitter, left_lane, right_lane)
         self.road.vehicle = self.calc_vehicle(lines)
 
-        self.lap_history.add_road_snapshot(self.road)
+        # print("veh", self.road.vehicle.angle, self.road.vehicle.position, self.lane_width)
 
-        print("veh", self.road.vehicle.angle, self.road.vehicle.position, self.lane_width)
-
+        return self.road
 
 # ------------------------------------------------------------------------------
 #                                      RETINA

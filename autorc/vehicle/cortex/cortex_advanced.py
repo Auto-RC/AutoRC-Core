@@ -8,7 +8,9 @@ import time
 import logging
 import threading
 import numpy as np
+
 from autorc.vehicle.vision.retina import Retina
+from autorc.vehicle.cortex.environment.lap_history import LapHistory
 
 class CortexAdvanced(threading.Thread):
 
@@ -39,8 +41,10 @@ class CortexAdvanced(threading.Thread):
         self.retina = Retina()
         self.corti = corti
         self.controller = controller
-
         self.oculus = oculus
+
+        # Lap History
+        self.lap_history = LapHistory(memory_size = 5)
 
         # Retina configuration
         self.retina.fil_hsv_l[2] = 180
@@ -54,18 +58,24 @@ class CortexAdvanced(threading.Thread):
         self.enabled = False
         self.update_interval_ms = update_interval_ms
 
-        # Observation space flags
+        # Observation feature existence
         self.observation_space = dict()
         self.observation_space['left_lane_present'] = None
         self.observation_space['right_lane_present'] = None
         self.observation_space['splitter_present'] = None
+        self.observation_space['vehicle_offroad'] = None
+
+        # Position Observations
         self.observation_space['left_lane_position'] = None
         self.observation_space['right_lane_position'] = None
         self.observation_space['splitter_position'] = None
-        self.observation_space['offroad'] = None
+        self.observation_space['vehicle_position'] = None
 
-        # Observation space angles
-        # self.observation_space['vehicle_lane_angle'] = None
+        # Angle observations
+        self.observation_space['left_lane_angle'] = None
+        self.observation_space['right_lane_angle'] = None
+        self.observation_space['splitter_angle'] = None
+        self.observation_space['vehicle_angle'] = None
 
         # Observation space acceleration
         self.observation_space['x_acceleration'] = None
@@ -94,9 +104,48 @@ class CortexAdvanced(threading.Thread):
         # Setting the current frame
         self.retina.frame = self.oculus.get_frame()
 
+        # Making a prediction of what is expected in the next step
+        # Retina compares this prediction to its computed value
+        if len(self.lap_history.lap) > 0:
+            self.retina.prediction = self.lap_history.predict()
+
         # Detecting lines
-        if self.retina.frame is not None:
-            self.retina.process()
+        try:
+
+            road = self.retina.process()
+
+
+            # Adding the current snapshot to the track history
+            self.lap_history.add_road_snapshot(road)
+
+            self.observation_space['left_lane_present'] = road.left_lane.present
+            self.observation_space['right_lane_present'] = road.right_lane.present
+            self.observation_space['splitter_present'] = road.splitter.present
+            self.observation_space['vehicle_offroad'] = road.vehicle.offroad
+
+            self.observation_space['left_lane_position'] = road.left_lane.midpoint
+            self.observation_space['right_lane_position'] = road.right_lane.midpoint
+            self.observation_space['splitter_position'] = road.splitter.midpoint
+            self.observation_space['vehicle_position'] = road.vehicle.position
+
+            self.observation_space['left_lane_angle'] = road.left_lane.angle
+            self.observation_space['right_lane_angle'] = road.right_lane.angle
+            self.observation_space['splitter_angle'] = road.splitter.angle
+            self.observation_space['vehicle_angle'] = road.vehicle.angle
+
+            self.observation_space['x_acceleration'] = 0
+            self.observation_space['y_acceleration'] = 0
+            self.observation_space['z_acceleration'] = 0
+
+            self.observation_space['user_throttle'] = 0
+            self.observation_space['user_steering'] = 0
+
+        except:
+            pass
+
+    # def vectorize_state(self):
+    #
+    #
 
     def compute_reward(self, cerebellum_thr, cerebellum_str):
 

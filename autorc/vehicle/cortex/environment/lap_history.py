@@ -11,10 +11,10 @@ class LapHistory():
     for error correction in retina
     """
 
-    def __init__(self, mem_len):
+    def __init__(self, memory_size):
 
         """
-        :param mem_len: number of track snapshots to be stores
+        :param memory_size: number of track snapshots to be stores
         """
 
         # Logger
@@ -25,7 +25,7 @@ class LapHistory():
             level=logging.INFO)
         self.logger.setLevel(logging.INFO)
 
-        self.mem_len = mem_len
+        self.memory_size = memory_size
 
         self.lap = []
 
@@ -37,7 +37,7 @@ class LapHistory():
         :return: None, adds road object to self.lap
         """
 
-        if len(self.lap) == self.mem_len:
+        if len(self.lap) == self.memory_size:
             del self.lap[0]
 
         self.lap.append(road)

@@ -193,8 +193,8 @@ class CerebellumAdvanced(threading.Thread):
         self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
 
     def compute_controls(self):
-
-        print("Act: {}".format(self.act(self.state)))
+        self.act(self.state)
+        # print("Act: {}".format(self.act(self.state)))
 
     def run(self):
 
