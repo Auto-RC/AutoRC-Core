@@ -50,6 +50,8 @@ class Retina():
 
         self.road = None
 
+        self.prediction = None
+
     def init_filters(self):
 
         self.fil_rgb_l = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
@@ -174,6 +176,13 @@ class Retina():
         obj.midpoint = midpoint
         obj.cv_line = cv_line
         return obj
+
+    def check_prediction(self):
+        if len(self.lap_history.lap) > 0:
+            self.prediction = self.lap_history.predict()
+
+    def need_correction(self):
+
 
     def process(self):
 
