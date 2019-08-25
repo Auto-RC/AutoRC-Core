@@ -182,7 +182,7 @@ class Retina():
             self.prediction = self.lap_history.predict()
 
     def need_correction(self):
-
+        pass
 
     def process(self):
 
