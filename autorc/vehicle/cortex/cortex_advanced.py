@@ -59,14 +59,13 @@ class CortexAdvanced(threading.Thread):
         self.observation_space['left_lane_present'] = None
         self.observation_space['right_lane_present'] = None
         self.observation_space['splitter_present'] = None
-        self.observation_space['left_lane_present'] = None
         self.observation_space['left_lane_position'] = None
         self.observation_space['right_lane_position'] = None
         self.observation_space['splitter_position'] = None
         self.observation_space['offroad'] = None
 
         # Observation space angles
-        self.observation_space['vehicle_lane_angle'] = None
+        # self.observation_space['vehicle_lane_angle'] = None
 
         # Observation space acceleration
         self.observation_space['x_acceleration'] = None
