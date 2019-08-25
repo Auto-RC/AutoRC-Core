@@ -96,7 +96,7 @@ class CortexAdvanced(threading.Thread):
 
         # Detecting lines
         if self.retina.frame is not None:
-            self.angles, self.midpoints = self.retina.process()
+            self.retina.process()
 
     def compute_reward(self, cerebellum_thr, cerebellum_str):
 
