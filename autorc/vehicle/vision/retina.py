@@ -201,10 +201,40 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
 
 
+<<<<<<< HEAD
         if 'Darwin' in platform.platform():
             contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
         else:
             contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+=======
+        # print(self.frame[0])
+
+        contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+
+        # self.hsv_s_u_filter()
+
+
+
+        # self.filter_color(fil_1_l,fil_1_u)
+        # print(self.enable_lines, self.mode)
+        # self.rgb_red_filter()
+        # self.hsv_s_u_filter()
+        # for i in range(len(self.frames)):
+        #     self.frames[i] = self.filter_color(self.frames[i],
+        #                                        self.fil_rgb_l[i],
+        #                                        self.fil_rgb_u[i])
+
+
+        # for i in range(len(self.frames)):
+        #     # self.frames[i] = cv2.cvtColor(self.frames[i], cv2.COLOR_BGR2HSV)
+        #
+        #     self.frames[i] = self.filter_color(self.frames[i],
+        #                                        self.fil_hsv_l,
+        #                                        self.fil_hsv_u)
+
+        if self.enable_lines:
+            self.detect_lanes()
+>>>>>>> Simulator
 
 
         # if self.mode == 'HSV':
@@ -261,9 +291,31 @@ class Retina():
         lanes = sorted(lanes, key=lambda x: cv2.contourArea(x), reverse=False)
 
         rows, cols = self.frame.shape[:2]
+<<<<<<< HEAD
         splitter = TrackLine(False, None, None, None)
         right_lane = TrackLine(False, None, None, None)
         left_lane = TrackLine(False, None, None, None)
+=======
+        self.lane_eqs = []
+        self.splitter_eq = None
+        for c in lanes:
+            if cv2.contourArea(c) > 3:
+                [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
+                lefty = int((-x * vy / vx) + y)
+                righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
+                p1 = (self.frame.shape[1]-1,righty)
+                p2 = (0,lefty)
+                cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
+                p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
+                p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
+                m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+                x_inter = (p1[1] / m) + p1[0]
+                angle = np.tan(1/m)
+                # print(m, x_inter, angle)
+                # print("Lanes: {}".format(angle))
+                self.lane_eqs.append([angle, x_inter, m])
+
+>>>>>>> Simulator
 
         if len(splitter_c) > 1:
             c = np.array(list(itertools.chain.from_iterable(splitter_c)))
@@ -272,14 +324,29 @@ class Retina():
             righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
             p1 = (self.frame.shape[1] - 1, righty)
             p2 = (0, lefty)
+<<<<<<< HEAD
         elif len(splitter_c) > 0:
             rect = cv2.minAreaRect(splitter_c[0])
+=======
+            cv2.line(self.frame, p1, p2, (0, 0, 255), 1)
+            p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
+            p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
+            m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+            x_inter = (p1[1] / m) + p1[0]
+            angle = np.tan(1 / m)
+            # print(m, x_inter, angle)
+            # print("Splitter: {}".format(angle))
+            self.splitter_eq = [angle, x_inter, m]
+        elif len(splitter) > 0:
+            rect = cv2.minAreaRect(splitter[0])
+>>>>>>> Simulator
             box = cv2.boxPoints(rect)
             box = np.int0(box)
             smallest_dist = 100
             n = 0
             for i in range(1, 4):
                 dist = ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5
+<<<<<<< HEAD
                 if dist < smallest_dist:
                     smallest_dist = dist
                     n = i
@@ -304,6 +371,12 @@ class Retina():
             print("splitter", x_inter, angle)
             splitter = self.update_line(splitter, angle, x_inter, [cv_m, cv_b])
             self.split_m = splitter.midpoint
+=======
+                if ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5 < smallest_dist:
+                    smallest_dist = 0
+
+            # print("Box: {}".format(box))
+>>>>>>> Simulator
 
         for c in lanes:
             if cv2.contourArea(c) > 3:
