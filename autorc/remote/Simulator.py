@@ -447,13 +447,14 @@ class Simulator(Thread):
 
 if __name__ == '__main__':
 
+    import platform
+    print(platform.platform())
     print("Platform: {}".format(platform.platform()))
 
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 18;29;43.996328.npy"
     else:
         data_path = r"/home/veda/git/auto-rc_poc/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
-
 
     simulator = Simulator(data_path)
     simulator.run()
