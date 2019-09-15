@@ -2,16 +2,14 @@
 #                                   IMPORTS
 # ------------------------------------------------------------------------------
 
-import sys
 import logging
 from configparser import ConfigParser
 import itertools
-import time
 import platform
 import cv2
 import numpy as np
-from autorc.vehicle.cortex.environment import *
-from autorc.vehicle.cortex.lap_history import LapHistory
+from autorc.vehicle.cortex.environment.environment import *
+from autorc.vehicle.cortex.environment.lap_history import LapHistory
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -33,8 +31,6 @@ class Retina():
     LINE_THRESHOLD = 15
 
     def __init__(self):
-
-        self.lap_history = LapHistory(5)
 
         self.frame = None
 
@@ -177,10 +173,6 @@ class Retina():
         obj.cv_line = cv_line
         return obj
 
-    def check_prediction(self):
-        if len(self.lap_history.lap) > 0:
-            self.prediction = self.lap_history.predict()
-
     def need_correction(self):
         pass
 
@@ -202,10 +194,14 @@ class Retina():
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7aa73cbdfc378b5b1451489c0324f3c311d858e9
         if 'Darwin' in platform.platform():
             contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
         else:
             contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+<<<<<<< HEAD
 =======
         # print(self.frame[0])
 
@@ -235,6 +231,8 @@ class Retina():
         if self.enable_lines:
             self.detect_lanes()
 >>>>>>> Simulator
+=======
+>>>>>>> 7aa73cbdfc378b5b1451489c0324f3c311d858e9
 
 
         # if self.mode == 'HSV':
@@ -292,6 +290,7 @@ class Retina():
 
         rows, cols = self.frame.shape[:2]
 <<<<<<< HEAD
+<<<<<<< HEAD
         splitter = TrackLine(False, None, None, None)
         right_lane = TrackLine(False, None, None, None)
         left_lane = TrackLine(False, None, None, None)
@@ -316,6 +315,11 @@ class Retina():
                 self.lane_eqs.append([angle, x_inter, m])
 
 >>>>>>> Simulator
+=======
+        splitter = TrackLine(False, None, None, None)
+        right_lane = TrackLine(False, None, None, None)
+        left_lane = TrackLine(False, None, None, None)
+>>>>>>> 7aa73cbdfc378b5b1451489c0324f3c311d858e9
 
         if len(splitter_c) > 1:
             c = np.array(list(itertools.chain.from_iterable(splitter_c)))
@@ -324,6 +328,7 @@ class Retina():
             righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
             p1 = (self.frame.shape[1] - 1, righty)
             p2 = (0, lefty)
+<<<<<<< HEAD
 <<<<<<< HEAD
         elif len(splitter_c) > 0:
             rect = cv2.minAreaRect(splitter_c[0])
@@ -340,6 +345,10 @@ class Retina():
         elif len(splitter) > 0:
             rect = cv2.minAreaRect(splitter[0])
 >>>>>>> Simulator
+=======
+        elif len(splitter_c) > 0:
+            rect = cv2.minAreaRect(splitter_c[0])
+>>>>>>> 7aa73cbdfc378b5b1451489c0324f3c311d858e9
             box = cv2.boxPoints(rect)
             box = np.int0(box)
             smallest_dist = 100
@@ -347,6 +356,9 @@ class Retina():
             for i in range(1, 4):
                 dist = ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7aa73cbdfc378b5b1451489c0324f3c311d858e9
                 if dist < smallest_dist:
                     smallest_dist = dist
                     n = i
@@ -368,15 +380,18 @@ class Retina():
             m += 0.001
             x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
             angle = (np.arctan(1 / m) * 180 / np.pi)
-            print("splitter", x_inter, angle)
+            # print("splitter", x_inter, angle)
             splitter = self.update_line(splitter, angle, x_inter, [cv_m, cv_b])
             self.split_m = splitter.midpoint
+<<<<<<< HEAD
 =======
                 if ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5 < smallest_dist:
                     smallest_dist = 0
 
             # print("Box: {}".format(box))
 >>>>>>> Simulator
+=======
+>>>>>>> 7aa73cbdfc378b5b1451489c0324f3c311d858e9
 
         for c in lanes:
             if cv2.contourArea(c) > 3:
@@ -395,19 +410,18 @@ class Retina():
                 angle = (np.arctan(1 / m) * 180 / np.pi)
                 if x_inter < self.split_m:
                     left_lane = self.update_line(left_lane, angle, x_inter, [cv_m, cv_b])
-                    print("left", x_inter, angle)
+                    # print("left", x_inter, angle)
                 else:
                     right_lane = self.update_line(right_lane, angle, x_inter, [cv_m, cv_b])
-                    print("right", x_inter, angle)
+                    # print("right", x_inter, angle)
 
         lines = [splitter, left_lane, right_lane]
         self.road = Road(None, splitter, left_lane, right_lane)
         self.road.vehicle = self.calc_vehicle(lines)
 
-        self.lap_history.add_road_snapshot(self.road)
+        # print("veh", self.road.vehicle.angle, self.road.vehicle.position, self.lane_width)
 
-        print("veh", self.road.vehicle.angle, self.road.vehicle.position, self.lane_width)
-
+        return self.road
 
 # ------------------------------------------------------------------------------
 #                                      RETINA

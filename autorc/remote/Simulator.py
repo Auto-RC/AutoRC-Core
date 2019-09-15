@@ -16,6 +16,7 @@ import logging
 from tkinter import *
 from threading import Thread
 import time
+import platform
 
 from autorc.vehicle.vision.recall import Recall
 from autorc.vehicle.vision.retina import Retina
@@ -25,7 +26,7 @@ from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 class Simulator(Thread):
 
     UI_HEIGHT = 625
-    UI_WIDTH = 785
+    UI_WIDTH = 900
 
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
@@ -52,14 +53,11 @@ class Simulator(Thread):
         # Data path for images
         self.data_path = data_path
 
-        # Retina initializaion
-        self.retina = Retina()
-
         # Init recall
         self.init_recall()
 
         # Cerebellum Initialization
-        cerebellum_update_interval_ms = 10
+        cerebellum_update_interval_ms = 100
         cortex_update_interval_ms = 100
         controller = None
         corti = None
@@ -209,7 +207,9 @@ class Simulator(Thread):
     def init_vision_features(self):
 
         vision_feature_frame = Frame(self.ui)
-        vision_feature_frame.grid(row=12, column=0, rowspan=3, columnspan=10)
+        vision_feature_frame.grid(row=12, column=0, rowspan=8, columnspan=10)
+
+        # Angles
 
         splitter_angle = Label(vision_feature_frame, text="Splitter Angle:", anchor="e", padx=15, pady=2)
         splitter_angle.grid(row=0, column=0)
@@ -232,6 +232,15 @@ class Simulator(Thread):
         right_lane_angle_var = Label(vision_feature_frame, textvariable=self.right_lane_angle, anchor="w", padx=15, pady=2)
         right_lane_angle_var.grid(row=2, column=1)
 
+        vehicle_angle = Label(vision_feature_frame, text="Vehicle Angle:", anchor="w")
+        vehicle_angle.grid(row=3, column=0)
+        self.vehicle_angle = StringVar()
+        self.vehicle_angle.set("Un-initialized")
+        vehicle_angle_var = Label(vision_feature_frame, textvariable=self.vehicle_angle, anchor="w", padx=15, pady=2)
+        vehicle_angle_var.grid(row=3, column=1)
+
+        # Feature Existence
+
         splitter_present = Label(vision_feature_frame, text="Splitter Present:", anchor="e")
         splitter_present.grid(row=0, column=3)
         self.splitter_present = StringVar()
@@ -252,6 +261,43 @@ class Simulator(Thread):
         self.right_lane_present.set("Un-initialized")
         right_lane_present_var = Label(vision_feature_frame, textvariable=self.right_lane_present, anchor="w", padx=15, pady=2)
         right_lane_present_var.grid(row=2, column=4)
+
+        vehicle_offroad = Label(vision_feature_frame, text="Vehicle Offroad:", anchor="w")
+        vehicle_offroad.grid(row=3, column=3)
+        self.vehicle_offroad = StringVar()
+        self.vehicle_offroad.set("Un-initialized")
+        vehicle_offroad_var = Label(vision_feature_frame, textvariable=self.vehicle_offroad, anchor="w", padx=15, pady=2)
+        vehicle_offroad_var.grid(row=3, column=4)
+
+        # Positions
+
+        left_lane_position = Label(vision_feature_frame, text="Left Lane Position:", anchor="w")
+        left_lane_position.grid(row=4, column=3)
+        self.left_lane_position = StringVar()
+        self.left_lane_position.set("Un-initialized")
+        left_lane_position_var = Label(vision_feature_frame, textvariable=self.left_lane_position, anchor="w", padx=15,pady=2)
+        left_lane_position_var.grid(row=4, column=4)
+
+        right_lane_position = Label(vision_feature_frame, text="Right Lane Position:", anchor="w")
+        right_lane_position.grid(row=5, column=3)
+        self.right_lane_position = StringVar()
+        self.right_lane_position.set("Un-initialized")
+        right_lane_position_var = Label(vision_feature_frame, textvariable=self.right_lane_position, anchor="w", padx=15, pady=2)
+        right_lane_position_var.grid(row=5, column=4)
+
+        splitter_position = Label(vision_feature_frame, text="Splitter Position:", anchor="w")
+        splitter_position.grid(row=6, column=3)
+        self.splitter_position = StringVar()
+        self.splitter_position.set("Un-initialized")
+        splitter_position_var = Label(vision_feature_frame, textvariable=self.splitter_position, anchor="w", padx=15, pady=2)
+        splitter_position_var.grid(row=6, column=4)
+
+        vehicle_position = Label(vision_feature_frame, text="Vehicle Position:", anchor="w")
+        vehicle_position.grid(row=7, column=3)
+        self.vehicle_position = StringVar()
+        self.vehicle_position.set("Un-initialized")
+        vehicle_position_var = Label(vision_feature_frame, textvariable=self.vehicle_position, anchor="w", padx=15, pady=2)
+        vehicle_position_var.grid(row=7, column=4)
 
     def init_img_controls(self):
 
@@ -290,10 +336,10 @@ class Simulator(Thread):
 
         elif self.apply_retina == True:
 
-            self.retina.frame = self.raw
-            self.retina.process()
-            self.processed = self.retina.frame
+            self.processed = self.cortex.retina.frame
             self.img = ImageTk.PhotoImage(self.resize_im(self.processed))
+
+            self.update_vision()
 
             self.update_img()
             self.logger.info("Image {} opened".format(self.img_index))
@@ -356,15 +402,15 @@ class Simulator(Thread):
 
     def update_hsv(self):
 
-        self.retina.fil_hsv_u[0] = int(self.h_upper_limit.get())
-        self.retina.fil_hsv_u[1] = int(self.s_upper_limit.get())
-        self.retina.fil_hsv_u[2] = int(self.v_upper_limit.get())
+        self.cortex.retina.fil_hsv_u[0] = int(self.h_upper_limit.get())
+        self.cortex.retina.fil_hsv_u[1] = int(self.s_upper_limit.get())
+        self.cortex.retina.fil_hsv_u[2] = int(self.v_upper_limit.get())
 
-        self.retina.fil_hsv_l[0] = int(self.h_lower_limit.get())
-        self.retina.fil_hsv_l[1] = int(self.s_lower_limit.get())
-        self.retina.fil_hsv_l[2] = int(self.v_lower_limit.get())
+        self.cortex.retina.fil_hsv_l[0] = int(self.h_lower_limit.get())
+        self.cortex.retina.fil_hsv_l[1] = int(self.s_lower_limit.get())
+        self.cortex.retina.fil_hsv_l[2] = int(self.v_lower_limit.get())
 
-        # self.retina.set_calibration(self.TYPE, self.retina.fil_rgb_l, self.retina.fil_rgb_u)
+        # self.cortex.retina.set_calibration(self.TYPE, self.cortex.retina.fil_rgb_l, self.cortex.retina.fil_rgb_u)
 
         self.change_img(self.img_index)
 
@@ -378,23 +424,37 @@ class Simulator(Thread):
 
         self.change_img(self.img_index)
 
+    def update_vision(self):
+
+        self.left_lane_angle.set(self.cortex.observation_space['left_lane_angle'])
+        self.right_lane_angle.set(self.cortex.observation_space['right_lane_angle'])
+        self.splitter_angle.set(self.cortex.observation_space['splitter_angle'])
+        self.vehicle_angle.set(self.cortex.observation_space['vehicle_angle'])
+
+        self.left_lane_present.set(self.cortex.observation_space['left_lane_present'])
+        self.right_lane_present.set(self.cortex.observation_space['right_lane_present'])
+        self.splitter_present.set(self.cortex.observation_space['splitter_present'])
+        self.vehicle_offroad.set(self.cortex.observation_space['vehicle_offroad'])
+
+        self.left_lane_position.set(self.cortex.observation_space['left_lane_position'])
+        self.right_lane_position.set(self.cortex.observation_space['right_lane_position'])
+        self.splitter_position.set(self.cortex.observation_space['splitter_position'])
+        self.vehicle_position.set(self.cortex.observation_space['vehicle_position'])
+
     def run(self):
 
         self.ui.mainloop()
 
 if __name__ == '__main__':
 
-<<<<<<< HEAD
     import platform
     print(platform.platform())
+    print("Platform: {}".format(platform.platform()))
+
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 18;29;43.996328.npy"
-
     else:
-        data_path = r'Anish/data/path'
-=======
-    data_path = r"/home/veda/git/auto-rc_poc/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
->>>>>>> Simulator
+        data_path = r"/home/veda/git/auto-rc_poc/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
 
     simulator = Simulator(data_path)
     simulator.run()
