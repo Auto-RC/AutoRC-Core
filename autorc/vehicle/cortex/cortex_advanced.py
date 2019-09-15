@@ -46,9 +46,7 @@ class CortexAdvanced(threading.Thread):
         # Lap History
         self.lap_history = LapHistory(memory_size = 5)
 
-        # Retina configuration
-        self.retina.fil_hsv_l[2] = 180
-        self.retina.fil_hsv_u[1] = 100
+
 
         # Thread configuration
         self.thread_name = "Cortex"
@@ -142,7 +140,6 @@ class CortexAdvanced(threading.Thread):
 
         except Exception as e:
             print(e)
-            raise e
     # def vectorize_state(self):
     #
     #

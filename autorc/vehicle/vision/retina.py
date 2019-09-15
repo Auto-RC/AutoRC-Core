@@ -37,7 +37,7 @@ class Retina():
         self.enable_lines = True
         self.mode = 'RGB'
 
-        self.calibration_parser = ConfigParser()
+        # self.calibration_parser = ConfigParser()
         # self.read_calibration()
         self.init_filters()
 
@@ -57,7 +57,7 @@ class Retina():
 
     def read_calibration(self):
 
-        self.calibration_parser.read("/Users/arnavgupta/auto-rc_poc/os/vision/calibration.ini")
+        self.calibration_parser.read("/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
 
         self.spl_rgb_lower_filter = [int(self.calibration_parser.get('splitter_parameters','l_r')),
                                      int(self.calibration_parser.get('splitter_parameters','l_g')),
@@ -355,10 +355,10 @@ class Retina():
 
         splitter = self.create_splitter(splitter_c, splitter)
 
-        if self.prediction:
-            splitter = self.correct_splitter(splitter, splitter_c)
-        else:
-            print("no prediction")
+        # if self.prediction:
+        #     splitter = self.correct_splitter(splitter, splitter_c)
+        # else:
+        #     print("no prediction")
 
         for c in lanes:
             if cv2.contourArea(c) > 3:

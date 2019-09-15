@@ -18,6 +18,8 @@ from threading import Thread
 import time
 import platform
 
+from configparser import ConfigParser
+
 from autorc.vehicle.vision.recall import Recall
 from autorc.vehicle.vision.retina import Retina
 from autorc.vehicle.controls.cerebellum_advanced import CerebellumAdvanced
@@ -52,6 +54,9 @@ class Simulator(Thread):
 
         # Data path for images
         self.data_path = data_path
+
+        self.calibration_parser = ConfigParser()
+        self.read_calibration()
 
         # Init recall
         self.init_recall()
@@ -94,6 +99,7 @@ class Simulator(Thread):
         self.change_img(self.img_index)
         self.update_img()
 
+
     def init_recall(self):
 
         self.recall = Recall(self.data_path)
@@ -104,6 +110,30 @@ class Simulator(Thread):
         self.ui = Tk()
         self.ui.resizable(width=False, height=False)
         self.ui.geometry("{}x{}".format(self.UI_WIDTH, self.UI_HEIGHT))
+
+    def read_calibration(self):
+
+        self.calibration_parser.read("/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+
+        self.rgb_l = [
+            int(self.calibration_parser.get('splitter_parameters', 'l_h')),
+            int(self.calibration_parser.get('splitter_parameters', 'l_s')),
+            int(self.calibration_parser.get('splitter_parameters', 'l_v'))]
+
+        self.rgb_u = [
+            int(self.calibration_parser.get('splitter_parameters', 'u_h')),
+            int(self.calibration_parser.get('splitter_parameters', 'u_s')),
+            int(self.calibration_parser.get('splitter_parameters', 'u_v'))]
+
+        self.hsv_l = [
+            int(self.calibration_parser.get('splitter_parameters', 'l_h')),
+            int(self.calibration_parser.get('splitter_parameters', 'l_s')),
+            int(self.calibration_parser.get('splitter_parameters', 'l_v'))]
+
+        self.hsv_u = [
+            int(self.calibration_parser.get('splitter_parameters', 'u_h')),
+            int(self.calibration_parser.get('splitter_parameters', 'u_s')),
+            int(self.calibration_parser.get('splitter_parameters', 'u_v'))]
 
     def init_vision_rgb_controls(self):
 
@@ -155,39 +185,42 @@ class Simulator(Thread):
         h_upper_limit_label.grid(row=1, column=0)
         h_upper_limit_var = DoubleVar()
         self.h_upper_limit = Scale(hsv_filter_frame, variable=h_upper_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
-        self.h_upper_limit.set(255)
+        self.h_upper_limit.set(self.hsv_u[0])
         self.h_upper_limit.grid(row=2, column=0)
 
         s_upper_limit_label = Label(hsv_filter_frame, text="S Upper Lim", pady=5, padx=5)
         s_upper_limit_label.grid(row=1, column=1)
         s_upper_limit_var = DoubleVar()
         self.s_upper_limit = Scale(hsv_filter_frame, variable=s_upper_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
-        self.s_upper_limit.set(255)
+        self.s_upper_limit.set(self.hsv_u[1])
         self.s_upper_limit.grid(row=2, column=1)
 
         v_upper_limit_label = Label(hsv_filter_frame, text="V Upper Lim", pady=5, padx=5)
         v_upper_limit_label.grid(row=1, column=2)
         v_upper_limit_var = DoubleVar()
         self.v_upper_limit = Scale(hsv_filter_frame, variable=v_upper_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
-        self.v_upper_limit.set(255)
+        self.v_upper_limit.set(self.hsv_u[2])
         self.v_upper_limit.grid(row=2, column=2)
 
         h_lower_limit_label = Label(hsv_filter_frame, text="H Lower Lim", pady=5, padx=5)
         h_lower_limit_label.grid(row=3, column=0)
         h_lower_limit_var = DoubleVar()
         self.h_lower_limit = Scale(hsv_filter_frame, variable=h_lower_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
+        self.h_lower_limit.set(self.hsv_l[0])
         self.h_lower_limit.grid(row=4, column=0)
 
         s_lower_limit_label = Label(hsv_filter_frame, text="S Lower Lim", pady=5, padx=5)
         s_lower_limit_label.grid(row=3, column=1)
         s_lower_limit_var = DoubleVar()
         self.s_lower_limit = Scale(hsv_filter_frame, variable=s_lower_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
+        self.s_lower_limit.set(self.hsv_l[1])
         self.s_lower_limit.grid(row=4, column=1)
 
         v_lower_limit_label = Label(hsv_filter_frame, text="V Lower Lim", pady=5, padx=5)
         v_lower_limit_label.grid(row=3, column=2)
         v_lower_limit_var = DoubleVar()
         self.v_lower_limit = Scale(hsv_filter_frame, variable=v_lower_limit_var, from_=255,to=0, command=lambda x: self.update_hsv())
+        self.v_lower_limit.set(self.hsv_l[2])
         self.v_lower_limit.grid(row=4, column=2)
 
     def init_vision_controls(self):
