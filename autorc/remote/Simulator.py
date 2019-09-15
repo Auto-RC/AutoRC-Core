@@ -27,7 +27,7 @@ from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 
 class Simulator(Thread):
 
-    UI_HEIGHT = 625
+    UI_HEIGHT = 700
     UI_WIDTH = 1000
 
     IMG_WIDTH = 400
@@ -86,6 +86,7 @@ class Simulator(Thread):
         # Init Vision Features
         self.init_vision_controls()
         self.init_vision_features()
+        self.init_cerebellum_predictions()
 
         # Init RGB Controls
         self.init_vision_rgb_controls()
@@ -319,18 +320,39 @@ class Simulator(Thread):
         right_lane_position_var.grid(row=5, column=4)
 
         splitter_position = Label(vision_feature_frame, text="Splitter Position:", anchor="w")
-        splitter_position.grid(row=6, column=3)
+        splitter_position.grid(row=4, column=0)
         self.splitter_position = StringVar()
         self.splitter_position.set("Un-initialized")
         splitter_position_var = Label(vision_feature_frame, textvariable=self.splitter_position, anchor="w", padx=15, pady=2)
-        splitter_position_var.grid(row=6, column=4)
+        splitter_position_var.grid(row=4, column=1)
 
         vehicle_position = Label(vision_feature_frame, text="Vehicle Position:", anchor="w")
-        vehicle_position.grid(row=7, column=3)
+        vehicle_position.grid(row=5, column=0)
         self.vehicle_position = StringVar()
         self.vehicle_position.set("Un-initialized")
         vehicle_position_var = Label(vision_feature_frame, textvariable=self.vehicle_position, anchor="w", padx=15, pady=2)
-        vehicle_position_var.grid(row=7, column=4)
+        vehicle_position_var.grid(row=5, column=1)
+
+    def init_cerebellum_predictions(self):
+
+        cerebellum_predictions_frame = Frame(self.ui)
+        cerebellum_predictions_frame.grid(row=20, column=0, rowspan=8, columnspan=10)
+
+        # Angles
+
+        computed_throttle = Label(cerebellum_predictions_frame, text="Computed Throttle:", anchor="e", padx=15, pady=2)
+        computed_throttle.grid(row=0, column=0)
+        self.computed_throttle = StringVar()
+        self.computed_throttle.set("Un-initialized")
+        computed_throttle_var = Label(cerebellum_predictions_frame, textvariable=self.computed_throttle, anchor="w", padx=15, pady=2)
+        computed_throttle_var.grid(row=0, column=1)
+
+        computed_steering = Label(cerebellum_predictions_frame, text="Computed Steering:", anchor="w")
+        computed_steering.grid(row=0, column=2)
+        self.computed_steering = StringVar()
+        self.computed_steering.set("Un-initialized")
+        computed_steering_var = Label(cerebellum_predictions_frame, textvariable=self.computed_steering, anchor="w", padx=15, pady=2)
+        computed_steering_var.grid(row=0, column=3)
 
     def init_img_controls(self):
 
@@ -373,6 +395,7 @@ class Simulator(Thread):
             self.img = ImageTk.PhotoImage(self.resize_im(self.processed))
 
             self.update_vision()
+            self.update_predictions()
 
             self.update_img()
             self.logger.info("Image {} opened".format(self.img_index))
@@ -388,8 +411,6 @@ class Simulator(Thread):
         self.canvas.itemconfigure(self.canvas_img, image=self.img)
 
     def resize_im(self, im):
-
-
 
         im = self.recall.rgb_to_img(im)
         return im.resize((128 * self.RESIZE_FACTOR, 40 * self.RESIZE_FACTOR), PIL.Image.NEAREST)
@@ -474,6 +495,14 @@ class Simulator(Thread):
         self.splitter_position.set(self.cortex.observation_space['splitter_position'])
         self.vehicle_position.set(self.cortex.observation_space['vehicle_position'])
 
+    def update_predictions(self):
+
+        #TODO: Add update state here.
+        self.cerebellum.update_state()
+        action = self.cerebellum.compute_controls()
+        self.computed_throttle.set(action['thr'])
+        self.computed_steering.set(action['str'])
+
     def run(self):
 
         self.ui.mainloop()
@@ -487,7 +516,7 @@ if __name__ == '__main__':
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 18;29;43.996328.npy"
     else:
-        data_path = r"/home/veda/git/auto-rc_poc/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
+        data_path = r"/home/veda/git/AutoRC-Core/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
 
     simulator = Simulator(data_path)
     simulator.run()

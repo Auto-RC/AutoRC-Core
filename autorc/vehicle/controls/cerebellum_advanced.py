@@ -35,7 +35,9 @@ class CerebellumAdvanced(threading.Thread):
 
     BATCH_SIZE = 10
 
-    ACTION_SPACE = [0 for i in range(0, 100)]#[ ( i, [ j for j in range(0,10) ]) for i in range(0,10) ]
+    STR_ACTIONS = [10, 34, 46, 52, 55, 58, 64, 76, 100]
+    THR_ACTIONS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+
     OBSERVATION_SPACE = [0 for i in range(0, 12)]
 
     LEARNING_RATE = 0.001
@@ -88,8 +90,21 @@ class CerebellumAdvanced(threading.Thread):
         self.checkpoint = ModelCheckpoint(self.save_path, monitor="loss", verbose=0, save_best_only=False, mode='min')
         self.callbacks_list = [self.checkpoint]
 
+        # Initialize action space
+        self.init_action_space()
+
         # Initialize neural network
         self.init_neural_network()
+
+    def init_action_space(self):
+
+        self.ACTION_SPACE = [0 for i in range(0, len(self.STR_ACTIONS) * len(self.THR_ACTIONS))]
+        self.ACTIONS = dict()
+        index = 0
+        for thr in self.THR_ACTIONS:
+            for str in self.STR_ACTIONS:
+                self.ACTIONS[index] = {'thr': thr, "str": str}
+                index += 1
 
     def init_neural_network(self):
 
@@ -138,6 +153,7 @@ class CerebellumAdvanced(threading.Thread):
         else:
             with self.graph.as_default():
                 q_values = self.model.predict(state)
+
             return np.argmax(q_values[0])
 
     def experience_replay(self):
@@ -193,8 +209,9 @@ class CerebellumAdvanced(threading.Thread):
         self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
 
     def compute_controls(self):
-        self.act(self.state)
-        # print("Act: {}".format(self.act(self.state)))
+
+        action_index = self.act(self.state)
+        return self.ACTIONS[action_index]
 
     def run(self):
 
