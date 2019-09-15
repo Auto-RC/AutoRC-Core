@@ -38,7 +38,7 @@ class CerebellumAdvanced(threading.Thread):
     STR_ACTIONS = [10, 34, 46, 52, 55, 58, 64, 76, 100]
     THR_ACTIONS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
-    OBSERVATION_SPACE = [0 for i in range(0, 12)]
+    OBSERVATION_SPACE = [0 for i in range(0, 15)]
 
     LEARNING_RATE = 0.001
 
@@ -204,9 +204,10 @@ class CerebellumAdvanced(threading.Thread):
         # Capping the exploration rate
         self.exploration_rate = max(self.EXPLORATION_MIN, self.exploration_rate)
 
-    def update_state(self):
+    def update_state(self, state):
 
-        self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+        # self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+        self.state = np.array([state])
 
     def compute_controls(self):
 

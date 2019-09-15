@@ -221,7 +221,6 @@ class Retina():
 
         return splitter
 
-
     def create_splitter(self, splitter_c, splitter):
         p1 = None
         p2 = None
@@ -269,7 +268,6 @@ class Retina():
             self.split_m = splitter.midpoint
 
         return splitter
-
 
     def process(self):
 
