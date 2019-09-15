@@ -26,7 +26,7 @@ from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 class Simulator(Thread):
 
     UI_HEIGHT = 625
-    UI_WIDTH = 900
+    UI_WIDTH = 1000
 
     IMG_WIDTH = 400
     IMG_HEIGHT = 200

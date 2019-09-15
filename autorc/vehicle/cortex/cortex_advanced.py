@@ -140,9 +140,9 @@ class CortexAdvanced(threading.Thread):
             self.observation_space['user_throttle'] = 0
             self.observation_space['user_steering'] = 0
 
-        except:
-            pass
-
+        except Exception as e:
+            print(e)
+            raise e
     # def vectorize_state(self):
     #
     #
