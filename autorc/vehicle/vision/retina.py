@@ -210,12 +210,12 @@ class Retina():
             if self.p2l_dist(m, b, x, y) > thresh:
                 del splitter_c[i]
 
-        for i in range(len(self.contours)):
-            M = cv2.moments([self.contours[i]])
-            x = int(M['m10'] / M['m00'])
-            y = int(M['m01'] / M['m00'])
-            if self.p2l_dist(m, b, x, y) < thresh:
-                splitter_c.append(self.contours[i])
+        # for i in range(len(self.contours)):
+        #     M = cv2.moments([self.contours[i]])
+        #     x = int(M['m10'] / M['m00'])
+        #     y = int(M['m01'] / M['m00'])
+        #     if self.p2l_dist(m, b, x, y) < thresh:
+        #         splitter_c.append(self.contours[i])
 
         splitter = self.create_splitter(splitter_c, splitter)
 
