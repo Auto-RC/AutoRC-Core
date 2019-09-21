@@ -223,10 +223,11 @@ class CerebellumAdvanced(threading.Thread):
     def compute_controls(self):
 
         action_index = self.act(self.state)
-        return {
-            "action": self.ACTIONS[action_index],
-            "index" : action_index
-        }
+        return self.ACTIONS[action_index]
+        # return {
+        #     "action": self.ACTIONS[action_index],
+        #     "index" : action_index
+        # }
 
     def run(self):
 
