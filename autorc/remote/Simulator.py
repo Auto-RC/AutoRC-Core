@@ -35,8 +35,6 @@ class Simulator(Thread):
 
     RESIZE_FACTOR = 3
 
-    SHOW_IMAGES = True
-
     def __init__(self, data_path):
 
         # Logger
@@ -528,7 +526,6 @@ class Simulator(Thread):
             self.vehicle_position.set('%.2f' % self.cortex.observation_space['vehicle_position'])
         except:
             self.vehicle_position.set(self.cortex.observation_space['vehicle_position'])
-
 
     def update_predictions(self):
 

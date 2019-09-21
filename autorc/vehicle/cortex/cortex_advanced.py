@@ -76,9 +76,9 @@ class CortexAdvanced(threading.Thread):
         self.observation_space['vehicle_angle'] = None
 
         # Observation space acceleration
-        self.observation_space['x_acceleration'] = None
-        self.observation_space['y_acceleration'] = None
-        self.observation_space['z_acceleration'] = None
+        self.observation_space['x_acceleration'] = 0
+        self.observation_space['y_acceleration'] = 0
+        self.observation_space['z_acceleration'] = 0
 
         # Observation space user controls
         self.observation_space['user_throttle'] = None
