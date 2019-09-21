@@ -24,24 +24,41 @@ logger.setLevel(logging.DEBUG)
 
 class Recall():
 
-    def __init__(self, path):
+    def __init__(self, path, timestamp):
 
-        self.path = path
+        self.vision_path = os.path.join(path, "oculus-{}.npy".format(timestamp))
+        self.corti_path = os.path.join(path, "corti-{}.npy".format(timestamp))
+        self.drive_path = os.path.join(path, "drive-{}.npy".format(timestamp))
+
         self.frames = []
-        self.img_num = 0
+        self.frame_index = 0
 
     def load(self):
 
-        # Loading the npy data package
-        self.frames = np.load(self.path)
-        print(self.frames.shape)
-        self.num_images = self.frames.shape[0]
-        logger.debug("Number of images in npy: {}".format(self.num_images))
+        # Loading oculus data
+        self.vision_frames = np.load(self.vision_path)
+        print(self.vision_frames.shape)
+
+        # Loading corti data
+        self.corti_frames = np.load(self.corti_path)
+        print(self.corti_frames.shape)
+
+        # Loading drive data
+        self.drive_frames = np.load(self.drive_path)
+        print(self.drive_frames.shape)
+
+        self.num_frames = self.vision_frames.shape[0]
+        logger.debug("Number of frames in npy: {}".format(self.num_frames))
 
     def get_frame(self):
 
         # print("Image num: {}".format(self.img_num))
-        return self.frames[self.img_num]
+        frame = {"vision": self.vision_frames[self.frame_index],
+                 "corti": self.corti_frames[self.frame_index],
+                 "drive": self.drive_frames[self.frame_index],
+                }
+
+        return frame
 
     def rgb_to_img(self, np_array) -> Image:
 

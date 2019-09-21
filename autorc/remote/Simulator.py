@@ -116,7 +116,7 @@ class Simulator(Thread):
 
     def read_calibration(self):
 
-        self.calibration_parser.read(r"/home/veda/git/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+        self.calibration_parser.read("/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
 
         self.rgb_l = [
             int(self.calibration_parser.get('splitter_parameters', 'l_h')),
@@ -405,7 +405,7 @@ class Simulator(Thread):
     def get_image(self, image_num):
 
         self.raw = self.recall.frames[image_num]
-        self.recall.img_num = image_num
+        self.recall.frame_index = image_num
         self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
 
     def update_img(self):
@@ -420,7 +420,7 @@ class Simulator(Thread):
 
     def next_img(self):
 
-        if self.img_index == self.recall.num_images - 1:
+        if self.img_index == self.recall.num_frames - 1:
             self.logger.info("Last image reached")
         else:
             self.img_index += 1
@@ -449,7 +449,7 @@ class Simulator(Thread):
         while self.video_active:
 
             self.img_index += 1
-            if self.img_index >= self.recall.num_images:
+            if self.img_index >= self.recall.num_frames:
                 self.img_index = 0
 
             self.change_img(self.img_index)

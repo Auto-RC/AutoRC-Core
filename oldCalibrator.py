@@ -274,7 +274,7 @@ class Calibrator(threading.Thread):
         while self.video_active:
 
             self.img_index += 1
-            if self.img_index >= self.recall.num_images:
+            if self.img_index >= self.recall.num_frames:
                 self.img_index = 0
 
             self.change_img(self.img_index)
@@ -377,7 +377,7 @@ class Calibrator(threading.Thread):
 
     def next_img(self):
 
-        if self.img_index == self.recall.num_images-1:
+        if self.img_index == self.recall.num_frames-1:
             logger.info("Last image reached")
         else:
             self.img_index += 1
