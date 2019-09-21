@@ -35,14 +35,14 @@ class CerebellumAdvanced(threading.Thread):
 
     BATCH_SIZE = 10
 
-    STR_ACTIONS = [10, 34, 46, 52, 55, 58, 64, 76, 100]
-    THR_ACTIONS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    STR_ACTIONS = [-45/45, -21/45, -9/45, -3/45, 0, 3/45, 9/45, 21/45, 45/45]
+    THR_ACTIONS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
     OBSERVATION_SPACE = [0 for i in range(0, 15)]
 
     LEARNING_RATE = 0.001
 
-    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, mode, load=True, train=False):
+    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True, train=False):
 
         """
         Constructor
@@ -80,7 +80,7 @@ class CerebellumAdvanced(threading.Thread):
         self.memory = deque(maxlen=self.MEMORY_SIZE)
 
         # Model Training Config
-        self.mode = mode
+        self.imitation = imitation
         self.train = train
 
         # Model config
@@ -106,7 +106,7 @@ class CerebellumAdvanced(threading.Thread):
         index = 0
         for thr in self.THR_ACTIONS:
             for str in self.STR_ACTIONS:
-                self.ACTIONS[index] = {'thr': thr, "str": str}
+                self.ACTIONS[index] = [thr, str]
                 index += 1
 
     def init_neural_network(self):
@@ -184,6 +184,13 @@ class CerebellumAdvanced(threading.Thread):
 
                 # Bellman equation
                 # TODO: Why is there a zero index [0]?
+                print(state_next)
+                print(np.transpose(state_next))
+                test = np.transpose(state_next)
+                print(test)
+                print(state_next.shape)
+                print(test.shape)
+                np.transpose(state_next)
                 q_update = (reward + self.GAMMA*np.amax(self.model.predict(state_next)[0]))
 
             # Output of the neural network (q values) given the state
@@ -224,6 +231,6 @@ class CerebellumAdvanced(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
-                self.compute_controls()
+                self.thr, self.str = self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)

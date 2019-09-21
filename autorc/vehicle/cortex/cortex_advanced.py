@@ -18,7 +18,7 @@ class CortexAdvanced(threading.Thread):
     Cortex provides perception via vision and inertial systems
     """
 
-    def __init__(self, update_interval_ms, oculus, corti, controller, mode="simulation"):
+    def __init__(self, update_interval_ms, oculus, corti, drive, mode="simulation"):
 
         """
         Constructor
@@ -40,13 +40,11 @@ class CortexAdvanced(threading.Thread):
         # External vehicle interfaces
         self.retina = Retina()
         self.corti = corti
-        self.controller = controller
+        self.drive = drive
         self.oculus = oculus
 
         # Lap History
         self.lap_history = LapHistory(memory_size = 5)
-
-
 
         # Thread configuration
         self.thread_name = "Cortex"
@@ -83,6 +81,7 @@ class CortexAdvanced(threading.Thread):
         # Observation space user controls
         self.observation_space['user_throttle'] = None
         self.observation_space['user_steering'] = None
+        self.observation_space['terminal'] = 0
 
         # Reward
         self.reward = 0
@@ -92,6 +91,9 @@ class CortexAdvanced(threading.Thread):
 
         # Offroad State Machine
         self.offroad_sm = []
+
+        # State counter
+        self.state_counter = 0
 
     def get_state(self):
 
@@ -130,14 +132,18 @@ class CortexAdvanced(threading.Thread):
             self.observation_space['splitter_angle'] = road.splitter.angle
             self.observation_space['vehicle_angle'] = road.vehicle.angle
 
-            self.observation_space['x_acceleration'] = 0
+            self.observation_space['x_acceleration'] = self.corti.get_frame()[0]
             self.observation_space['y_acceleration'] = 0
             self.observation_space['z_acceleration'] = 0
 
-            self.observation_space['user_throttle'] = 0
-            self.observation_space['user_steering'] = 0
+            self.observation_space['user_throttle'], self.observation_space['user_steering'] = self.drive.get_frame()
 
-            self.observation_space['terminal'] = 0
+            self.state_counter += 1
+
+            if (self.state_counter % 20 == 0) or (self.observation_space['vehicle_offroad']):
+                self.observation_space['terminal'] = 1
+            else:
+                self.observation_space['terminal'] = 0
 
         except Exception as e:
             print(e)
@@ -154,11 +160,13 @@ class CortexAdvanced(threading.Thread):
         """
 
         if self.mode == "IMITATION":
-            # self.reward = (self.controller.thr - cerebellum_thr)*(self.controller.str - cerebellum_str)
-            self.reward = 0
+            user_throttle , user_steering = self.drive.get_frame()
+            self.reward = -((user_throttle - cerebellum_thr)*(user_throttle - cerebellum_thr) + (user_steering - cerebellum_str)*(user_steering - cerebellum_str))
 
         elif self.mode == "REINFORCEMENT":
             self.reward = 0
+
+        return self.reward
 
     def enable(self):
 
@@ -223,10 +231,26 @@ class CortexAdvanced(threading.Thread):
         """
 
         self.vectorized_state = []
-        self.vectorized_state.append(self.observation_space['left_lane_present'])
-        self.vectorized_state.append(self.observation_space['right_lane_present'])
-        self.vectorized_state.append(self.observation_space['splitter_present'])
-        self.vectorized_state.append(self.observation_space['vehicle_offroad'])
+
+        if self.observation_space['left_lane_present']:
+            self.vectorized_state.append(1)
+        else:
+            self.vectorized_state.append(0)
+
+        if self.observation_space['right_lane_present']:
+            self.vectorized_state.append(1)
+        else:
+            self.vectorized_state.append(0)
+
+        if self.observation_space['splitter_present']:
+            self.vectorized_state.append(1)
+        else:
+            self.vectorized_state.append(0)
+
+        if self.observation_space['vehicle_offroad']:
+            self.vectorized_state.append(1)
+        else:
+            self.vectorized_state.append(0)
 
         #TODO: How does this -1 affect the relu in the neural network?
 
@@ -270,11 +294,11 @@ class CortexAdvanced(threading.Thread):
         except:
             self.vectorized_state.append(-1)
 
-        # self.vectorized_state.append(self.observation_space['x_acceleration']/10)
-        # self.vectorized_state.append(self.observation_space['y_acceleration']/10)
-        # self.vectorized_state.append(self.observation_space['z_acceleration']/10)
+        self.vectorized_state.append(self.observation_space['x_acceleration']/10)
+        self.vectorized_state.append(self.observation_space['y_acceleration']/10)
+        self.vectorized_state.append(self.observation_space['z_acceleration']/10)
 
-        return self.vectorized_state
+        return np.array(self.vectorized_state)
 
     def run(self):
 

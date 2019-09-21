@@ -46,6 +46,10 @@ class Drive(threading.Thread):
 
         time.sleep(0.5)
 
+    def get_frame(self):
+
+        return [self.steering, self.throttle]
+
     def run(self):
 
         while True:
@@ -79,10 +83,5 @@ class Drive(threading.Thread):
 
         if self.enabled == True:
 
-            self.throttle = (self.cerebellum.thr - 10) / 90
-            self.steering = (self.cerebellum.str - 55) / 45
-
-
-# ==================================================================================================
-#                                            UNIT TESTS
-# ==================================================================================================
+            self.throttle = self.cerebellum.thr
+            self.steering = self.cerebellum.str

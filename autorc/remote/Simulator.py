@@ -63,17 +63,20 @@ class Simulator(Thread):
         # Cerebellum Initialization
         cerebellum_update_interval_ms = 100
         cortex_update_interval_ms = 100
-        controller = None
-        corti = None
+
+        drive = self.drive_recall
+        corti = self.corti_recall
+        oculus = self.vision_recall
+
         mode = True
-        oculus = self.recall
         model_name = "Test"
-        self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, controller)
+
+        self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, drive)
         self.cortex.enable()
         self.cortex.start()
 
         time.sleep(1)
-        self.cerebellum = CerebellumAdvanced(cerebellum_update_interval_ms, controller, self.cortex, corti, model_name, mode, load=False, train=False)
+        self.cerebellum = CerebellumAdvanced(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=False, train=False)
         self.cerebellum.auto = True
         self.cerebellum.start()
 
@@ -104,8 +107,14 @@ class Simulator(Thread):
 
     def init_recall(self):
 
-        self.recall = Recall("2019-06-29 20;32;50.366819", self.data_path)
-        self.recall.load()
+        self.vision_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "vision")
+        self.vision_recall.load()
+
+        self.corti_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "corti")
+        self.corti_recall.load()
+
+        self.drive_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "drive")
+        self.drive_recall.load()
 
     def init_ui(self):
 
@@ -383,7 +392,7 @@ class Simulator(Thread):
 
     def change_img(self, img_index):
 
-        self.get_image(img_index)
+        self.get_frame(img_index)
 
         if self.apply_retina == False:
 
@@ -404,16 +413,20 @@ class Simulator(Thread):
             self.update_img()
             self.logger.info("Image {} opened".format(self.img_index))
 
-    def get_image(self, frame_num):
+    def get_frame(self, frame_num):
 
-        # Setting the frame in recall
-        self.recall.set_frame_index(frame_num)
-
-        # Getting the frame
-        self.frame = self.recall.get_frame()
-        self.raw = self.frame['vision']
-
+        # Getting the vision frame
+        self.vision_recall.set_frame_index(frame_num)
+        self.raw = self.vision_recall.get_frame()
         self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
+
+        # Getting the corti frame
+        self.corti_recall.set_frame_index(frame_num)
+        self.corti_frame = self.corti_recall.get_frame()
+
+        # Getting the drive frame
+        self.drive_recall.set_frame_index(frame_num)
+        self.drive_frame = self.drive_recall.get_frame()
 
     def update_img(self):
 
@@ -421,13 +434,13 @@ class Simulator(Thread):
 
     def resize_im(self, im):
 
-        im = self.recall.rgb_to_img(im)
+        im = self.vision_recall.rgb_to_img(im)
         return im.resize((128 * self.RESIZE_FACTOR, 40 * self.RESIZE_FACTOR), PIL.Image.NEAREST)
         # return im
 
     def next_img(self):
 
-        if self.img_index == self.recall.num_frames - 1:
+        if self.img_index == self.vision_recall.num_frames - 1:
             self.logger.info("Last image reached")
         else:
             self.img_index += 1
@@ -456,7 +469,7 @@ class Simulator(Thread):
         while self.video_active:
 
             self.img_index += 1
-            if self.img_index >= self.recall.num_frames:
+            if self.img_index >= self.vision_recall.num_frames:
                 self.img_index = 0
 
             self.change_img(self.img_index)
@@ -542,11 +555,11 @@ class Simulator(Thread):
 
         self.cerebellum.update_state(self.vectorized_state)
         action = self.cerebellum.compute_controls()
-        self.computed_throttle.set(action['thr'])
-        self.computed_steering.set(action['str'])
+        self.computed_throttle.set(action[0])
+        self.computed_steering.set(action[1])
 
-        reward = self.cortex.compute_reward(action['thr'], action['str'])
-        self.cerebellum.remember(self.vectorized_state, action, self.vectorized_state_prev, reward, self.cortex.observation_space['vehicle_offroad'])
+        reward = self.cortex.compute_reward(action[0], action[1])
+        self.cerebellum.remember(self.vectorized_state_prev, action, reward, self.vectorized_state, self.cortex.observation_space['terminal'])
         self.cerebellum.experience_replay()
 
         self.vectorized_state_prev = self.vectorized_state
@@ -564,7 +577,7 @@ if __name__ == '__main__':
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 20;32;50.366819.npy"
     else:
-        data_path = r"/home/veda/git/AutoRC-Core/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
+        data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data"
 
     simulator = Simulator(data_path)
     simulator.run()

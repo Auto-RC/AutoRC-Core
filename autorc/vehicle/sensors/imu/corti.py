@@ -39,6 +39,10 @@ class Corti(threading.Thread):
 
         self.acceleration = 0
 
+    def get_frame(self):
+
+        return self.acceleration
+
     def run(self):
 
         while True:

@@ -72,8 +72,8 @@ class Ampullae(Thread):
         while self.enable_srl == True:
 
             self.read()
+            self.compute_drive()
             time.sleep(self.update_interval_ms / 1000)
-
 
     def read(self):
 
@@ -85,17 +85,21 @@ class Ampullae(Thread):
         raw = raw.replace("x", '')
 
         if len(raw) == 8:
-            self.thr = int(raw[0:2])
-            self.str = int(raw[2:4])
+            self.thr_raw = int(raw[0:2])
+            self.str_raw = int(raw[2:4])
             self.swc = int(raw[4:6])
             self.swb = int(raw[6:8])
 
             logger.debug("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
+    def compute_drive(self):
+
+        self.thr = (self.thr_raw - 10) / 90
+        self.str = (self.str_raw - 55) / 45
+
     def disable(self):
 
         self.enable_srl = False
-
         logger.info("Ampullae thread ended")
 
 
