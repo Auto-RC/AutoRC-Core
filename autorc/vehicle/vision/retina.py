@@ -285,7 +285,11 @@ class Retina():
             p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
             p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
             m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-            x_inter = int((((self.frame.shape[0]/2)-p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
+            m += 0.001
+            try:
+                x_inter = int((((self.frame.shape[0]/2)-p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
+            except:
+                x_inter = 1000
             angle = (np.arctan(1 / m) * 180 / np.pi)
             lanes[i] = TrackLine(True, angle, x_inter, [cv_m, cv_b])
 
@@ -312,7 +316,7 @@ class Retina():
                         right_lane = lane
 
         if splitter.present is False and left_lane.present and right_lane.present:
-            if abs(left_lane-self.split_m) > abs(right_lane-self.split_m):
+            if abs(left_lane.midpoint-self.split_m) > abs(right_lane.midpoint-self.split_m):
                 right_lane = TrackLine(False, None, None, None)
             else:
                 left_lane = TrackLine(False, None, None, None)

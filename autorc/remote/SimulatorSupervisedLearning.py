@@ -25,7 +25,7 @@ from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 
 class Simulator(Thread):
 
-    UI_HEIGHT = 725
+    UI_HEIGHT = 775
     UI_WIDTH = 800
 
     IMG_WIDTH = 400
@@ -71,7 +71,7 @@ class Simulator(Thread):
         oculus = self.vision_recall
 
         mode = True
-        model_name = "Test"
+        model_name = "One_Hot_Test"
 
         # Parameters
         self.loss_moving_avg = 0
@@ -655,7 +655,7 @@ class Simulator(Thread):
         self.cerebellum.update_state(self.vectorized_state)
 
         # Getting the machine computed action
-        action = self.cerebellum.compute_controls()[0]
+        action = self.cerebellum.compute_controls()
         self.computed_throttle.set('%.2f' % action[0])
         self.computed_steering.set('%.2f' % action[1])
 
@@ -666,7 +666,7 @@ class Simulator(Thread):
         # Computing reward and loss
         # reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
         self.cerebellum.remember(self.vectorized_state, self.drive_frame, self.cortex.observation_space['terminal'])
-        avg_loss = self.cerebellum.experience_replay()
+        avg_loss = self.cerebellum.experience_replay()*100
         self.loss.set('%.2f' %  avg_loss)
 
         self.loss_moving_avg = (self.loss_moving_avg + avg_loss) / 2

@@ -7,6 +7,7 @@ import numpy as np
 import logging
 import threading
 from collections import deque
+import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
@@ -23,23 +24,20 @@ class CerebellumSupervisedLearning(threading.Thread):
     Cerebellum runs a supervised learning learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "git", "AutoRC-Core", "autorc", "models")
-
-    GAMMA = 1
-
-    EXPLORATION_MAX = 0.5
-    EXPLORATION_DECAY = 0.999
-    EXPLORATION_MIN = 0.3
+    MODEL_DIR = os.path.join(str(Path.home()), "AutoRC-Core", "autorc", "models")
 
     MEMORY_SIZE = 1000000
 
     BATCH_SIZE = 20
 
-    ACTION_SPACE = [0 for i in range(0,2)]
+    OBSERVATION_SPACE = 15
 
-    OBSERVATION_SPACE = [0 for j in range(0, 15)]
+    STR_ACTIONS = [-45 / 45, -21 / 45, -9 / 45, -3 / 45, 0, 3 / 45, 9 / 45, 21 / 45, 45 / 45]
+    THR_ACTIONS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
-    LEARNING_RATE = 0.001
+    ACTION_SPACE = len(STR_ACTIONS) * len(THR_ACTIONS)
+
+    LEARNING_RATE = 1000
 
     def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True, save=False):
 
@@ -73,6 +71,8 @@ class CerebellumSupervisedLearning(threading.Thread):
         # Initializing empty state
         self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
 
+        self.init_action_space()
+
         # External vehicle interfaces
         self.controller = controller
         self.cortex = cortex
@@ -82,13 +82,12 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.memory = deque(maxlen=self.MEMORY_SIZE)
 
         # Model Training Config
-        self.imitation = imitation
         self.save = save
+
 
         # Model config
         self.model_name = model_name
-        self.load = load
-        self.save_path = os.path.join(self.MODEL_DIR, self.model_name)
+        self.save_path = os.path.join(self.MODEL_DIR)
         self.checkpoint = ModelCheckpoint(self.save_path, monitor="loss", verbose=0, save_best_only=False, mode='min')
         self.callbacks_list = [self.checkpoint]
 
@@ -96,15 +95,52 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.batches_trained = 0
 
         # Initialize neural network
+        self.sess = tf.Session()
         self.init_neural_network()
+        self.saver = tf.train.Saver()
+        if load:
+            self.restore()
+        else:
+            self.sess.run(tf.global_variables_initializer())
 
         # Initializing parameters
         self.str = 0
         self.thr = 0
 
-    def get_exploration_rate(self):
+    def init_action_space(self):
 
-        return self.exploration_rate
+        self.ACTIONS = dict()
+        index = 0
+        for thr in self.THR_ACTIONS:
+            for str in self.STR_ACTIONS:
+                self.ACTIONS[index] = [thr, str]
+                index += 1
+
+    def get_action_index(self, action):
+
+        str = action[0][0]
+        thr = action[0][1]
+        min_thr_error = 100
+        for i, throttle_values in enumerate(self.THR_ACTIONS):
+            if abs(throttle_values - thr) < min_thr_error:
+                thr_index = i
+                min_thr_error = abs(throttle_values - thr)
+
+        min_str_error = 100
+        for i, str_values in enumerate(self.STR_ACTIONS):
+            if abs(str_values - str) < min_str_error:
+                str_index = i
+                min_str_error = abs(str_values - str)
+
+        index = thr_index*len(self.STR_ACTIONS) + str_index - 1
+        print("User Action Index: {}".format(index))
+        return index
+
+    def gen_one_hot(self, index):
+        vector = np.zeros(self.ACTION_SPACE)
+        vector[index] = 1
+        vector = vector.astype(float)
+        return vector
 
     def get_batches_trained(self):
 
@@ -117,16 +153,66 @@ class CerebellumSupervisedLearning(threading.Thread):
         """
 
         # Neural network configuration
-        if self.load == False:
-            self.model = Sequential()
-            self.model.add(Dense(24, input_shape=(len(self.OBSERVATION_SPACE),), activation="sigmoid"))
-            self.model.add(Dense(24, activation="sigmoid"))
-            self.model.add(Dense(len(self.ACTION_SPACE), activation="linear"))
-            self.model.compile(loss="mse", optimizer=Adam(lr=self.LEARNING_RATE))
-        else:
-            self.model = load_model(self.save_path)
+        def weight_variable(shape):
+            initial = tf.truncated_normal(shape, stddev=.5)
+            return tf.Variable(initial)
 
+        def bias_variable(shape):
+            initial = tf.constant(0.1, shape=shape)
+            return tf.Variable(initial)
+
+        self.x_in = tf.placeholder(tf.float32, shape=[None, self.OBSERVATION_SPACE])
+        self.exp_y = tf.placeholder(tf.float32, shape=[None, self.ACTION_SPACE])
+
+        W_fc1 = weight_variable([self.OBSERVATION_SPACE, 64])
+        b_fc1 = bias_variable([64])
+        self.h_fc1 = tf.nn.sigmoid(tf.matmul(self.x_in, W_fc1) + b_fc1)
+
+        W_fc2 = weight_variable([64, 64])
+        b_fc2 = bias_variable([64])
+        self.h_fc2 = tf.nn.sigmoid(tf.matmul(self.h_fc1, W_fc2) + b_fc2)
+
+        W_fc3 = weight_variable([64, 128])
+        b_fc3 = bias_variable([128])
+        self.h_fc3 = tf.nn.sigmoid(tf.matmul(self.h_fc2, W_fc3) + b_fc3)
+
+        W_fc4 = weight_variable([128, 128])
+        b_fc4 = bias_variable([128])
+        self.h_fc4 = tf.nn.sigmoid(tf.matmul(self.h_fc3, W_fc4) + b_fc4)
+
+        W_fc5 = weight_variable([128, self.ACTION_SPACE])
+        b_fc5 = bias_variable([self.ACTION_SPACE])
+
+        self.y_out = tf.nn.sigmoid(tf.matmul(self.h_fc4, W_fc5) + b_fc5)
+
+        self.loss = tf.losses.sigmoid_cross_entropy(self.exp_y, self.y_out)
+        self.train_step = tf.train.AdadeltaOptimizer(self.LEARNING_RATE).minimize(self.loss)
+        self.sq_error = tf.losses.mean_squared_error(self.exp_y, self.y_out)
         self.graph = tf.get_default_graph()
+
+    def predict(self, x_in):
+        one_hot_out = self.sess.run(self.y_out, feed_dict={self.x_in: x_in})
+        # print("MACHINE ACTION: {}".format(np.argmax(one_hot_out)))
+        print("ONE HOT OUT: {}".format(one_hot_out))
+        return self.ACTIONS[np.argmax(one_hot_out)]
+
+    def fit(self, x_in, exp_y):
+        action_ind = self.get_action_index(exp_y)
+        action_one_hot = self.gen_one_hot(action_ind)
+        action_one_hot = np.reshape(action_one_hot, [1, 99])
+        # print("MACHINE ACTION ONE HOT: {}".format(action_one_hot))
+        loss, _ = self.sess.run([self.loss, self.train_step], feed_dict={self.x_in: x_in, self.exp_y: action_one_hot})
+        return loss
+
+    def restore(self):
+        try:
+            self.saver.restore(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
+            print('Restored from', os.path.join(self.save_path,  "{}.ckpt".format(self.model_name)))
+        except:
+            print('Could not restore, randomly initializing all variables')
+            self.sess.run(tf.global_variables_initializer())
+
+
 
     def remember(self, state, user_action, terminal):
 
@@ -151,7 +237,7 @@ class CerebellumSupervisedLearning(threading.Thread):
         """
 
         # If randomness is below threshold choose a random action
-        action = self.model.predict(state)
+        action = self.predict(state)
 
         return action
 
@@ -179,13 +265,11 @@ class CerebellumSupervisedLearning(threading.Thread):
             state = np.reshape(state, (1, 15))
             user_action = np.reshape(user_action, (1, 2))
 
+            loss.append(self.fit(state, user_action))
+
             # Training the model on the updated q_values
             if self.save and terminal_state == 1:
-                history = self.model.fit(state, user_action, verbose=0, callbacks=self.callbacks_list)
-            else:
-                history = self.model.fit(state, user_action, verbose=0)
-
-            loss = loss + history.history['loss']
+                self.saver.save(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
 
             self.batches_trained += 1
 
