@@ -7,6 +7,7 @@ import numpy as np
 import logging
 import threading
 from collections import deque
+import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
