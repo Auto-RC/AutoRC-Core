@@ -40,6 +40,7 @@ class Recall():
 
     def get_frame(self):
 
+        # print("Image num: {}".format(self.img_num))
         return self.frames[self.img_num]
 
     def rgb_to_img(self, np_array) -> Image:

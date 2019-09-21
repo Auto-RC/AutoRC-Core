@@ -221,7 +221,6 @@ class Retina():
 
         return splitter
 
-
     def create_splitter(self, splitter_c, splitter):
         p1 = None
         p2 = None
@@ -402,7 +401,7 @@ class Retina():
                 # print("not rect", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
                 pass
             else:
-                cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
+                cv2.drawContours(self.frame, [box], 0, gi(0, 0, 255), 1)
                 # print("allowed", rect[0], rect[1])
                 splitter_c.append(c)
 

@@ -112,7 +112,6 @@ class CortexAdvanced(threading.Thread):
 
             road = self.retina.process()
 
-
             # Adding the current snapshot to the track history
             self.lap_history.add_road_snapshot(road)
 
@@ -138,11 +137,10 @@ class CortexAdvanced(threading.Thread):
             self.observation_space['user_throttle'] = 0
             self.observation_space['user_steering'] = 0
 
+            self.observation_space['terminal'] = 0
+
         except Exception as e:
             print(e)
-    # def vectorize_state(self):
-    #
-    #
 
     def compute_reward(self, cerebellum_thr, cerebellum_str):
 
@@ -156,7 +154,8 @@ class CortexAdvanced(threading.Thread):
         """
 
         if self.mode == "IMITATION":
-            self.reward = (self.controller.thr - cerebellum_thr)*(self.controller.str - cerebellum_str)
+            # self.reward = (self.controller.thr - cerebellum_thr)*(self.controller.str - cerebellum_str)
+            self.reward = 0
 
         elif self.mode == "REINFORCEMENT":
             self.reward = 0
@@ -217,11 +216,73 @@ class CortexAdvanced(threading.Thread):
 
         self.observation_space['offroad'] = offroad
 
+    def vectorize_state(self):
+
+        """
+        Vectorizing the environment state into a form readable by the neural network
+        """
+
+        self.vectorized_state = []
+        self.vectorized_state.append(self.observation_space['left_lane_present'])
+        self.vectorized_state.append(self.observation_space['right_lane_present'])
+        self.vectorized_state.append(self.observation_space['splitter_present'])
+        self.vectorized_state.append(self.observation_space['vehicle_offroad'])
+
+        #TODO: How does this -1 affect the relu in the neural network?
+
+        try:
+            self.vectorized_state.append(self.observation_space['left_lane_position']/128)
+        except:
+            self.vectorized_state.append(-1)
+
+        try:
+            self.vectorized_state.append(self.observation_space['right_lane_position']/128)
+        except:
+            self.vectorized_state.append(-1)
+
+        try:
+            self.vectorized_state.append(self.observation_space['splitter_position']/128)
+        except:
+            self.vectorized_state.append(-1)
+
+        try:
+            self.vectorized_state.append(self.observation_space['vehicle_position']/128)
+        except:
+            self.vectorized_state.append(-1)
+
+        try:
+            self.vectorized_state.append(self.observation_space['left_lane_angle']/180+0.5)
+        except:
+            self.vectorized_state.append(-1)
+
+        try:
+            self.vectorized_state.append(self.observation_space['right_lane_angle']/180+0.5)
+        except:
+            self.vectorized_state.append(-1)
+
+        try:
+            self.vectorized_state.append(self.observation_space['splitter_angle']/180+0.5)
+        except:
+            self.vectorized_state.append(-1)
+
+        try:
+            self.vectorized_state.append(self.observation_space['vehicle_angle']/180+0.5)
+        except:
+            self.vectorized_state.append(-1)
+
+        self.vectorized_state.append(self.observation_space['x_acceleration']/10)
+        self.vectorized_state.append(self.observation_space['y_acceleration'] / 10)
+        self.vectorized_state.append(self.observation_space['z_acceleration'] / 10)
+
+        return self.vectorized_state
+
     def run(self):
 
         """
         Cortex thread
         """
+
+        #TODO: Add time tracking (needed for terminal)
 
         while True:
 

@@ -28,7 +28,7 @@ from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 class Simulator(Thread):
 
     UI_HEIGHT = 700
-    UI_WIDTH = 1000
+    UI_WIDTH = 800
 
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
@@ -72,6 +72,7 @@ class Simulator(Thread):
         self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, controller)
         self.cortex.enable()
         self.cortex.start()
+
         time.sleep(1)
         self.cerebellum = CerebellumAdvanced(cerebellum_update_interval_ms, controller, self.cortex, corti, model_name, mode, load=False, train=False)
         self.cerebellum.auto = True
@@ -84,6 +85,8 @@ class Simulator(Thread):
         self.init_img_controls()
 
         # Init Vision Features
+        self.vectorized_state = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        self.vectorized_state_prev = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         self.init_vision_controls()
         self.init_vision_features()
         self.init_cerebellum_predictions()
@@ -100,7 +103,6 @@ class Simulator(Thread):
         self.change_img(self.img_index)
         self.update_img()
 
-
     def init_recall(self):
 
         self.recall = Recall(self.data_path)
@@ -114,7 +116,7 @@ class Simulator(Thread):
 
     def read_calibration(self):
 
-        self.calibration_parser.read("/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+        self.calibration_parser.read(r"/home/veda/git/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
 
         self.rgb_l = [
             int(self.calibration_parser.get('splitter_parameters', 'l_h')),
@@ -528,11 +530,20 @@ class Simulator(Thread):
 
     def update_predictions(self):
 
-        #TODO: Add update state here.
-        self.cerebellum.update_state()
+        self.vectorized_state = self.cortex.vectorize_state()
+        print(self.vectorized_state)
+        print(self.vectorized_state_prev)
+
+        self.cerebellum.update_state(self.vectorized_state)
         action = self.cerebellum.compute_controls()
         self.computed_throttle.set(action['thr'])
         self.computed_steering.set(action['str'])
+
+        reward = self.cortex.compute_reward(action['thr'], action['str'])
+        self.cerebellum.remember(self.vectorized_state, action, self.vectorized_state_prev, reward, self.cortex.observation_space['vehicle_offroad'])
+        self.cerebellum.experience_replay()
+
+        self.vectorized_state_prev = self.vectorized_state
 
     def run(self):
 
