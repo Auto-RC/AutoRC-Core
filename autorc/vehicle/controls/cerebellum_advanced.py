@@ -171,10 +171,14 @@ class CerebellumAdvanced(threading.Thread):
         # If there are not enough steps in the episode
         # then we cannot sample a full batch
         if len(self.memory) < self.BATCH_SIZE:
-            return
+            return -1, -1
 
         # Sample a random batch from memory
         batch = random.sample(self.memory, self.BATCH_SIZE)
+
+        # The loss values across the entire batch
+        loss = []
+        rewards = []
 
         # Iterating through the batch
         for state, action, reward, state_next, terminal_state in batch:
@@ -202,15 +206,21 @@ class CerebellumAdvanced(threading.Thread):
 
             # Training the model on the updated q_values
             if self.train:
-                self.model.fit(state, q_values, verbose=0, callbacks=self.callbacks_list)
+                history = self.model.fit(state, q_values, verbose=0, callbacks=self.callbacks_list)
             else:
-                self.model.fit(state, q_values, verbose=0)
+                history = self.model.fit(state, q_values, verbose=0)
+
+            loss = loss + history.history['loss']
+            rewards = rewards + [reward]
 
         # Updating the exploration rate
         self.exploration_rate *= self.EXPLORATION_DECAY
 
         # Capping the exploration rate
         self.exploration_rate = max(self.EXPLORATION_MIN, self.exploration_rate)
+
+        # Returning the average loss if loss list is not empty
+        return np.mean(loss), np.mean(rewards)
 
     def update_state(self, state):
 
