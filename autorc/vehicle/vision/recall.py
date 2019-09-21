@@ -31,7 +31,7 @@ class Recall():
         self.drive_path = os.path.join(path, "drive-{}.npy".format(timestamp))
 
         self.frames = []
-        self.frame_index = 0
+        self._frame_index = 0
 
     def load(self):
 
@@ -50,12 +50,21 @@ class Recall():
         self.num_frames = self.vision_frames.shape[0]
         logger.debug("Number of frames in npy: {}".format(self.num_frames))
 
+    def get_frame_index(self):
+
+        return self._frame_index
+
+    def set_frame_index(self, index):
+
+        self._frame_index = index
+
     def get_frame(self):
 
         # print("Image num: {}".format(self.img_num))
-        frame = {"vision": self.vision_frames[self.frame_index],
-                 "corti": self.corti_frames[self.frame_index],
-                 "drive": self.drive_frames[self.frame_index],
+        frame = {
+                 "vision": self.vision_frames[self._frame_index],
+                 "corti": self.corti_frames[self._frame_index],
+                 "drive": self.drive_frames[self._frame_index],
                 }
 
         return frame

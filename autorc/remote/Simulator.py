@@ -7,8 +7,7 @@ __author__ = "Anish Agarwal, Arnav Gupta"
 __copyright__ = "Copyright 2019, AutoRC"
 __version__ = "0.0.1"
 
-
-import os
+import platform
 import PIL
 from PIL import ImageTk
 import PIL.Image
@@ -105,7 +104,7 @@ class Simulator(Thread):
 
     def init_recall(self):
 
-        self.recall = Recall(self.data_path)
+        self.recall = Recall("2019-06-29 20;32;50.366819", self.data_path)
         self.recall.load()
 
     def init_ui(self):
@@ -116,7 +115,10 @@ class Simulator(Thread):
 
     def read_calibration(self):
 
-        self.calibration_parser.read("/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+        if 'Darwin' in platform.platform():
+            self.calibration_parser.read(r"/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+        else:
+            self.calibration_parser.read(r"/home/veda/git/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
 
         self.rgb_l = [
             int(self.calibration_parser.get('splitter_parameters', 'l_h')),
@@ -402,10 +404,15 @@ class Simulator(Thread):
             self.update_img()
             self.logger.info("Image {} opened".format(self.img_index))
 
-    def get_image(self, image_num):
+    def get_image(self, frame_num):
 
-        self.raw = self.recall.frames[image_num]
-        self.recall.frame_index = image_num
+        # Setting the frame in recall
+        self.recall.set_frame_index(frame_num)
+
+        # Getting the frame
+        self.frame = self.recall.get_frame()
+        self.raw = self.frame['vision']
+
         self.img = ImageTk.PhotoImage(self.resize_im(self.raw))
 
     def update_img(self):
@@ -550,7 +557,7 @@ class Simulator(Thread):
 
 if __name__ == '__main__':
 
-    import platform
+
     print(platform.platform())
     print("Platform: {}".format(platform.platform()))
 
