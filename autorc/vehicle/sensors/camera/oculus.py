@@ -31,6 +31,9 @@ controls_dir = current_dir + r'/input'
 sys.path.append(utility_dir)
 sys.path.append(controls_dir)
 
+sys.path.insert(0, "/home/pi/AutoRC-Core/autorc/vehicle/sensors/camera")
+
+
 from camera import PiCamera
 
 # ==================================================================================================

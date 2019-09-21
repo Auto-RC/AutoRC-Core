@@ -1,8 +1,11 @@
 import time
 import threading
 import logging
+import sys
 
+sys.path.insert(0, "/home/pi/AutoRC-Core")
 from autorc.vehicle.utility.memory import Memory
+from autorc.vehicle.utility import logger
 from autorc.vehicle.sensors.camera.oculus import Oculus
 from autorc.vehicle.drive.pca_9685 import PCA9685
 from autorc.vehicle.drive.drive import Drive
@@ -268,8 +271,6 @@ class AutoRC(threading.Thread):
 # ==================================================================================================
 
 if __name__ == '__main__':
-
-    logger.setLevel(logging.DEBUG)
 
     instance = AutoRC()
 

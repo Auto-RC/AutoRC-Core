@@ -575,7 +575,7 @@ if __name__ == '__main__':
     print("Platform: {}".format(platform.platform()))
 
     if 'Darwin' in platform.platform():
-        data_path = "/Users/arnavgupta/car_data/raw_npy/"
+        data_path = "/Users/arnavgupta/AutoRC-Core/autorc/sample_data"
     else:
         data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data"
 

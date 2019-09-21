@@ -93,9 +93,11 @@ class Ampullae(Thread):
             logger.debug("THR {} STR {} SWB: {} SWC: {} ".format(self.thr, self.str, self.swb, self.swc))
 
     def compute_drive(self):
-
-        self.thr = (self.thr_raw - 10) / 90
-        self.str = (self.str_raw - 55) / 45
+        try:
+            self.thr = (self.thr_raw - 10) / 90
+            self.str = (self.str_raw - 55) / 45
+        except:
+            pass
 
     def disable(self):
 
