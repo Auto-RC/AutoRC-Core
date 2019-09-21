@@ -17,23 +17,23 @@ import tensorflow as tf
 import time
 import os
 
-class CerebellumAdvanced(threading.Thread):
+class CerebellumReinforcementLearning(threading.Thread):
 
     """
     Cerebellum runs a deep reinforcement learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "git", "auto-rc_poc", "autorc", "model")
+    MODEL_DIR = os.path.join(str(Path.home()), "git", "AutoRC-Core", "autorc", "models")
 
     GAMMA = 1
 
-    EXPLORATION_MAX = 1.0
-    EXPLORATION_DECAY = 0.9
-    EXPLORATION_MIN = 0.1
+    EXPLORATION_MAX = 0.5
+    EXPLORATION_DECAY = 0.999
+    EXPLORATION_MIN = 0.3
 
     MEMORY_SIZE = 1000000
 
-    BATCH_SIZE = 10
+    BATCH_SIZE = 20
 
     STR_ACTIONS = [-45/45, -21/45, -9/45, -3/45, 0, 3/45, 9/45, 21/45, 45/45]
     THR_ACTIONS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
@@ -42,7 +42,7 @@ class CerebellumAdvanced(threading.Thread):
 
     LEARNING_RATE = 0.001
 
-    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True, train=False):
+    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True, save=False):
 
         """
         Constructor
@@ -81,7 +81,7 @@ class CerebellumAdvanced(threading.Thread):
 
         # Model Training Config
         self.imitation = imitation
-        self.train = train
+        self.save = save
 
         # Model config
         self.model_name = model_name
@@ -92,6 +92,9 @@ class CerebellumAdvanced(threading.Thread):
 
         # The chance of choosing a random action vs using output of the neural network (or lookup table)
         self.exploration_rate = self.EXPLORATION_MAX
+
+        # The number of batches which have been trained
+        self.batches_trained = 0
 
         # Initializing empty state
         self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
@@ -112,6 +115,14 @@ class CerebellumAdvanced(threading.Thread):
                 self.ACTIONS[index] = [thr, str]
                 index += 1
 
+    def get_exploration_rate(self):
+
+        return self.exploration_rate
+
+    def get_batches_trained(self):
+
+        return self.batches_trained
+
     def init_neural_network(self):
 
         """
@@ -127,8 +138,8 @@ class CerebellumAdvanced(threading.Thread):
 
         if self.load == False:
             self.model = Sequential()
-            self.model.add(Dense(24, input_shape=(len(self.OBSERVATION_SPACE),), activation="relu"))
-            self.model.add(Dense(24, activation="relu"))
+            self.model.add(Dense(24, input_shape=(len(self.OBSERVATION_SPACE),), activation="sigmoid"))
+            self.model.add(Dense(24, activation="sigmoid"))
             self.model.add(Dense(len(self.ACTION_SPACE), activation="linear"))
             self.model.compile(loss="mse", optimizer=Adam(lr=self.LEARNING_RATE))
 
@@ -175,10 +186,14 @@ class CerebellumAdvanced(threading.Thread):
         # If there are not enough steps in the episode
         # then we cannot sample a full batch
         if len(self.memory) < self.BATCH_SIZE:
-            return
+            return -1, -1
 
         # Sample a random batch from memory
         batch = random.sample(self.memory, self.BATCH_SIZE)
+
+        # The loss values across the entire batch
+        loss = []
+        rewards = []
 
         # Iterating through the batch
         for state, action, reward, state_next, terminal_state in batch:
@@ -190,7 +205,6 @@ class CerebellumAdvanced(threading.Thread):
             if not terminal_state:
 
                 # Bellman equation
-                # TODO: Why is there a zero index [0]?
                 state_next = np.reshape(state_next, (1, 15))
                 q_update = (reward + self.GAMMA*np.amax(self.model.predict(state_next)[0]))
 
@@ -205,16 +219,24 @@ class CerebellumAdvanced(threading.Thread):
             q_values[0][action] = q_update
 
             # Training the model on the updated q_values
-            if self.train:
-                self.model.fit(state, q_values, verbose=0, callbacks=self.callbacks_list)
+            if self.save and terminal_state == 1:
+                history = self.model.fit(state, q_values, verbose=0, callbacks=self.callbacks_list)
             else:
-                self.model.fit(state, q_values, verbose=0)
+                history = self.model.fit(state, q_values, verbose=0)
+
+            loss = loss + history.history['loss']
+            rewards = rewards + [reward]
+
+            self.batches_trained += 1
 
         # Updating the exploration rate
         self.exploration_rate *= self.EXPLORATION_DECAY
 
         # Capping the exploration rate
         self.exploration_rate = max(self.EXPLORATION_MIN, self.exploration_rate)
+
+        # Returning the average loss if loss list is not empty
+        return np.mean(loss), np.mean(rewards)
 
     def update_state(self, state):
 

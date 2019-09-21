@@ -162,13 +162,37 @@ class CortexAdvanced(threading.Thread):
         """
 
         if self.mode == "IMITATION":
-            user_throttle , user_steering = self.controller.get_frame()
-            self.reward = -((user_throttle - cerebellum_thr)*(user_throttle - cerebellum_thr) + (user_steering - cerebellum_str)*(user_steering - cerebellum_str))
+
+
+            user_throttle , user_steering = self.drive.get_frame()
+
+            x = user_throttle - cerebellum_thr
+            throttle_reward = 5*self.gaussian_function(x, 0.25, 0)
+
+            y = user_steering - cerebellum_str
+            steering_reward = 5*self.gaussian_function(y, 0.25, 0)
+
+            self.reward = throttle_reward*steering_reward
 
         elif self.mode == "REINFORCEMENT":
             self.reward = 0
 
+        if self.reward < 0:
+            print("impossible negative reward")
+
         return self.reward
+
+    def gaussian_function(self, x, sigma, mu):
+
+        """
+        Gaussian function used in computing reward
+
+        :param sigma: std
+        :param mu: mean
+        :return: value of gaussian function at x
+        """
+
+        return np.exp(-0.5 * (((x - mu) / sigma) ** 2))
 
     def enable(self):
 

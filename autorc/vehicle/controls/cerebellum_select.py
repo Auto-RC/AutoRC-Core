@@ -1,9 +1,9 @@
-from autorc.vehicle.controls.cerebellum_advanced import CerebellumAdvanced
-from autorc.vehicle.controls.cerebellum_basic import CerebellumBasic
+from autorc.vehicle.controls.cerebellum_reinforcement_learning import CerebellumSupervisedLearning
+from autorc.vehicle.controls.cerebellum_standard_controls import CerebellumStandardControls
 
 def CerebellumSelect(type, update_interval_ms, controller, cortex, corti, model_name):
 
     if type == "ADVANCED":
-        return CerebellumAdvanced(update_interval_ms, controller, cortex, corti, model_name)
+        return CerebellumSupervisedLearning(update_interval_ms, controller, cortex, corti, model_name)
     elif type == "BASIC":
-        return CerebellumBasic(update_interval_ms, controller, cortex, corti)
+        return CerebellumStandardControls(update_interval_ms, controller, cortex, corti)
