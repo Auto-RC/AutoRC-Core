@@ -83,8 +83,8 @@ class Simulator(Thread):
 
         time.sleep(1)
         self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=self.SAVE)
-        self.cerebellum.auto = True
-        self.cerebellum.start()
+        # self.cerebellum.auto = True
+        # self.cerebellum.start()
 
         # Init UI
         self.init_ui()
@@ -655,7 +655,7 @@ class Simulator(Thread):
         self.cerebellum.update_state(self.vectorized_state)
 
         # Getting the machine computed action
-        action = [self.cerebellum.thr, self.cerebellum.str]
+        action = self.cerebellum.compute_controls()[0]
         self.computed_throttle.set('%.2f' % action[0])
         self.computed_steering.set('%.2f' % action[1])
 

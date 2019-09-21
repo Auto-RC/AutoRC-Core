@@ -171,7 +171,6 @@ class CerebellumSupervisedLearning(threading.Thread):
 
         # The loss values across the entire batch
         loss = []
-        rewards = []
 
         # Iterating through the batch
         for state, user_action, terminal_state in batch:
