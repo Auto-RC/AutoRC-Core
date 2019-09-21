@@ -220,25 +220,23 @@ class AutoRC(threading.Thread):
             if self.enable_auto == True:
 
                 logger.info(
-                    "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {} A: {} MP: {}"
+                    "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
                         .format(
                         self.enable_vehicle, self.enable_corti, self.enable_oculus,
                         self.enable_memory, self.enable_cortex, self.cerebellum.thr,
                         self.cerebellum.str, self.controller.swb,
-                        self.controller.swc,
-                        self.cortex.angles, self.cortex.midpoints
+                        self.controller.swc
                     )
                 )
 
             else:
                 logger.info(
-                    "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {} A: {} MP: {}"
+                    "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
                         .format(
                         self.enable_vehicle, self.enable_corti, self.enable_oculus,
                         self.enable_memory, self.enable_cortex, self.controller.thr,
                         self.controller.str, self.controller.swb,
-                        self.controller.swc,
-                        self.cortex.angles, self.cortex.midpoints
+                        self.controller.swc
                     )
                 )
 
