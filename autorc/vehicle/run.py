@@ -3,9 +3,13 @@ import threading
 import logging
 import sys
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+                            datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+logger.setLevel(logging.INFO)
+
 sys.path.insert(0, "/home/pi/AutoRC-Core")
 from autorc.vehicle.utility.memory import Memory
-from autorc.vehicle.utility import logger
 from autorc.vehicle.sensors.camera.oculus import Oculus
 from autorc.vehicle.drive.pca_9685 import PCA9685
 from autorc.vehicle.drive.drive import Drive
