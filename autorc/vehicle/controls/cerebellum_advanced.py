@@ -184,16 +184,11 @@ class CerebellumAdvanced(threading.Thread):
 
                 # Bellman equation
                 # TODO: Why is there a zero index [0]?
-                print(state_next)
-                print(np.transpose(state_next))
-                test = np.transpose(state_next)
-                print(test)
-                print(state_next.shape)
-                print(test.shape)
-                np.transpose(state_next)
+                state_next = np.reshape(state_next, (1, 15))
                 q_update = (reward + self.GAMMA*np.amax(self.model.predict(state_next)[0]))
 
             # Output of the neural network (q values) given the state
+            state = np.reshape(state, (1, 15))
             q_values = self.model.predict(state)
 
             # Action is the action which was taken in the state during the
@@ -221,7 +216,10 @@ class CerebellumAdvanced(threading.Thread):
     def compute_controls(self):
 
         action_index = self.act(self.state)
-        return self.ACTIONS[action_index]
+        return {
+            "action": self.ACTIONS[action_index],
+            "index" : action_index
+        }
 
     def run(self):
 

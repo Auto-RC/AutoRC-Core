@@ -555,11 +555,11 @@ class Simulator(Thread):
 
         self.cerebellum.update_state(self.vectorized_state)
         action = self.cerebellum.compute_controls()
-        self.computed_throttle.set(action[0])
-        self.computed_steering.set(action[1])
+        self.computed_throttle.set(action["action"][0])
+        self.computed_steering.set(action["action"][1])
 
-        reward = self.cortex.compute_reward(action[0], action[1])
-        self.cerebellum.remember(self.vectorized_state_prev, action, reward, self.vectorized_state, self.cortex.observation_space['terminal'])
+        reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
+        self.cerebellum.remember(self.vectorized_state_prev, action["index"], reward, self.vectorized_state, self.cortex.observation_space['terminal'])
         self.cerebellum.experience_replay()
 
         self.vectorized_state_prev = self.vectorized_state
@@ -575,7 +575,7 @@ if __name__ == '__main__':
     print("Platform: {}".format(platform.platform()))
 
     if 'Darwin' in platform.platform():
-        data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 20;32;50.366819.npy"
+        data_path = "/Users/arnavgupta/car_data/raw_npy/"
     else:
         data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data"
 
