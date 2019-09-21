@@ -35,6 +35,8 @@ class Simulator(Thread):
 
     RESIZE_FACTOR = 3
 
+    SHOW_IMAGES = True
+
     def __init__(self, data_path):
 
         # Logger
