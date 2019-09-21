@@ -58,10 +58,10 @@ class AutoRC(threading.Thread):
         self.oculus.run()
         self.modules.append('oculus')
 
-        self.cortex = CortexSelect(update_interval_ms=50, controller=self.controller, oculus=self.oculus, corti=self.corti)
+        self.cortex = CortexSelect("ADVANCED", update_interval_ms=50, controller=self.controller, oculus=self.oculus, corti=self.corti)
         self.cortex.start()
 
-        self.cerebellum = CerebellumSelect(update_interval_ms=50, controller=self.controller, cortex=self.cortex, corti=self.corti)
+        self.cerebellum = CerebellumSelect("ADVANCED", update_interval_ms=50, controller=self.controller, cortex=self.cortex, corti=self.corti)
         self.cerebellum.start()
 
         self.drive = Drive(cerebellum=self.cerebellum, pca9685=self.pca9685,  update_interval_ms=10)
