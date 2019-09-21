@@ -27,7 +27,7 @@ class CerebellumAdvanced(threading.Thread):
 
     GAMMA = 1
 
-    EXPLORATION_RATE = 0.2
+    EXPLORATION_MAX = 1.0
     EXPLORATION_DECAY = 0.9
     EXPLORATION_MIN = 0.1
 
@@ -90,6 +90,9 @@ class CerebellumAdvanced(threading.Thread):
         self.checkpoint = ModelCheckpoint(self.save_path, monitor="loss", verbose=0, save_best_only=False, mode='min')
         self.callbacks_list = [self.checkpoint]
 
+        # The chance of choosing a random action vs using output of the neural network (or lookup table)
+        self.exploration_rate = self.EXPLORATION_MAX
+
         # Initializing empty state
         self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
 
@@ -150,7 +153,7 @@ class CerebellumAdvanced(threading.Thread):
         """
 
         # If randomness is below threshold choose a random action
-        if np.random.rand() < self.EXPLORATION_RATE:
+        if np.random.rand() < self.exploration_rate:
             return random.randrange(len(self.ACTION_SPACE))
         # Otherwise choose an action based on the neural network
         else:
