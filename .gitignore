@@ -1,7 +1,6 @@
 .idea/workspace.xml
 .idea
 autorc/__pycache__
-autorc/data
 autorc/vehicle/vision/__pycache__
 autorc/vehicle/cortex/__pycache__
 autorc/vehicle/controls/__pycache__
