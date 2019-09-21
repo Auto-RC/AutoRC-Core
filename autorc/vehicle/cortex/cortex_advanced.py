@@ -18,7 +18,7 @@ class CortexAdvanced(threading.Thread):
     Cortex provides perception via vision and inertial systems
     """
 
-    def __init__(self, update_interval_ms, oculus, corti, drive, mode="simulation"):
+    def __init__(self, update_interval_ms, oculus, corti, controller, mode="simulation"):
 
         """
         Constructor
@@ -40,7 +40,7 @@ class CortexAdvanced(threading.Thread):
         # External vehicle interfaces
         self.retina = Retina()
         self.corti = corti
-        self.drive = drive
+        self.controller = controller
         self.oculus = oculus
 
         # Lap History
@@ -136,7 +136,7 @@ class CortexAdvanced(threading.Thread):
             self.observation_space['y_acceleration'] = 0
             self.observation_space['z_acceleration'] = 0
 
-            self.observation_space['user_throttle'], self.observation_space['user_steering'] = self.drive.get_frame()
+            self.observation_space['user_throttle'], self.observation_space['user_steering'] = self.controller.get_frame()
 
             self.state_counter += 1
 
@@ -162,7 +162,7 @@ class CortexAdvanced(threading.Thread):
         """
 
         if self.mode == "IMITATION":
-            user_throttle , user_steering = self.drive.get_frame()
+            user_throttle , user_steering = self.controller.get_frame()
             self.reward = -((user_throttle - cerebellum_thr)*(user_throttle - cerebellum_thr) + (user_steering - cerebellum_str)*(user_steering - cerebellum_str))
 
         elif self.mode == "REINFORCEMENT":

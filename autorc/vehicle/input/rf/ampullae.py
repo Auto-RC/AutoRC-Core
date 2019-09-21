@@ -99,6 +99,9 @@ class Ampullae(Thread):
         except:
             pass
 
+    def get_frame(self):
+        return [self.str, self.thr]
+
     def disable(self):
 
         self.enable_srl = False
