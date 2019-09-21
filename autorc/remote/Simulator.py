@@ -527,7 +527,6 @@ class Simulator(Thread):
         except:
             self.vehicle_position.set(self.cortex.observation_space['vehicle_position'])
 
-
     def update_predictions(self):
 
         self.vectorized_state = self.cortex.vectorize_state()

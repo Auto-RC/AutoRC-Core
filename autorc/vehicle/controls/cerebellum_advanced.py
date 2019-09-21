@@ -90,6 +90,9 @@ class CerebellumAdvanced(threading.Thread):
         self.checkpoint = ModelCheckpoint(self.save_path, monitor="loss", verbose=0, save_best_only=False, mode='min')
         self.callbacks_list = [self.checkpoint]
 
+        # Initializing empty state
+        self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+
         # Initialize action space
         self.init_action_space()
 
@@ -206,7 +209,6 @@ class CerebellumAdvanced(threading.Thread):
 
     def update_state(self, state):
 
-        # self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
         self.state = np.array([state])
 
     def compute_controls(self):
@@ -222,7 +224,6 @@ class CerebellumAdvanced(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
-                self.update_state()
                 self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)
