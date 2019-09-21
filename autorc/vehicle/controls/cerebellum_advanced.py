@@ -119,14 +119,18 @@ class CerebellumAdvanced(threading.Thread):
         """
 
         # Neural network configuration
+        if self.load:
+            try:
+                self.model = load_model(self.save_path)
+            except:
+                self.load=False
+
         if self.load == False:
             self.model = Sequential()
             self.model.add(Dense(24, input_shape=(len(self.OBSERVATION_SPACE),), activation="relu"))
             self.model.add(Dense(24, activation="relu"))
             self.model.add(Dense(len(self.ACTION_SPACE), activation="linear"))
             self.model.compile(loss="mse", optimizer=Adam(lr=self.LEARNING_RATE))
-        else:
-            self.model = load_model(self.save_path)
 
         self.graph = tf.get_default_graph()
 
