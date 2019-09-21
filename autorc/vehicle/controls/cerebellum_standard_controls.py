@@ -2,7 +2,7 @@ import time
 import logging
 import threading
 
-class CerebellumBasic(threading.Thread):
+class CerebellumStandardControls(threading.Thread):
 
     def __init__(self, update_interval_ms, controller, cortex, corti):
 

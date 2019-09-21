@@ -20,19 +20,21 @@ import platform
 from configparser import ConfigParser
 
 from autorc.vehicle.vision.recall import Recall
-from autorc.vehicle.vision.retina import Retina
-from autorc.vehicle.controls.cerebellum_advanced import CerebellumAdvanced
+from autorc.vehicle.controls.cerebellum_supervised_learning import CerebellumSupervisedLearning
 from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 
 class Simulator(Thread):
 
-    UI_HEIGHT = 700
+    UI_HEIGHT = 725
     UI_WIDTH = 800
 
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
 
     RESIZE_FACTOR = 3
+
+    LOAD = False
+    SAVE = True
 
     def __init__(self, data_path):
 
@@ -71,12 +73,16 @@ class Simulator(Thread):
         mode = True
         model_name = "Test"
 
+        # Parameters
+        self.loss_moving_avg = 0
+        self.reward_moving_avg = 0
+
         self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, drive)
         self.cortex.enable()
         self.cortex.start()
 
         time.sleep(1)
-        self.cerebellum = CerebellumAdvanced(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=False, train=False)
+        self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=self.SAVE)
         self.cerebellum.auto = True
         self.cerebellum.start()
 
@@ -98,6 +104,9 @@ class Simulator(Thread):
 
         # Init HVS Controls
         self.init_vision_hsv_controls()
+
+        # Init Training Controls
+        self.init_training_controls()
 
         # Init Canvas
         self.init_canvas()
@@ -240,7 +249,7 @@ class Simulator(Thread):
     def init_vision_controls(self):
 
         vision_controls_frame = LabelFrame(self.ui, pady=15, padx=15)
-        vision_controls_frame.grid(row=11, column=0, rowspan=1, columnspan=10)
+        vision_controls_frame.grid(row=10, column=0, rowspan=1, columnspan=10)
 
         self.toggle_vision = Button(vision_controls_frame, text="Toggle Vision", command=lambda: self.toggle_retina())
         self.toggle_vision.grid(row=0,column=0)
@@ -393,10 +402,38 @@ class Simulator(Thread):
         reward_var = Label(cerebellum_predictions_frame, textvariable=self.reward, anchor="w", padx=15, pady=2)
         reward_var.grid(row=2, column=3)
 
+        loss_moving_average = Label(cerebellum_predictions_frame, text="Avg Loss:", anchor="w")
+        loss_moving_average.grid(row=3, column=0)
+        self.loss_moving_average = StringVar()
+        self.loss_moving_average.set("Un-initialized")
+        loss_moving_average_var = Label(cerebellum_predictions_frame, textvariable=self.loss_moving_average, anchor="w", padx=15, pady=2)
+        loss_moving_average_var.grid(row=3, column=1)
+
+        reward_moving_average = Label(cerebellum_predictions_frame, text="Avg Reward:", anchor="w")
+        reward_moving_average.grid(row=3, column=2)
+        self.reward_moving_average = StringVar()
+        self.reward_moving_average.set("Un-initialized")
+        reward_moving_average_var = Label(cerebellum_predictions_frame, textvariable=self.reward_moving_average, anchor="w", padx=15, pady=2)
+        reward_moving_average_var.grid(row=3, column=3)
+
+        batches_trained = Label(cerebellum_predictions_frame, text="Batches Trained:", anchor="w")
+        batches_trained.grid(row=4, column=0)
+        self.batches_trained = StringVar()
+        self.batches_trained.set("Un-initialized")
+        batches_trained_var = Label(cerebellum_predictions_frame, textvariable=self.batches_trained, anchor="w", padx=15, pady=2)
+        batches_trained_var.grid(row=4, column=1)
+
+        exploration_rate = Label(cerebellum_predictions_frame, text="Exploration Rate:", anchor="w")
+        exploration_rate.grid(row=4, column=2)
+        self.exploration_rate = StringVar()
+        self.exploration_rate.set("Un-initialized")
+        exploration_rate_var = Label(cerebellum_predictions_frame, textvariable=self.exploration_rate, anchor="w", padx=15, pady=2)
+        exploration_rate_var.grid(row=4, column=3)
+
     def init_img_controls(self):
 
         img_controls_frame = LabelFrame(self.ui, pady=15, padx=15)
-        img_controls_frame.grid(row=10, column=0, rowspan=1, columnspan=10)
+        img_controls_frame.grid(row=9, column=0, rowspan=1, columnspan=10)
 
         self.next = Button(img_controls_frame, text="Next", command=lambda: self.next_img())
         self.next.grid(row=0, column=0)
@@ -410,11 +447,16 @@ class Simulator(Thread):
         self.stop = Button(img_controls_frame, text="Stop", command=lambda: self.stop_video())
         self.stop.grid(row=0, column=3)
 
-        self.train = Button(img_controls_frame, text="Train", command=lambda: self.start_training())
-        self.train.grid(row=0, column=4)
+    def init_training_controls(self):
 
-        self.stop_training = Button(img_controls_frame, text="Stop Training", command=lambda: self.stop_training_thread())
-        self.stop.grid(row=0, column=5)
+        training_controls_frame = LabelFrame(self.ui, pady=15, padx=15)
+        training_controls_frame.grid(row=11, column=0, rowspan=1, columnspan=10)
+
+        self.train = Button(training_controls_frame, text="Train", command=lambda: self.start_training())
+        self.train.grid(row=0, column=0)
+
+        self.stop_train = Button(training_controls_frame, text="Stop Training", command=lambda: self.stop_training_thread())
+        self.stop_train.grid(row=0, column=1)
 
     def init_canvas(self):
 
@@ -473,10 +515,11 @@ class Simulator(Thread):
     def next_img(self):
 
         if self.img_index == self.vision_recall.num_frames - 1:
-            self.logger.info("Last image reached")
+            self.img_index = 0
         else:
             self.img_index += 1
-            self.change_img(self.img_index)
+
+        self.change_img(self.img_index)
 
     def previous_img(self):
 
@@ -607,24 +650,30 @@ class Simulator(Thread):
 
     def update_predictions(self):
 
+        # Updating the state
         self.vectorized_state = self.cortex.vectorize_state()
-
         self.cerebellum.update_state(self.vectorized_state)
-        action = self.cerebellum.compute_controls()
-        self.computed_throttle.set('%.2f' % action["action"][0])
-        self.computed_steering.set('%.2f' % action["action"][1])
 
-        self.user_throttle.set('%.2f' % self.drive_frame[0])
-        self.user_steering.set('%.2f' % self.drive_frame[1])
+        # Getting the machine computed action
+        action = [self.cerebellum.thr, self.cerebellum.str]
+        self.computed_throttle.set('%.2f' % action[0])
+        self.computed_steering.set('%.2f' % action[1])
 
-        reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
-        self.cerebellum.remember(self.vectorized_state_prev, action["index"], reward, self.vectorized_state, self.cortex.observation_space['terminal'])
-        avg_loss , avg_reward = self.cerebellum.experience_replay()
+        # Getting the user action
+        self.user_throttle.set('%.2f' % self.drive_frame[1])
+        self.user_steering.set('%.2f' % self.drive_frame[0])
 
+        # Computing reward and loss
+        # reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
+        self.cerebellum.remember(self.vectorized_state, self.drive_frame, self.cortex.observation_space['terminal'])
+        avg_loss = self.cerebellum.experience_replay()
         self.loss.set('%.2f' %  avg_loss)
-        self.reward.set('%.2f' % reward)
 
-        self.vectorized_state_prev = self.vectorized_state
+        self.loss_moving_avg = (self.loss_moving_avg + avg_loss) / 2
+        self.loss_moving_average.set('%.2f' % self.loss_moving_avg)
+
+        batches_trained = self.cerebellum.get_batches_trained()
+        self.batches_trained.set('%.2f' % batches_trained)
 
     def run(self):
 

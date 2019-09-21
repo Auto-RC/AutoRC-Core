@@ -17,32 +17,31 @@ import tensorflow as tf
 import time
 import os
 
-class CerebellumAdvanced(threading.Thread):
+class CerebellumSupervisedLearning(threading.Thread):
 
     """
-    Cerebellum runs a deep reinforcement learning neural network
+    Cerebellum runs a supervised learning learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "git", "auto-rc_poc", "autorc", "model")
+    MODEL_DIR = os.path.join(str(Path.home()), "git", "AutoRC-Core", "autorc", "models")
 
     GAMMA = 1
 
-    EXPLORATION_MAX = 1.0
-    EXPLORATION_DECAY = 0.9
-    EXPLORATION_MIN = 0.1
+    EXPLORATION_MAX = 0.5
+    EXPLORATION_DECAY = 0.999
+    EXPLORATION_MIN = 0.3
 
     MEMORY_SIZE = 1000000
 
-    BATCH_SIZE = 10
+    BATCH_SIZE = 20
 
-    STR_ACTIONS = [-45/45, -21/45, -9/45, -3/45, 0, 3/45, 9/45, 21/45, 45/45]
-    THR_ACTIONS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    ACTION_SPACE = [0 for i in range(0,2)]
 
-    OBSERVATION_SPACE = [0 for i in range(0, 15)]
+    OBSERVATION_SPACE = [0 for j in range(0, 15)]
 
     LEARNING_RATE = 0.001
 
-    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True, train=False):
+    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True, save=False):
 
         """
         Constructor
@@ -71,6 +70,9 @@ class CerebellumAdvanced(threading.Thread):
         # Default is no auto mode
         self.auto = False
 
+        # Initializing empty state
+        self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+
         # External vehicle interfaces
         self.controller = controller
         self.cortex = cortex
@@ -81,7 +83,7 @@ class CerebellumAdvanced(threading.Thread):
 
         # Model Training Config
         self.imitation = imitation
-        self.train = train
+        self.save = save
 
         # Model config
         self.model_name = model_name
@@ -90,27 +92,23 @@ class CerebellumAdvanced(threading.Thread):
         self.checkpoint = ModelCheckpoint(self.save_path, monitor="loss", verbose=0, save_best_only=False, mode='min')
         self.callbacks_list = [self.checkpoint]
 
-        # The chance of choosing a random action vs using output of the neural network (or lookup table)
-        self.exploration_rate = self.EXPLORATION_MAX
-
-        # Initializing empty state
-        self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
-
-        # Initialize action space
-        self.init_action_space()
+        # The number of batches which have been trained
+        self.batches_trained = 0
 
         # Initialize neural network
         self.init_neural_network()
 
-    def init_action_space(self):
+        # Initializing parameters
+        self.str = 0
+        self.thr = 0
 
-        self.ACTION_SPACE = [0 for i in range(0, len(self.STR_ACTIONS) * len(self.THR_ACTIONS))]
-        self.ACTIONS = dict()
-        index = 0
-        for thr in self.THR_ACTIONS:
-            for str in self.STR_ACTIONS:
-                self.ACTIONS[index] = [thr, str]
-                index += 1
+    def get_exploration_rate(self):
+
+        return self.exploration_rate
+
+    def get_batches_trained(self):
+
+        return self.batches_trained
 
     def init_neural_network(self):
 
@@ -121,8 +119,8 @@ class CerebellumAdvanced(threading.Thread):
         # Neural network configuration
         if self.load == False:
             self.model = Sequential()
-            self.model.add(Dense(24, input_shape=(len(self.OBSERVATION_SPACE),), activation="relu"))
-            self.model.add(Dense(24, activation="relu"))
+            self.model.add(Dense(24, input_shape=(len(self.OBSERVATION_SPACE),), activation="sigmoid"))
+            self.model.add(Dense(24, activation="sigmoid"))
             self.model.add(Dense(len(self.ACTION_SPACE), activation="linear"))
             self.model.compile(loss="mse", optimizer=Adam(lr=self.LEARNING_RATE))
         else:
@@ -130,7 +128,7 @@ class CerebellumAdvanced(threading.Thread):
 
         self.graph = tf.get_default_graph()
 
-    def remember(self, state, action, reward, next_state, offroad):
+    def remember(self, state, user_action, terminal):
 
         """
         Stores the current step
@@ -142,7 +140,7 @@ class CerebellumAdvanced(threading.Thread):
         :param offroad: Vehicle offroad flag
         """
 
-        self.memory.append((state, action, reward, next_state, offroad))
+        self.memory.append((state, user_action, terminal))
 
     def act(self, state):
 
@@ -153,14 +151,9 @@ class CerebellumAdvanced(threading.Thread):
         """
 
         # If randomness is below threshold choose a random action
-        if np.random.rand() < self.exploration_rate:
-            return random.randrange(len(self.ACTION_SPACE))
-        # Otherwise choose an action based on the neural network
-        else:
-            with self.graph.as_default():
-                q_values = self.model.predict(state)
+        action = self.model.predict(state)
 
-            return np.argmax(q_values[0])
+        return action
 
     def experience_replay(self):
 
@@ -171,7 +164,7 @@ class CerebellumAdvanced(threading.Thread):
         # If there are not enough steps in the episode
         # then we cannot sample a full batch
         if len(self.memory) < self.BATCH_SIZE:
-            return -1, -1
+            return -1
 
         # Sample a random batch from memory
         batch = random.sample(self.memory, self.BATCH_SIZE)
@@ -181,46 +174,24 @@ class CerebellumAdvanced(threading.Thread):
         rewards = []
 
         # Iterating through the batch
-        for state, action, reward, state_next, terminal_state in batch:
-
-            # Initial reward
-            q_update = reward
-
-            # If the episode is not yet failed
-            if not terminal_state:
-
-                # Bellman equation
-                # TODO: Why is there a zero index [0]?
-                state_next = np.reshape(state_next, (1, 15))
-                q_update = (reward + self.GAMMA*np.amax(self.model.predict(state_next)[0]))
+        for state, user_action, terminal_state in batch:
 
             # Output of the neural network (q values) given the state
             state = np.reshape(state, (1, 15))
-            q_values = self.model.predict(state)
-
-            # Action is the action which was taken in the state during the
-            # actual episode. This action is/was thought to be the optimal
-            # action before training. This action gets updated with the new
-            # reward.
-            q_values[0][action] = q_update
+            user_action = np.reshape(user_action, (1, 2))
 
             # Training the model on the updated q_values
-            if self.train:
-                history = self.model.fit(state, q_values, verbose=0, callbacks=self.callbacks_list)
+            if self.save and terminal_state == 1:
+                history = self.model.fit(state, user_action, verbose=0, callbacks=self.callbacks_list)
             else:
-                history = self.model.fit(state, q_values, verbose=0)
+                history = self.model.fit(state, user_action, verbose=0)
 
             loss = loss + history.history['loss']
-            rewards = rewards + [reward]
 
-        # Updating the exploration rate
-        self.exploration_rate *= self.EXPLORATION_DECAY
-
-        # Capping the exploration rate
-        self.exploration_rate = max(self.EXPLORATION_MIN, self.exploration_rate)
+            self.batches_trained += 1
 
         # Returning the average loss if loss list is not empty
-        return np.mean(loss), np.mean(rewards)
+        return np.mean(loss)
 
     def update_state(self, state):
 
@@ -228,13 +199,11 @@ class CerebellumAdvanced(threading.Thread):
 
     def compute_controls(self):
 
-        action_index = self.act(self.state)
-        return {
-            "action": self.ACTIONS[action_index],
-            "index" : action_index
-        }
+        return self.act(self.state)
 
     def run(self):
+
+        time.sleep(2000)
 
         while True:
 
