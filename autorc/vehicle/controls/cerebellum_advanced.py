@@ -233,6 +233,8 @@ class CerebellumAdvanced(threading.Thread):
 
         while True:
 
+            self.auto = False
+
             if self.auto == False:
                 self.thr = self.controller.thr
                 self.str = self.controller.str
