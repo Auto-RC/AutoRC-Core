@@ -480,20 +480,51 @@ class Simulator(Thread):
 
     def update_vision(self):
 
-        self.left_lane_angle.set(self.cortex.observation_space['left_lane_angle'])
-        self.right_lane_angle.set(self.cortex.observation_space['right_lane_angle'])
-        self.splitter_angle.set(self.cortex.observation_space['splitter_angle'])
-        self.vehicle_angle.set(self.cortex.observation_space['vehicle_angle'])
+        try:
+            self.left_lane_angle.set('%.2f' % self.cortex.observation_space['left_lane_angle'])
+        except:
+            self.left_lane_angle.set(self.cortex.observation_space['left_lane_angle'])
+
+        try:
+            self.right_lane_angle.set('%.2f' % self.cortex.observation_space['right_lane_angle'])
+        except:
+            self.right_lane_angle.set(self.cortex.observation_space['right_lane_angle'])
+
+        try:
+            self.splitter_angle.set('%.2f' % self.cortex.observation_space['splitter_angle'])
+        except:
+            self.splitter_angle.set(self.cortex.observation_space['splitter_angle'])
+
+        try:
+            self.vehicle_angle.set('%.2f' % self.cortex.observation_space['vehicle_angle'])
+        except:
+            self.vehicle_angle.set(self.cortex.observation_space['vehicle_angle'])
 
         self.left_lane_present.set(self.cortex.observation_space['left_lane_present'])
         self.right_lane_present.set(self.cortex.observation_space['right_lane_present'])
         self.splitter_present.set(self.cortex.observation_space['splitter_present'])
         self.vehicle_offroad.set(self.cortex.observation_space['vehicle_offroad'])
 
-        self.left_lane_position.set(self.cortex.observation_space['left_lane_position'])
-        self.right_lane_position.set(self.cortex.observation_space['right_lane_position'])
-        self.splitter_position.set(self.cortex.observation_space['splitter_position'])
-        self.vehicle_position.set(self.cortex.observation_space['vehicle_position'])
+        try:
+            self.left_lane_position.set('%.2f' % self.cortex.observation_space['left_lane_position'])
+        except:
+            self.left_lane_position.set(self.cortex.observation_space['left_lane_position'])
+
+        try:
+            self.right_lane_position.set('%.2f' % self.cortex.observation_space['right_lane_position'])
+        except:
+            self.right_lane_position.set(self.cortex.observation_space['right_lane_position'])
+
+        try:
+            self.splitter_position.set('%.2f' % self.cortex.observation_space['splitter_position'])
+        except:
+            self.splitter_position.set(self.cortex.observation_space['splitter_position'])
+
+        try:
+            self.vehicle_position.set('%.2f' % self.cortex.observation_space['vehicle_position'])
+        except:
+            self.vehicle_position.set(self.cortex.observation_space['vehicle_position'])
+
 
     def update_predictions(self):
 
@@ -514,7 +545,7 @@ if __name__ == '__main__':
     print("Platform: {}".format(platform.platform()))
 
     if 'Darwin' in platform.platform():
-        data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 18;29;43.996328.npy"
+        data_path = "/Users/arnavgupta/car_data/raw_npy/oculus-2019-06-29 20;32;50.366819.npy"
     else:
         data_path = r"/home/veda/git/AutoRC-Core/autorc/data/oculus-2019-06-29 18;29;43.996328.npy"
 
