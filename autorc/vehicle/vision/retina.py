@@ -187,16 +187,16 @@ class Retina():
         print(self.prediction.splitter.midpoint, self.prediction.splitter.angle)
 
         if not self.prediction.splitter.present:
-            print("no correction")
+            print("no correction, no splitter predicted")
             return splitter
 
         if not splitter.present:
             if abs(self.prediction.splitter.midpoint) > 50:
-                print("no correction")
+                print("no correction, splitter entered")
                 return splitter
 
         if abs(splitter.midpoint - self.prediction.splitter.midpoint) < 10 and abs(splitter.angle - self.prediction.splitter.angle) < 25:
-            print("no correction")
+            print("no correction, splitter close to original")
             return splitter
 
         print("correction needed")
@@ -269,6 +269,58 @@ class Retina():
 
         return splitter
 
+    def create_lanes(self, lanes):
+        lanes = [c for c in lanes if cv2.contourArea(c) > 3]
+
+        for i, c in enumerate(lanes):
+
+            [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
+            lefty = int((-x * vy / vx) + y)
+            righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
+            p1 = (self.frame.shape[1]-1,righty)
+            p2 = (0,lefty)
+            cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+            cv_b = p1[1] - (cv_m * p1[0])
+            cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
+            p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
+            p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
+            m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+            x_inter = int((((self.frame.shape[0]/2)-p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
+            angle = (np.arctan(1 / m) * 180 / np.pi)
+            lanes[i] = TrackLine(True, angle, x_inter, [cv_m, cv_b])
+
+        return lanes
+
+    def assign_lanes(self, lanes, splitter):
+
+        right_lane = TrackLine(False, None, None, None)
+        left_lane = TrackLine(False, None, None, None)
+
+
+        for lane in lanes:
+            if lane.midpoint < self.split_m:
+                if not left_lane.present:
+                    left_lane = lane
+                else:
+                    if lane.midpoint > left_lane.midpoint:
+                        left_lane = lane
+            if lane.midpoint > self.split_m:
+                if not right_lane.present:
+                    right_lane = lane
+                else:
+                    if lane.midpoint < right_lane.midpoint:
+                        right_lane = lane
+
+        if splitter.present is False and left_lane.present and right_lane.present:
+            if abs(left_lane-self.split_m) > abs(right_lane-self.split_m):
+                right_lane = TrackLine(False, None, None, None)
+            else:
+                left_lane = TrackLine(False, None, None, None)
+
+
+        return [left_lane, right_lane]
+
+
     def process(self):
 
         # This works for the initial images
@@ -299,28 +351,41 @@ class Retina():
 
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2RGB)
 
+        rows, cols = self.frame.shape[:2]
+
         splitter_c = []
         lanes = []
-
 
         for c in self.contours:
             rect = cv2.minAreaRect(c)
             box = cv2.boxPoints(rect)
             box = np.int0(box)
 
-            edges = 0
+            lane = False
             leftmost = tuple(c[c[:, :, 0].argmin()][0])
             rightmost = tuple(c[c[:, :, 0].argmax()][0])
             topmost = tuple(c[c[:, :, 1].argmin()][0])
             bottommost = tuple(c[c[:, :, 1].argmax()][0])
 
-            if leftmost[0] < 3:
-                edges += 1
-            if rightmost[0] > self.frame.shape[1] - 5:
-                edges += 1
-            if topmost[1] < 3:
-                edges += 1
 
+            if topmost[1] < 1:
+                if bottommost[1] > rows - 5:
+                    lane = True
+                elif rightmost[1] < 1:
+                    if leftmost[0] < 1 and bottommost[0] < 1:
+                        lane = True
+                elif leftmost[1] < 1:
+                    if rightmost[0] > cols - 2 and bottommost[0] > cols - 2:
+                        lane = True
+            elif bottommost[1] > rows - 5:
+                if rightmost[1] > 1:
+                    if leftmost[0] < 1 and topmost[0] < 1:
+                        lane = True
+                elif leftmost[1] > 1:
+                    if rightmost[0] > cols - 2 and topmost[0] > cols - 2:
+                        lane = True
+            elif leftmost[0] > 1 and rightmost[0] > self.frame.shape[1] - 1:
+                lane = True
 
             if rect[1][0] != 0 and rect[1][1] != 0:
                 extent = cv2.contourArea(c)/(rect[1][0] * rect[1][1])
@@ -328,28 +393,21 @@ class Retina():
             else:
                 extent = 0
 
-
-
-            if edges == 2:
+            if lane:
                 # print("edged", rect[0], rect[1])
                 # cv2.drawContours(self.frame, [box], 0, (255, 0, 0), 1)
                 lanes.append(c)
             elif extent < 0.5:
                 # print("not rect", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
                 pass
-
             else:
-                cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
+                cv2.drawContours(self.frame, [box], 0, gi(0, 0, 255), 1)
                 # print("allowed", rect[0], rect[1])
                 splitter_c.append(c)
 
         lanes = sorted(lanes, key=lambda x: cv2.contourArea(x), reverse=False)
 
-        rows, cols = self.frame.shape[:2]
         splitter = TrackLine(False, None, None, None)
-        right_lane = TrackLine(False, None, None, None)
-        left_lane = TrackLine(False, None, None, None)
-
 
         splitter = self.create_splitter(splitter_c, splitter)
 
@@ -358,27 +416,8 @@ class Retina():
         # else:
         #     print("no prediction")
 
-        for c in lanes:
-            if cv2.contourArea(c) > 3:
-                [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
-                lefty = int((-x * vy / vx) + y)
-                righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
-                p1 = (self.frame.shape[1]-1,righty)
-                p2 = (0,lefty)
-                cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-                cv_b = p1[1] - (cv_m * p1[0])
-                cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
-                p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
-                p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
-                m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-                x_inter = int((((self.frame.shape[0]/2)-p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
-                angle = (np.arctan(1 / m) * 180 / np.pi)
-                if x_inter < self.split_m:
-                    left_lane = self.update_line(left_lane, angle, x_inter, [cv_m, cv_b])
-                    # print("left", x_inter, angle)
-                else:
-                    right_lane = self.update_line(right_lane, angle, x_inter, [cv_m, cv_b])
-                    # print("right", x_inter, angle)
+        lanes = self.create_lanes(lanes)
+        left_lane, right_lane = self.assign_lanes(lanes, splitter)
 
         lines = [splitter, left_lane, right_lane]
         self.road = Road(None, splitter, left_lane, right_lane)
