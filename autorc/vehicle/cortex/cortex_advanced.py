@@ -132,7 +132,7 @@ class CortexAdvanced(threading.Thread):
             self.observation_space['splitter_angle'] = road.splitter.angle
             self.observation_space['vehicle_angle'] = road.vehicle.angle
 
-            self.observation_space['x_acceleration'] = self.corti.get_frame()[0]
+            self.observation_space['x_acceleration'] = self.corti.get_frame()
             self.observation_space['y_acceleration'] = 0
             self.observation_space['z_acceleration'] = 0
 
