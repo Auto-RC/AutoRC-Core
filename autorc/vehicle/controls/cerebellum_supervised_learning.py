@@ -17,14 +17,15 @@ from pathlib import Path
 import tensorflow as tf
 import time
 import os
+import copy
+
 
 class CerebellumSupervisedLearning(threading.Thread):
-
     """
     Cerebellum runs a supervised learning learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "AutoRC-Core", "autorc", "models")
+    MODEL_DIR = os.path.join(str(Path.home()), "Github", "AutoRC-Core", "autorc", "models")
 
     MEMORY_SIZE = 1000000
 
@@ -35,11 +36,24 @@ class CerebellumSupervisedLearning(threading.Thread):
     STR_ACTIONS = [-45 / 45, -21 / 45, -9 / 45, -3 / 45, 0, 3 / 45, 9 / 45, 21 / 45, 45 / 45]
     THR_ACTIONS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
+    # [0 0 0 0 1 0 ] -> User input -> corresponds to [0, -1] # [Throttle, Steering]
+    # [0.3 1 0.4 0.5 0.1 0.25 ] -> [0 1 0 0 0 0 ] -> NN output -> corresponds to [0.2, -0.25] # [Throttle, Steering]
+
     ACTION_SPACE = len(STR_ACTIONS) * len(THR_ACTIONS)
 
-    LEARNING_RATE = 1000
+    GLOBAL_STEP = tf.Variable(0, trainable=False)
 
-    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True, save=False):
+    LEARNING_RATE = tf.train.exponential_decay(1e-1,
+                                               global_step=GLOBAL_STEP,
+                                               decay_steps=2000, decay_rate=0.9)
+
+    ADD_GLOBAL = GLOBAL_STEP.assign_add(1)
+
+    # Turns off dropout if not TRAINING_MODE
+    TRAINING_MODE = True
+
+    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True,
+                 save=False):
 
         """
         Constructor
@@ -84,7 +98,6 @@ class CerebellumSupervisedLearning(threading.Thread):
         # Model Training Config
         self.save = save
 
-
         # Model config
         self.model_name = model_name
         self.save_path = os.path.join(self.MODEL_DIR)
@@ -95,7 +108,11 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.batches_trained = 0
 
         # Initialize neural network
-        self.sess = tf.Session()
+        self.config = tf.ConfigProto()
+
+        # Sets GPU Memory Growth Option
+        self.config.gpu_options.allow_growth = True
+        self.sess = tf.Session(config=self.config)
         self.init_neural_network()
         self.saver = tf.train.Saver()
         if load:
@@ -132,14 +149,14 @@ class CerebellumSupervisedLearning(threading.Thread):
                 str_index = i
                 min_str_error = abs(str_values - str)
 
-        index = thr_index*len(self.STR_ACTIONS) + str_index - 1
+        index = thr_index * len(self.STR_ACTIONS) + str_index - 1
         print("User Action Index: {}".format(index))
         return index
 
     def gen_one_hot(self, index):
         vector = np.zeros(self.ACTION_SPACE)
-        vector[index] = 1
-        vector = vector.astype(float)
+        vector[index] = 1.0
+        vector = vector.astype(np.float32)
         return vector
 
     def get_batches_trained(self):
@@ -152,67 +169,81 @@ class CerebellumSupervisedLearning(threading.Thread):
         Instantiate the neural network
         """
 
+        # Sets keep_prob of dropout layers given TRAINING_MODE
+        keep_prob = 0.5 if self.TRAINING_MODE else 1.0
+
         # Neural network configuration
-        def weight_variable(shape):
+        def weight_variable(shape, output_layer=False):
             initial = tf.truncated_normal(shape, stddev=.5)
             return tf.Variable(initial)
 
         def bias_variable(shape):
-            initial = tf.constant(0.1, shape=shape)
+            initial = tf.constant(0, shape=shape)
             return tf.Variable(initial)
 
+        # The input to the network is a 15x1 matrix
         self.x_in = tf.placeholder(tf.float32, shape=[None, self.OBSERVATION_SPACE])
         self.exp_y = tf.placeholder(tf.float32, shape=[None, self.ACTION_SPACE])
 
-        W_fc1 = weight_variable([self.OBSERVATION_SPACE, 64])
-        b_fc1 = bias_variable([64])
-        self.h_fc1 = tf.nn.sigmoid(tf.matmul(self.x_in, W_fc1) + b_fc1)
+        self.h_fc1 = tf.layers.dense(self.x_in, 128, activation=tf.nn.leaky_relu,
+                                     kernel_initializer=tf.initializers.he_normal())
 
-        W_fc2 = weight_variable([64, 64])
-        b_fc2 = bias_variable([64])
-        self.h_fc2 = tf.nn.sigmoid(tf.matmul(self.h_fc1, W_fc2) + b_fc2)
+        # Adding randomness
+        self.h_fc1_dropout = tf.nn.dropout(self.h_fc1, keep_prob=keep_prob)
 
-        W_fc3 = weight_variable([64, 128])
-        b_fc3 = bias_variable([128])
-        self.h_fc3 = tf.nn.sigmoid(tf.matmul(self.h_fc2, W_fc3) + b_fc3)
+        self.h_fc2 = tf.layers.dense(self.h_fc1_dropout, 128, activation=tf.nn.leaky_relu,
+                                     kernel_initializer=tf.initializers.he_normal())
 
-        W_fc4 = weight_variable([128, 128])
-        b_fc4 = bias_variable([128])
-        self.h_fc4 = tf.nn.sigmoid(tf.matmul(self.h_fc3, W_fc4) + b_fc4)
+        # # Adding randomness
+        self.h_fc2_dropout = tf.nn.dropout(self.h_fc2, keep_prob=keep_prob)
+        #
+        self.h_fc3 = tf.layers.dense(self.h_fc2_dropout, 128, activation=tf.nn.relu,
+                                     kernel_initializer=tf.initializers.he_normal())
+        #
+        # # Adding randomness
+        self.h_fc3_dropout = tf.nn.dropout(self.h_fc3, keep_prob=keep_prob)
 
-        W_fc5 = weight_variable([128, self.ACTION_SPACE])
-        b_fc5 = bias_variable([self.ACTION_SPACE])
-
-        self.y_out = tf.nn.sigmoid(tf.matmul(self.h_fc4, W_fc5) + b_fc5)
+        # Output of the network is a 99x1 matrix
+        self.y_out = tf.layers.dense(self.h_fc3_dropout, 99, kernel_initializer=tf.contrib.layers.xavier_initializer())
 
         self.loss = tf.losses.sigmoid_cross_entropy(self.exp_y, self.y_out)
-        self.train_step = tf.train.AdadeltaOptimizer(self.LEARNING_RATE).minimize(self.loss)
-        self.sq_error = tf.losses.mean_squared_error(self.exp_y, self.y_out)
+        # self.loss = tf.losses.mean_squared_error(self.exp_y, self.y_out)
+        self.train_step = tf.train.MomentumOptimizer(self.LEARNING_RATE, momentum=0.95).minimize(self.loss)
+        # self.sq_error = tf.losses.mean_squared_error(self.exp_y, self.y_out)
         self.graph = tf.get_default_graph()
 
     def predict(self, x_in):
+        print('Input:', x_in)
         one_hot_out = self.sess.run(self.y_out, feed_dict={self.x_in: x_in})
         # print("MACHINE ACTION: {}".format(np.argmax(one_hot_out)))
         print("ONE HOT OUT: {}".format(one_hot_out))
+        print('Machine Action: {}'.format(self.ACTIONS[np.argmax(one_hot_out)]))
         return self.ACTIONS[np.argmax(one_hot_out)]
 
     def fit(self, x_in, exp_y):
+
+        # Clips outliers in data to [-1, 1] to prevent gradient explosion
+        x_in = np.clip(x_in, -1, 1)
+
         action_ind = self.get_action_index(exp_y)
         action_one_hot = self.gen_one_hot(action_ind)
         action_one_hot = np.reshape(action_one_hot, [1, 99])
         # print("MACHINE ACTION ONE HOT: {}".format(action_one_hot))
-        loss, _ = self.sess.run([self.loss, self.train_step], feed_dict={self.x_in: x_in, self.exp_y: action_one_hot})
+
+        # print(x_in)
+        print('Label:', action_one_hot)
+        loss, _, _, learning_rate = self.sess.run([self.loss, self.train_step, self.ADD_GLOBAL, self.LEARNING_RATE],
+                                                  feed_dict={self.x_in: x_in, self.exp_y: action_one_hot})
+        print('Learning Rate: {}'.format(learning_rate))
         return loss
 
     def restore(self):
         try:
             self.saver.restore(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
-            print('Restored from', os.path.join(self.save_path,  "{}.ckpt".format(self.model_name)))
+            print('Restored from', os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
         except:
             print('Could not restore, randomly initializing all variables')
             self.sess.run(tf.global_variables_initializer())
-
-
 
     def remember(self, state, user_action, terminal):
 
@@ -269,9 +300,16 @@ class CerebellumSupervisedLearning(threading.Thread):
 
             # Training the model on the updated q_values
             if self.save and terminal_state == 1:
-                self.saver.save(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
+                model_save_path = os.path.join(self.save_path, "{}.ckpt".format(self.model_name))
+
+                # if os.path.exists(model_save_path):
+                self.saver.save(self.sess, model_save_path)
+                # else:
+                #     self.saver.save(self.sess, model_save_path)
 
             self.batches_trained += 1
+
+            # Updates learning rate
 
         # Returning the average loss if loss list is not empty
         return np.mean(loss)

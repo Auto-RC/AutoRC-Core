@@ -26,14 +26,14 @@ from autorc.vehicle.cortex.cortex_advanced import CortexAdvanced
 class Simulator(Thread):
 
     UI_HEIGHT = 775
-    UI_WIDTH = 800
+    UI_WIDTH = 835
 
     IMG_WIDTH = 400
     IMG_HEIGHT = 200
 
     RESIZE_FACTOR = 3
 
-    LOAD = False
+    LOAD = True
     SAVE = True
 
     def __init__(self, data_path):
@@ -136,7 +136,7 @@ class Simulator(Thread):
         if 'Darwin' in platform.platform():
             self.calibration_parser.read(r"/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
         else:
-            self.calibration_parser.read(r"/home/veda/git/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+            self.calibration_parser.read(r"/home/zhxl0903/Github/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
 
         self.rgb_l = [
             int(self.calibration_parser.get('splitter_parameters', 'l_h')),
@@ -666,11 +666,11 @@ class Simulator(Thread):
         # Computing reward and loss
         # reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
         self.cerebellum.remember(self.vectorized_state, self.drive_frame, self.cortex.observation_space['terminal'])
-        avg_loss = self.cerebellum.experience_replay()*100
-        self.loss.set('%.2f' %  avg_loss)
+        avg_loss = self.cerebellum.experience_replay()
+        self.loss.set('%.8f' %  avg_loss)
 
         self.loss_moving_avg = (self.loss_moving_avg + avg_loss) / 2
-        self.loss_moving_average.set('%.2f' % self.loss_moving_avg)
+        self.loss_moving_average.set('%.8f' % self.loss_moving_avg)
 
         batches_trained = self.cerebellum.get_batches_trained()
         self.batches_trained.set('%.2f' % batches_trained)
@@ -688,7 +688,7 @@ if __name__ == '__main__':
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/"
     else:
-        data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data"
+        data_path = r"/home/zhxl0903/Github/AutoRC-Core/autorc/sample_data"
 
     simulator = Simulator(data_path)
     simulator.run()
