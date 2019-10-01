@@ -655,13 +655,15 @@ class Simulator(Thread):
         self.cerebellum.update_state(self.vectorized_state)
 
         # Getting the machine computed action
-        action = self.cerebellum.compute_controls()
-        self.computed_throttle.set('%.2f' % action[0])
-        self.computed_steering.set('%.2f' % action[1])
+        action = self.cerebellum.compute_controls()[0]
+        print('Action', action)
+        self.computed_throttle.set('%.2f' % action[1])
+        self.computed_steering.set('%.2f' % action[0])
 
+        print('Drive frame:', self.drive_frame)
         # Getting the user action
         self.user_throttle.set('%.2f' % self.drive_frame[1])
-        self.user_steering.set('%.2f' % self.drive_frame[0])
+        self.user_steering.set('%.2f' % ((self.drive_frame[0] + 1.0) / 2.0))
 
         # Computing reward and loss
         # reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
@@ -669,7 +671,7 @@ class Simulator(Thread):
         avg_loss = self.cerebellum.experience_replay()
         self.loss.set('%.8f' %  avg_loss)
 
-        self.loss_moving_avg = (self.loss_moving_avg + avg_loss) / 2
+        self.loss_moving_avg = 0.8*self.loss_moving_avg + 0.2*avg_loss
         self.loss_moving_average.set('%.8f' % self.loss_moving_avg)
 
         batches_trained = self.cerebellum.get_batches_trained()

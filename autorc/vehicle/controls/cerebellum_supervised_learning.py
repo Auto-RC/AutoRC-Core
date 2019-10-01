@@ -39,18 +39,18 @@ class CerebellumSupervisedLearning(threading.Thread):
     # [0 0 0 0 1 0 ] -> User input -> corresponds to [0, -1] # [Throttle, Steering]
     # [0.3 1 0.4 0.5 0.1 0.25 ] -> [0 1 0 0 0 0 ] -> NN output -> corresponds to [0.2, -0.25] # [Throttle, Steering]
 
-    ACTION_SPACE = len(STR_ACTIONS) * len(THR_ACTIONS)
+    ACTION_SPACE = 2  # len(STR_ACTIONS) * len(THR_ACTIONS)
 
     GLOBAL_STEP = tf.Variable(0, trainable=False)
 
-    LEARNING_RATE = tf.train.exponential_decay(1e-1,
+    LEARNING_RATE = tf.train.exponential_decay(1e-2,
                                                global_step=GLOBAL_STEP,
-                                               decay_steps=2000, decay_rate=0.9)
+                                               decay_steps=5000, decay_rate=0.8)
 
     ADD_GLOBAL = GLOBAL_STEP.assign_add(1)
 
     # Turns off dropout if not TRAINING_MODE
-    TRAINING_MODE = True
+    TRAINING_MODE = False
 
     def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True,
                  save=False):
@@ -170,7 +170,7 @@ class CerebellumSupervisedLearning(threading.Thread):
         """
 
         # Sets keep_prob of dropout layers given TRAINING_MODE
-        keep_prob = 0.5 if self.TRAINING_MODE else 1.0
+        keep_prob = 0.7 if self.TRAINING_MODE else 1.0
 
         # Neural network configuration
         def weight_variable(shape, output_layer=False):
@@ -185,55 +185,75 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.x_in = tf.placeholder(tf.float32, shape=[None, self.OBSERVATION_SPACE])
         self.exp_y = tf.placeholder(tf.float32, shape=[None, self.ACTION_SPACE])
 
-        self.h_fc1 = tf.layers.dense(self.x_in, 128, activation=tf.nn.leaky_relu,
+        self.h_fc1 = tf.layers.dense(self.x_in, 512, activation=tf.nn.relu,
                                      kernel_initializer=tf.initializers.he_normal())
 
         # Adding randomness
         self.h_fc1_dropout = tf.nn.dropout(self.h_fc1, keep_prob=keep_prob)
 
-        self.h_fc2 = tf.layers.dense(self.h_fc1_dropout, 128, activation=tf.nn.leaky_relu,
+        self.h_fc2 = tf.layers.dense(self.h_fc1_dropout, 512, activation=tf.nn.relu,
                                      kernel_initializer=tf.initializers.he_normal())
 
         # # Adding randomness
         self.h_fc2_dropout = tf.nn.dropout(self.h_fc2, keep_prob=keep_prob)
         #
-        self.h_fc3 = tf.layers.dense(self.h_fc2_dropout, 128, activation=tf.nn.relu,
+        self.h_fc3 = tf.layers.dense(self.h_fc2_dropout, 512, activation=tf.nn.relu,
                                      kernel_initializer=tf.initializers.he_normal())
         #
         # # Adding randomness
         self.h_fc3_dropout = tf.nn.dropout(self.h_fc3, keep_prob=keep_prob)
 
         # Output of the network is a 99x1 matrix
-        self.y_out = tf.layers.dense(self.h_fc3_dropout, 99, kernel_initializer=tf.contrib.layers.xavier_initializer())
+        # self.y_out = tf.layers.dense(self.h_fc3_dropout, 99, kernel_initializer=tf.contrib.layers.xavier_initializer())
+        self.y_out = tf.layers.dense(self.h_fc3_dropout, 2,
+                                     kernel_initializer=tf.contrib.layers.xavier_initializer())
 
         self.loss = tf.losses.sigmoid_cross_entropy(self.exp_y, self.y_out)
-        # self.loss = tf.losses.mean_squared_error(self.exp_y, self.y_out)
         self.train_step = tf.train.MomentumOptimizer(self.LEARNING_RATE, momentum=0.95).minimize(self.loss)
         # self.sq_error = tf.losses.mean_squared_error(self.exp_y, self.y_out)
         self.graph = tf.get_default_graph()
 
     def predict(self, x_in):
         print('Input:', x_in)
-        one_hot_out = self.sess.run(self.y_out, feed_dict={self.x_in: x_in})
-        # print("MACHINE ACTION: {}".format(np.argmax(one_hot_out)))
-        print("ONE HOT OUT: {}".format(one_hot_out))
-        print('Machine Action: {}'.format(self.ACTIONS[np.argmax(one_hot_out)]))
-        return self.ACTIONS[np.argmax(one_hot_out)]
+
+        output = self.y_out
+        network_out = self.sess.run(tf.nn.sigmoid(output), feed_dict={self.x_in: x_in})
+
+        # 0: Steering [-1, 1] -> [0, 1]
+        # 1: Throttle [0, 1]
+        print('Prediction: ', network_out)
+
+        # Converting the one hot encoding back to a throttle and steering value
+        # print("MACHINE ACTION: {}".format(np.argmax(network_out)))
+        # print("ONE HOT OUT: {}".format(network_out))
+        # print('Machine Action: {}'.format(self.ACTIONS[np.argmax(network_out)]))
+        # return self.ACTIONS[np.argmax(network_out)]
+
+        return network_out
 
     def fit(self, x_in, exp_y):
 
         # Clips outliers in data to [-1, 1] to prevent gradient explosion
-        x_in = np.clip(x_in, -1, 1)
+        x_in = np.clip(x_in, -1.0, 1.0)
 
-        action_ind = self.get_action_index(exp_y)
-        action_one_hot = self.gen_one_hot(action_ind)
-        action_one_hot = np.reshape(action_one_hot, [1, 99])
+        exp_y = np.split(exp_y, 2, axis=-1)
+        exp_y[0] = (exp_y[0] + 1.0) / 2.0
+        exp_y = np.concatenate(exp_y, axis=-1)
+
+        print('Label: ', exp_y)
+
+        # Encoding into one hot vector
+        # action_ind = self.get_action_index(exp_y)
+        # action_one_hot = self.gen_one_hot(action_ind)
+        # action_one_hot = np.reshape(action_one_hot, [1, 99])
         # print("MACHINE ACTION ONE HOT: {}".format(action_one_hot))
+        # print('Label:', action_one_hot)
 
-        # print(x_in)
-        print('Label:', action_one_hot)
+        # Normalize y using tanh
+        # exp_y_normalized = np.tanh(exp_y)
+
         loss, _, _, learning_rate = self.sess.run([self.loss, self.train_step, self.ADD_GLOBAL, self.LEARNING_RATE],
-                                                  feed_dict={self.x_in: x_in, self.exp_y: action_one_hot})
+                                                  feed_dict={self.x_in: x_in, self.exp_y: exp_y})
         print('Learning Rate: {}'.format(learning_rate))
         return loss
 
