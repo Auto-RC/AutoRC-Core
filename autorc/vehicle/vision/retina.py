@@ -46,7 +46,7 @@ class Retina():
 
         self.road = None
 
-        self.prediction = None
+        self.prediction = Road(None, None, None, None)
 
     def init_filters(self):
 
@@ -177,97 +177,130 @@ class Retina():
         obj.cv_line = cv_line
         return obj
 
-    def need_correction(self):
-        pass
-
     def p2l_dist(self, m, b, x, y):
         return np.abs(-m*x + y - b) / (((-m)**2 + 1)**.5)
 
-    def correct_splitter(self, splitter, splitter_c, thresh=20):
-        print(self.prediction.splitter.midpoint, self.prediction.splitter.angle)
+    def fix_splitter(self, splitter, splitter_c, left_lane, right_lane):
 
-        if not self.prediction.splitter.present:
-            print("no correction, no splitter predicted")
+        for i, c in enumerate(splitter_c):
+            M = cv2.moments(c)
+
+            if M['m00'] == 0:
+                M['m00'] += 0.000001
+            cx = int(M['m10'] / M['m00'])
+            cy = int(M['m01'] / M['m00'])
+
+            if left_lane.present:
+                cv_m, cv_b = left_lane.cv_line
+                if cx < (cy - cv_b) / cv_m:
+                    del splitter_c[i]
+            if right_lane.present:
+                cv_m, cv_b = right_lane.cv_line
+                if cx > (cy - cv_b) / cv_m:
+                    del splitter_c[i]
+
+        angle, x_inter, cv_line = self.fitCont(splitter_c)
+        if not (angle or x_inter or cv_line):
             return splitter
 
-        if not splitter.present:
-            if abs(self.prediction.splitter.midpoint) > 50:
-                print("no correction, splitter entered")
-                return splitter
+        self.drawLine(cv_line, (0, 0, 255))
 
-        if abs(splitter.midpoint - self.prediction.splitter.midpoint) < 10 and abs(splitter.angle - self.prediction.splitter.angle) < 25:
-            print("no correction, splitter close to original")
-            return splitter
-
-        print("correction needed")
-
-        m, b = self.prediction.splitter.cv_line
-
-        for i in range(len(splitter_c)):
-            M = cv2.moments(splitter_c[i])
-            x = int(M['m10'] / M['m00'])
-            y = int(M['m01'] / M['m00'])
-            if self.p2l_dist(m, b, x, y) > thresh:
-                del splitter_c[i]
-
-        # for i in range(len(self.contours)):
-        #     M = cv2.moments([self.contours[i]])
-        #     x = int(M['m10'] / M['m00'])
-        #     y = int(M['m01'] / M['m00'])
-        #     if self.p2l_dist(m, b, x, y) < thresh:
-        #         splitter_c.append(self.contours[i])
-
-        splitter = self.create_splitter(splitter_c, splitter)
+        splitter = self.update_line(splitter, angle, x_inter, cv_line)
+        self.split_m = splitter.midpoint
 
         return splitter
 
     def create_splitter(self, splitter_c, splitter):
-        p1 = None
-        p2 = None
-        if len(splitter_c) > 1:
-            c = np.array(list(itertools.chain.from_iterable(splitter_c)))
+
+        angle, x_inter, cv_line = self.fitCont(splitter_c)
+
+        if not (angle or x_inter or cv_line):
+            return splitter
+
+        splitter = self.update_line(splitter, angle, x_inter, cv_line)
+        self.split_m = splitter.midpoint
+
+        return splitter
+
+    def fitLine(self, p1, p2):
+
+        dy = float(p2[1] - p1[1])
+        dx = float(p2[0] - p1[0])
+        p1 = (int(p1[0] + (dx * 200)), int(p1[1] + (dy * 200)))
+        p2 = (int(p2[0] - (dx * 200)), int(p2[1] - (dy * 200)))
+
+        cv_m, cv_b = self.linCoeffs(p1, p2)
+
+        p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
+        p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
+
+        m, b = self.linCoeffs(p1, p2)
+
+        if m == 0:
+            angle = 0
+
+            if self.prediction.splitter:
+                if self.prediction.splitter.angle and self.prediction.splitter.angle > 0:
+                    x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / 0.00001) + p1[0]) - int(self.frame.shape[1] / 2)
+                else:
+                    x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / -0.00001) + p1[0]) - int(self.frame.shape[1] / 2)
+            else:
+                x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / 0.00001) + p1[0]) - int(self.frame.shape[1] / 2)
+
+        else:
+            x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / (m + 0.00001)) + p1[0]) - int(self.frame.shape[1] / 2)
+            angle = (np.arctan(1 / m) * 180 / np.pi)
+
+        return angle, x_inter, [cv_m, cv_b]
+
+    def fitCont(self, c):
+
+        if not c:
+            return None, None, None
+
+        elif len(c) == 1:
+            rect = cv2.minAreaRect(c[0])
+            box = np.int0(cv2.boxPoints(rect))
+            box = np.append(box, box[0]).reshape((5, 2))
+            centers = [((box[i][0] + box[i+1][0])/2, (box[i][1] + box[i+1][1])/2) for i in range(0, 4)]
+            l1 = self.fitLine(centers[0], centers[2])
+            l2 = self.fitLine(centers[1], centers[3])
+            if self.evaluate(l1, self.prediction.splitter) > self.evaluate(l2, self.prediction.splitter):
+                return l1
+            else:
+                return l2
+
+        else:
+            c = np.array(list(itertools.chain.from_iterable(c)))
             [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
             lefty = int((-x * vy / vx) + y)
             righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
             p1 = (self.frame.shape[1] - 1, righty)
             p2 = (0, lefty)
-        elif len(splitter_c) > 0:
-            rect = cv2.minAreaRect(splitter_c[0])
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            smallest_dist = 100
-            n = 0
-            for i in range(1, 4):
-                dist = ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5
-                if dist < smallest_dist:
-                    smallest_dist = dist
-                    n = i
-            p1 = ((box[0][0] + box[n][0])/2, (box[0][1] + box[n][1])/2)
-            p2 = (sum([box[i][0] for i in range(1, 4) if i is not n]) / 2, sum([box[i][1] for i in range(1, 4) if i is not n]) / 2)
-            dy = float(p2[1] - p1[1])
-            dx = float(p2[0] - p1[0])
-            p1 = (int(p1[0] + (dx * 200)), int(p1[1] + (dy * 200)))
-            p2 = (int(p2[0] - (dx * 200)), int(p2[1] - (dy * 200)))
+            return self.fitLine(p1, p2)
 
-        if p1 and p2:
+    def evaluate(self, fitline, baseline):
+        if baseline:
+            if baseline.present:
+                strength = 1 - (0.75 * abs(fitline[0] - baseline.angle) / 180 + 0.25 * abs(fitline[1] - baseline.midpoint) / self.frame.shape[1])
+                return strength
 
-            cv2.line(self.frame, p1, p2, (0, 0, 255), 1)
+        return 1 - abs(fitline[0]) / 360
 
-            cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0] + 0.0001)
-            cv_b = p1[1] - (cv_m * p1[0])
-            p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
-            p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
+    def linCoeffs(self, p1, p2):
+        if p2[0] == p1[0]:
+            m = 1000000
+        else:
+            m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
 
-            try: m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-            except: m = 0
-            m += 0.001
-            x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
-            angle = (np.arctan(1 / m) * 180 / np.pi)
-            # print("splitter", x_inter, angle)
-            splitter = self.update_line(splitter, angle, x_inter, [cv_m, cv_b])
-            self.split_m = splitter.midpoint
+        b = p1[1] - (m * p1[0])
 
-        return splitter
+        return m, b
+
+    def drawLine(self, cv_line, color):
+        p1 = (0, int(cv_line[1]))
+        p2 = (1000, int(cv_line[0]*1000 + cv_line[1]))
+        cv2.line(self.frame, p1, p2, color)
 
     def create_lanes(self, lanes):
         lanes = [c for c in lanes if cv2.contourArea(c) > 3]
@@ -342,10 +375,10 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
 
 
-        # if 'Darwin' in platform.platform():
-        #     self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
-        # else:
-        self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+        if 'Darwin' in platform.platform():
+            self.contours = cv2.findContours(self.frame, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[1]
+        else:
+            self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
 
 
         # if self.mode == 'HSV':
@@ -359,6 +392,8 @@ class Retina():
 
         splitter_c = []
         lanes = []
+        lanes_misc = [[],[]]
+
 
         for c in self.contours:
 
@@ -402,9 +437,33 @@ class Retina():
                 # print("edged", rect[0], rect[1])
                 # cv2.drawContours(self.frame, [box], 0, (255, 0, 0), 1)
                 lanes.append(c)
+
             elif extent < 0.5:
-                # print("not rect", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
-                pass
+                M = cv2.moments(c)
+
+                if M['m00'] == 0:
+                    M['m00'] += 0.000001
+                cx = int(M['m10'] / M['m00'])
+                cy = int(M['m01'] / M['m00'])
+
+                cv2.circle(self.frame, (cx, cy), 0, (255, 0, 255), 5)
+
+                if self.prediction.left_lane.present:
+                    m, b = self.prediction.left_lane.cv_line
+                    # print(self.p2l_dist(m, b, cx, cy))
+                    if self.p2l_dist(m, b, cx, cy) < 10:
+                        lanes_misc[0].append(c)
+                        cv2.drawContours(self.frame, c, -1, (0, 255, 0))
+
+                elif self.prediction.right_lane.present:
+                    m, b = self.prediction.right_lane.cv_line
+                    if self.p2l_dist(m, b, cx, cy) < 5:
+                        lanes_misc[1].append(c)
+
+
+
+
+
             else:
                 cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
                 # print("allowed", rect[0], rect[1])
@@ -424,6 +483,8 @@ class Retina():
         lanes = self.create_lanes(lanes)
         left_lane, right_lane = self.assign_lanes(lanes, splitter)
 
+        splitter = self.fix_splitter(splitter, splitter_c, left_lane, right_lane)
+
         lines = [splitter, left_lane, right_lane]
         self.road = Road(None, splitter, left_lane, right_lane)
         self.road.vehicle = self.calc_vehicle(lines)
@@ -441,5 +502,3 @@ if __name__ == '__main__':
     retina = Retina()
     # retina.set_calibration('splitter', [20,20,20], [255,255,250])
     # retina.set_calibration('lane', [40, 120, 21], [215, 155, 50])
-
-    retina.print_blue_hvs()

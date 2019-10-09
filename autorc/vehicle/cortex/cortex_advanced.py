@@ -110,44 +110,39 @@ class CortexAdvanced(threading.Thread):
             self.retina.prediction = self.lap_history.predict()
 
         # Detecting lines
-        try:
 
-            road = self.retina.process()
+        road = self.retina.process()
 
-            # Adding the current snapshot to the track history
-            self.lap_history.add_road_snapshot(road)
+        # Adding the current snapshot to the track history
+        self.lap_history.add_road_snapshot(road)
 
-            self.observation_space['left_lane_present'] = road.left_lane.present
-            self.observation_space['right_lane_present'] = road.right_lane.present
-            self.observation_space['splitter_present'] = road.splitter.present
-            self.observation_space['vehicle_offroad'] = road.vehicle.offroad
+        self.observation_space['left_lane_present'] = road.left_lane.present
+        self.observation_space['right_lane_present'] = road.right_lane.present
+        self.observation_space['splitter_present'] = road.splitter.present
+        self.observation_space['vehicle_offroad'] = road.vehicle.offroad
 
-            self.observation_space['left_lane_position'] = road.left_lane.midpoint
-            self.observation_space['right_lane_position'] = road.right_lane.midpoint
-            self.observation_space['splitter_position'] = road.splitter.midpoint
-            self.observation_space['vehicle_position'] = road.vehicle.position
+        self.observation_space['left_lane_position'] = road.left_lane.midpoint
+        self.observation_space['right_lane_position'] = road.right_lane.midpoint
+        self.observation_space['splitter_position'] = road.splitter.midpoint
+        self.observation_space['vehicle_position'] = road.vehicle.position
 
-            self.observation_space['left_lane_angle'] = road.left_lane.angle
-            self.observation_space['right_lane_angle'] = road.right_lane.angle
-            self.observation_space['splitter_angle'] = road.splitter.angle
-            self.observation_space['vehicle_angle'] = road.vehicle.angle
+        self.observation_space['left_lane_angle'] = road.left_lane.angle
+        self.observation_space['right_lane_angle'] = road.right_lane.angle
+        self.observation_space['splitter_angle'] = road.splitter.angle
+        self.observation_space['vehicle_angle'] = road.vehicle.angle
 
-            self.observation_space['x_acceleration'] = self.corti.get_frame()
-            self.observation_space['y_acceleration'] = 0
-            self.observation_space['z_acceleration'] = 0
+        self.observation_space['x_acceleration'] = self.corti.get_frame()
+        self.observation_space['y_acceleration'] = 0
+        self.observation_space['z_acceleration'] = 0
 
-            self.observation_space['user_throttle'], self.observation_space['user_steering'] = self.controller.get_frame()
+        self.observation_space['user_throttle'], self.observation_space['user_steering'] = self.controller.get_frame()
 
-            self.state_counter += 1
+        self.state_counter += 1
 
-            if (self.state_counter % 20 == 0) or (self.observation_space['vehicle_offroad']):
-                self.observation_space['terminal'] = 1
-            else:
-                self.observation_space['terminal'] = 0
-
-        except Exception as e:
-            print(e)
-            raise e
+        if (self.state_counter % 20 == 0) or (self.observation_space['vehicle_offroad']):
+            self.observation_space['terminal'] = 1
+        else:
+            self.observation_space['terminal'] = 0
 
 
     def compute_reward(self, cerebellum_thr, cerebellum_str):

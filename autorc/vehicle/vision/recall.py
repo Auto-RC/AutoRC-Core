@@ -26,22 +26,30 @@ class Recall():
 
     def __init__(self, path, timestamp, mode):
 
-        if mode == "vision":
-            self.path = os.path.join(path, "oculus-{}.npy".format(timestamp))
+        self.paths = []
 
-        if mode == "corti":
-            self.path = os.path.join(path, "corti-{}.npy".format(timestamp))
+        for t in timestamp:
 
-        if mode == "drive":
-            self.path = os.path.join(path, "drive-{}.npy".format(timestamp))
+            if mode == "vision":
+                self.paths.append(os.path.join(path, "oculus-{}.npy".format(t)))
+
+            if mode == "corti":
+                self.paths.append(os.path.join(path, "corti-{}.npy".format(t)))
+
+            if mode == "drive":
+                self.paths.append(os.path.join(path, "drive-{}.npy".format(t)))
 
         self.frames = []
         self._frame_index = 0
 
     def load(self):
 
-        # Loading oculus data
-        self.frames = np.load(self.path)
+        for path in self.paths:
+            if self.frames == []:
+                self.frames = np.load(path)
+            else:
+                self.frames = np.concatenate((self.frames,np.load(path)), axis=0)
+
         self.num_frames = self.frames.shape[0]
         logger.debug("Number of frames in npy: {}".format(self.num_frames))
 

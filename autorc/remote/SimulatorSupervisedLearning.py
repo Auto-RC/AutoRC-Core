@@ -8,6 +8,7 @@ __copyright__ = "Copyright 2019, AutoRC"
 __version__ = "0.0.1"
 
 import platform
+import os
 import PIL
 from PIL import ImageTk
 import PIL.Image
@@ -82,7 +83,7 @@ class Simulator(Thread):
         self.cortex.start()
 
         time.sleep(1)
-        self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=self.SAVE)
+        self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=False)
         # self.cerebellum.auto = True
         # self.cerebellum.start()
 
@@ -115,14 +116,20 @@ class Simulator(Thread):
         self.update_img()
 
     def init_recall(self):
+        files = os.listdir(self.data_path)
+        timestamps = []
 
-        self.vision_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "vision")
+        for i in range(len(files)):
+            if files[i][0:6] == "oculus":
+                timestamps.append(files[i][7:-4])
+
+        self.vision_recall = Recall(self.data_path, timestamps, "vision")
         self.vision_recall.load()
 
-        self.corti_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "corti")
+        self.corti_recall = Recall(self.data_path, timestamps, "corti")
         self.corti_recall.load()
 
-        self.drive_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "drive")
+        self.drive_recall = Recall(self.data_path, timestamps, "drive")
         self.drive_recall.load()
 
     def init_ui(self):
@@ -688,7 +695,7 @@ if __name__ == '__main__':
     print("Platform: {}".format(platform.platform()))
 
     if 'Darwin' in platform.platform():
-        data_path = "/Users/arnavgupta/car_data/raw_npy/"
+        data_path = "/Users/arnavgupta/AutoRC-Core/autorc/sample_data"
     else:
         data_path = r"/home/zhxl0903/Github/AutoRC-Core/autorc/sample_data"
 
