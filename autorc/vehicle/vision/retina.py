@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from autorc.vehicle.cortex.environment.environment import *
 from autorc.vehicle.cortex.environment.lap_history import LapHistory
+from itertools import chain, combinations
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -180,8 +181,40 @@ class Retina():
     def p2l_dist(self, m, b, x, y):
         return np.abs(-m*x + y - b) / (((-m)**2 + 1)**.5)
 
+
+    def chain_conts(self, ordered_c, centers, initial, direction=0, line=None):
+
+        angle, x_inter, cv_line = self.fitCont([ordered_c[initial]], line)
+        new_line = TrackLine(angle and x_inter and cv_line, angle, x_inter, cv_line)
+        # self.drawLine(cv_line, (127, 0, 127))
+
+        if direction == 0:
+            inds = [initial, self.chain_conts(ordered_c, centers, initial, -1, new_line)[0], self.chain_conts(ordered_c, centers, initial, 1, new_line)[0]]
+            print(inds)
+            return inds
+
+        elif direction == 1:
+            for i in range(initial+1, len(ordered_c)):
+                dist = self.p2l_dist(cv_line[0], cv_line[1], centers[i][0], centers[i][1])
+                if dist < abs(centers[i][1] - centers[initial][1]) * 2:
+                    return [i, self.chain_conts(ordered_c, centers, i, 1, new_line)[0]]
+            return [initial]
+
+        elif direction == -1:
+            for i in range(initial - 1, -1, -1):
+                dist = self.p2l_dist(cv_line[0], cv_line[1], centers[i][0], centers[i][1])
+                if dist < abs(centers[i][1] - centers[initial][1]) / 2:
+                    return [i, self.chain_conts(ordered_c, centers, i, -1, new_line)[0]]
+            return [initial]
+
+
+
     def fix_splitter(self, splitter, splitter_c, left_lane, right_lane):
 
+        if len(splitter_c) == 0:
+            return splitter
+
+        centers = []
         for i, c in enumerate(splitter_c):
             M = cv2.moments(c)
 
@@ -190,14 +223,36 @@ class Retina():
             cx = int(M['m10'] / M['m00'])
             cy = int(M['m01'] / M['m00'])
 
+            centers.append([cx, cy])
+
             if left_lane.present:
                 cv_m, cv_b = left_lane.cv_line
                 if cx < (cy - cv_b) / cv_m:
-                    del splitter_c[i]
+                    splitter_c[i] = None
+                    centers[i] = None
             if right_lane.present:
                 cv_m, cv_b = right_lane.cv_line
                 if cx > (cy - cv_b) / cv_m:
-                    del splitter_c[i]
+                    splitter_c[i] = None
+                    centers[i] = None
+
+        splitter_c = [i for i in splitter_c if type(i) == np.ndarray]
+        centers = [i for i in centers if not (i == None)]
+
+        try:
+
+            ordered_c = [x for _, x in sorted(zip([y[1] for y in centers], splitter_c), reverse=True)]
+            centers = [x for _, x in sorted(zip([y[1] for y in centers], centers), reverse=True)]
+
+            initial = 0
+
+            inds = self.chain_conts(ordered_c, centers, initial, direction=0)
+            inds = [i for i in inds if i is not -1]
+
+            splitter_c = [ordered_c[i] for i in inds]
+
+        except:
+            pass
 
         angle, x_inter, cv_line = self.fitCont(splitter_c)
         if not (angle or x_inter or cv_line):
@@ -237,13 +292,14 @@ class Retina():
         m, b = self.linCoeffs(p1, p2)
 
         if m == 0:
-            angle = 0
+            angle = 90
 
             if self.prediction.splitter:
                 if self.prediction.splitter.angle and self.prediction.splitter.angle > 0:
                     x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / 0.00001) + p1[0]) - int(self.frame.shape[1] / 2)
                 else:
                     x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / -0.00001) + p1[0]) - int(self.frame.shape[1] / 2)
+                    angle = -90
             else:
                 x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / 0.00001) + p1[0]) - int(self.frame.shape[1] / 2)
 
@@ -253,9 +309,12 @@ class Retina():
 
         return angle, x_inter, [cv_m, cv_b]
 
-    def fitCont(self, c):
+    def fitCont(self, c, line=None):
 
-        if not c:
+        if line == None:
+            line = self.prediction.splitter
+
+        if not c or c == []:
             return None, None, None
 
         elif len(c) == 1:
@@ -265,7 +324,7 @@ class Retina():
             centers = [((box[i][0] + box[i+1][0])/2, (box[i][1] + box[i+1][1])/2) for i in range(0, 4)]
             l1 = self.fitLine(centers[0], centers[2])
             l2 = self.fitLine(centers[1], centers[3])
-            if self.evaluate(l1, self.prediction.splitter) > self.evaluate(l2, self.prediction.splitter):
+            if self.evaluate(l1, line) > self.evaluate(l2, line):
                 return l1
             else:
                 return l2
@@ -357,7 +416,6 @@ class Retina():
 
         return [left_lane, right_lane]
 
-
     def process(self):
 
         # This works for the initial images
@@ -374,6 +432,8 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_HSV2RGB)
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
 
+        kernel = np.ones((2, 5), np.uint8)
+        self.frame = cv2.dilate(self.frame, kernel, iterations=1)
 
         if 'Darwin' in platform.platform():
             self.contours = cv2.findContours(self.frame, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[1]
@@ -394,8 +454,8 @@ class Retina():
         lanes = []
         lanes_misc = [[],[]]
 
+        for i, c in enumerate(self.contours):
 
-        for c in self.contours:
 
             rect = cv2.minAreaRect(c)
             box = cv2.boxPoints(rect)
@@ -407,15 +467,17 @@ class Retina():
             topmost = tuple(c[c[:, :, 1].argmin()][0])
             bottommost = tuple(c[c[:, :, 1].argmax()][0])
 
+            # print(i, leftmost, rightmost, topmost, bottommost)
+            # cv2.drawContours(self.frame, c, -1, (0, 255, 255), 2)
 
             if topmost[1] < 1:
                 if bottommost[1] > rows - 5:
                     lane = True
-                elif rightmost[1] < 1:
-                    if leftmost[0] < 1 and bottommost[0] < 1:
+                elif rightmost[0] > cols - 2:
+                    if leftmost[1] < rightmost[1]:
                         lane = True
-                elif leftmost[1] < 1:
-                    if rightmost[0] > cols - 2 and bottommost[0] > cols - 2:
+                elif leftmost[0] < 2:
+                    if rightmost[1] < leftmost[1]:
                         lane = True
             elif bottommost[1] > rows - 5:
                 if rightmost[1] > 1:
@@ -446,22 +508,21 @@ class Retina():
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
 
-                cv2.circle(self.frame, (cx, cy), 0, (255, 0, 255), 5)
-
-                if self.prediction.left_lane.present:
-                    m, b = self.prediction.left_lane.cv_line
-                    # print(self.p2l_dist(m, b, cx, cy))
-                    if self.p2l_dist(m, b, cx, cy) < 10:
-                        lanes_misc[0].append(c)
-                        cv2.drawContours(self.frame, c, -1, (0, 255, 0))
-
-                elif self.prediction.right_lane.present:
-                    m, b = self.prediction.right_lane.cv_line
-                    if self.p2l_dist(m, b, cx, cy) < 5:
-                        lanes_misc[1].append(c)
-
-
-
+                # cv2.circle(self.frame, (cx, cy), 0, (255, 0, 255), 5)
+                #
+                # if self.prediction.left_lane.present:
+                #     m, b = self.prediction.left_lane.cv_line
+                #     self.drawLine([m,b], (255, 0, 255))
+                #     print(i, self.p2l_dist(m, b, cx, cy))
+                #     if self.p2l_dist(m, b, cx, cy) < 10:
+                #         lanes_misc[0].append(c)
+                #         cv2.circle(self.frame, (cx, cy), 0, (255, 0, 255), 5)
+                #         cv2.drawContours(self.frame, c, -1, (255, 255, 0))
+                #
+                # elif self.prediction.right_lane.present:
+                #     m, b = self.prediction.right_lane.cv_line
+                #     if self.p2l_dist(m, b, cx, cy) < 5:
+                #         lanes_misc[1].append(c)
 
 
             else:
