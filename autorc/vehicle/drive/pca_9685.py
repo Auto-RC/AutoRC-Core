@@ -13,7 +13,7 @@ class PCA9685:
         self.steering_max = 490
         self.steering_avg = self.steering_min/2 + self.steering_max/2
         self.throttle_min = 290
-        self.throttle_max = 600
+        self.throttle_max = 500
         self.throttle_avg = 390
         self.pwm.set_pwm_freq(freq)
 
