@@ -536,6 +536,7 @@ class Retina():
 
         splitter = self.create_splitter(splitter_c, splitter)
 
+
         # if self.prediction:
         #     splitter = self.correct_splitter(splitter, splitter_c)
         # else:
@@ -549,6 +550,12 @@ class Retina():
         lines = [splitter, left_lane, right_lane]
         self.road = Road(None, splitter, left_lane, right_lane)
         self.road.vehicle = self.calc_vehicle(lines)
+
+        print("Splitter: present: {} angle: {}".format(splitter.present, splitter.angle))
+        print("Leftlane: present: {} angle: {}".format(left_lane.present, left_lane.angle))
+        print("Rightlane: present: {} angle: {}".format(right_lane.present, right_lane.angle))
+
+
 
         # print("veh", self.road.vehicle.angle, self.road.vehicle.position, self.lane_width)
 
