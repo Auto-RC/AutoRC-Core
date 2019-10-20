@@ -425,9 +425,12 @@ class Retina():
         # print(self.frame.shape)
 
         self.frame = self.frame[40:73, :, :]
+        print("shape {}".format(self.frame.shape))
 
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
         self.frame = self.filter_color(self.frame, self.fil_hsv_l, self.fil_hsv_u)
+
+        print(self.frame)
 
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_HSV2RGB)
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
