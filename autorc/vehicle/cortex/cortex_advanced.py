@@ -334,8 +334,8 @@ class CortexAdvanced(threading.Thread):
             if self.enabled == True:
 
                 self.get_state()
-                print("state: {}".format(self.observation_space))
-                print("fil l: {}".format(self.retina.fil_hsv_l))
-                print("fil u: {}".format(self.retina.fil_hsv_u))
+                # print("state: {}".format(self.observation_space))
+                # print("fil l: {}".format(self.retina.fil_hsv_l))
+                # print("fil u: {}".format(self.retina.fil_hsv_u))
 
             time.sleep(self.update_interval_ms / 1000)
