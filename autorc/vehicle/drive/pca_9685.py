@@ -33,10 +33,10 @@ class PCA9685:
     def set_throttle(self, scaled_throttle):
         if -1 <= scaled_throttle < 0:
             throttle = int(scaled_throttle * (self.throttle_avg-self.throttle_min)) + self.throttle_avg
-        elif 0 <= scaled_throttle <= 0.6:
+        elif 0 <= scaled_throttle <= 0.5:
             throttle = int(scaled_throttle * (self.throttle_max-self.throttle_avg)) + self.throttle_avg
-        elif scaled_throttle > 0.6:
-            throttle = int(0.6 * (self.throttle_max-self.throttle_avg)) + self.throttle_avg
+        elif scaled_throttle > 0.5:
+            throttle = int(0.5 * (self.throttle_max-self.throttle_avg)) + self.throttle_avg
         else:
             throttle = 0
 
