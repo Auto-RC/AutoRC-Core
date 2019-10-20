@@ -429,12 +429,12 @@ class Retina():
         # print(self.frame.shape)
 
         self.frame = self.frame[40:73, :, :]
-        print("shape {}".format(self.frame.shape))
+        # print("shape {}".format(self.frame.shape))
 
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
         self.frame = self.filter_color(self.frame, self.fil_hsv_l, self.fil_hsv_u)
 
-        print(self.frame)
+        # print(self.frame)
 
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_HSV2RGB)
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
@@ -447,7 +447,7 @@ class Retina():
         else:
             self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
 
-        print(len(self.contours))
+        # print(len(self.contours))
 
         # if self.mode == 'HSV':
         #     return self.frame
@@ -560,9 +560,9 @@ class Retina():
         self.road = Road(None, splitter, left_lane, right_lane)
         self.road.vehicle = self.calc_vehicle(lines)
 
-        print("Splitter: present: {} angle: {}".format(splitter.present, splitter.angle))
-        print("Leftlane: present: {} angle: {}".format(left_lane.present, left_lane.angle))
-        print("Rightlane: present: {} angle: {}".format(right_lane.present, right_lane.angle))
+        # print("Splitter: present: {} angle: {}".format(splitter.present, splitter.angle))
+        # print("Leftlane: present: {} angle: {}".format(left_lane.present, left_lane.angle))
+        # print("Rightlane: present: {} angle: {}".format(right_lane.present, right_lane.angle))
 
 
 

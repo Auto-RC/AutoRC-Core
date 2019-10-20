@@ -222,7 +222,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
         # 0: Steering [-1, 1] -> [0, 1]
         # 1: Throttle [0, 1]
-        # print('Prediction: ', network_out)
+        print('Prediction: ', network_out)
 
         # Converting the one hot encoding back to a throttle and steering value
         # print("MACHINE ACTION: {}".format(np.argmax(network_out)))
