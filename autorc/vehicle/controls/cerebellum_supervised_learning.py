@@ -214,6 +214,7 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.graph = tf.get_default_graph()
 
     def predict(self, x_in):
+
         print('Input:', x_in)
 
         output = self.y_out
@@ -352,6 +353,8 @@ class CerebellumSupervisedLearning(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
+                self.vectorized_state = self.cortex.vectorize_state()
+                self.update_state(self.vectorized_state)
                 self.str, self.thr = self.compute_controls()
 
             # print("Auto: {}".format(self.auto))

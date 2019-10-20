@@ -216,57 +216,69 @@ class AutoRC(threading.Thread):
 
         logger.debug("AutoRC live")
 
-        while True:
+        try:
 
-            if self.enable_auto == True:
+            while True:
 
-                logger.info(
-                    "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
-                        .format(
-                        self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                        self.enable_memory, self.enable_cortex, self.cerebellum.thr,
-                        self.cerebellum.str, self.controller.swb,
-                        self.controller.swc
+
+                if self.enable_auto == True:
+
+                    logger.info(
+                        "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
+                            .format(
+                            self.enable_vehicle, self.enable_corti, self.enable_oculus,
+                            self.enable_memory, self.enable_cortex, self.cerebellum.thr,
+                            self.cerebellum.str, self.controller.swb,
+                            self.controller.swc
+                        )
                     )
-                )
 
-            else:
-                logger.info(
-                    "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
-                        .format(
-                        self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                        self.enable_memory, self.enable_cortex, self.controller.thr,
-                        self.controller.str, self.controller.swb,
-                        self.controller.swc
+                else:
+                    logger.info(
+                        "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
+                            .format(
+                            self.enable_vehicle, self.enable_corti, self.enable_oculus,
+                            self.enable_memory, self.enable_cortex, self.controller.thr,
+                            self.controller.str, self.controller.swb,
+                            self.controller.swc
+                        )
                     )
-                )
 
-            if self.enable_memory:
-                self.add_data_packet()
+                if self.enable_memory:
+                    self.add_data_packet()
 
-            if (self.controller.swb > 50) and (self.enable_vehicle == False):
-                self.toggle_vehicle()
-                self.toggle_corti()
-                self.toggle_cortex()
-            elif(self.controller.swb < 50) and (self.enable_vehicle == True):
-                self.toggle_vehicle()
-                self.toggle_corti()
-                self.toggle_cortex()
+                if (self.controller.swb > 50) and (self.enable_vehicle == False):
+                    self.toggle_vehicle()
+                    self.toggle_corti()
+                    self.toggle_cortex()
+                elif(self.controller.swb < 50) and (self.enable_vehicle == True):
+                    self.toggle_vehicle()
+                    self.toggle_corti()
+                    self.toggle_cortex()
 
 
-            # SWC Top Position
-            if (self.controller.swc > 20) and (self.enable_auto == True):
-                self.toggle_auto()
-            elif (self.controller.swc < 20) and (self.enable_auto == False):
-                self.toggle_auto()
+                # SWC Top Position
+                if (self.controller.swc > 20) and (self.enable_auto == True):
+                    self.toggle_auto()
+                elif (self.controller.swc < 20) and (self.enable_auto == False):
+                    self.toggle_auto()
 
-            # SWC Bottom Position
-            elif (self.controller.swc > 70) and (self.enable_memory == True):
-                self.toggle_memory()
-            elif (self.controller.swc < 70) and (self.enable_memory == False):
-                self.toggle_memory()
+                # SWC Bottom Position
+                elif (self.controller.swc > 70) and (self.enable_memory == True):
+                    self.toggle_memory()
+                elif (self.controller.swc < 70) and (self.enable_memory == False):
+                    self.toggle_memory()
 
-            time.sleep(100/1000)
+                time.sleep(100/1000)
+
+        except Exception as e:
+
+            self.drive.disable()
+            self.enable_vehicle = False
+            logger.debug("Vehicle disabled.")
+
+            print(e)
+
 
 
 # ==================================================================================================
