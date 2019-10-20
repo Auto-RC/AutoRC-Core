@@ -229,7 +229,7 @@ class CerebellumSupervisedLearning(threading.Thread):
         # print('Machine Action: {}'.format(self.ACTIONS[np.argmax(network_out)]))
         # return self.ACTIONS[np.argmax(network_out)]
 
-        return network_out
+        return network_out[0][0], network_out[0][1]
 
     def fit(self, x_in, exp_y):
 
@@ -352,7 +352,7 @@ class CerebellumSupervisedLearning(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
-                self.thr, self.str = self.compute_controls()
+                self.str, self.thr = self.compute_controls()
 
             # print("Auto: {}".format(self.auto))
 
