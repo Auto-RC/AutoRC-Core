@@ -227,11 +227,15 @@ class Retina():
 
             if left_lane.present:
                 cv_m, cv_b = left_lane.cv_line
+                if cv_m == 0:
+                    cv_m = 0.000001
                 if cx < (cy - cv_b) / cv_m:
                     del splitter_c[i]
                     # centers[i] = None
             if right_lane.present:
                 cv_m, cv_b = right_lane.cv_line
+                if cv_m == 0:
+                    cv_m = 0.000001
                 if cx > (cy - cv_b) / cv_m:
                     del splitter_c[i]
                     # centers[i] = None
