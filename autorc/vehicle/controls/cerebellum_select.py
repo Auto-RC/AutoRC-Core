@@ -1,4 +1,4 @@
-from autorc.vehicle.controls.cerebellum_reinforcement_learning import CerebellumSupervisedLearning
+from autorc.vehicle.controls.cerebellum_supervised_learning import CerebellumSupervisedLearning
 from autorc.vehicle.controls.cerebellum_standard_controls import CerebellumStandardControls
 
 def CerebellumSelect(type, update_interval_ms, controller, cortex, corti, model_name):
