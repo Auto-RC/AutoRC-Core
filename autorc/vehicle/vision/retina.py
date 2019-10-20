@@ -359,7 +359,7 @@ class Retina():
     def drawLine(self, cv_line, color):
         p1 = (0, int(cv_line[1]))
         p2 = (1000, int(cv_line[0]*1000 + cv_line[1]))
-        cv2.line(self.frame, p1, p2, color)
+        # cv2.line(self.frame, p1, p2, color)
 
     def create_lanes(self, lanes):
         lanes = [c for c in lanes if cv2.contourArea(c) > 3]
@@ -373,7 +373,7 @@ class Retina():
             p2 = (0,lefty)
             cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
             cv_b = p1[1] - (cv_m * p1[0])
-            cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
+            # cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
             p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
             p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
             m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
@@ -526,7 +526,7 @@ class Retina():
 
 
             else:
-                cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
+                # cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
                 # print("allowed", rect[0], rect[1])
                 splitter_c.append(c)
 
