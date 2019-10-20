@@ -214,7 +214,7 @@ class Retina():
         if len(splitter_c) == 0:
             return splitter
 
-        centers = []
+        # centers = []
         for i, c in enumerate(splitter_c):
             M = cv2.moments(c)
 
@@ -223,36 +223,36 @@ class Retina():
             cx = int(M['m10'] / M['m00'])
             cy = int(M['m01'] / M['m00'])
 
-            centers.append([cx, cy])
+            # centers.append([cx, cy])
 
             if left_lane.present:
                 cv_m, cv_b = left_lane.cv_line
                 if cx < (cy - cv_b) / cv_m:
-                    splitter_c[i] = None
-                    centers[i] = None
+                    del splitter_c[i]
+                    # centers[i] = None
             if right_lane.present:
                 cv_m, cv_b = right_lane.cv_line
                 if cx > (cy - cv_b) / cv_m:
-                    splitter_c[i] = None
-                    centers[i] = None
+                    del splitter_c[i]
+                    # centers[i] = None
 
-        splitter_c = [i for i in splitter_c if type(i) == np.ndarray]
-        centers = [i for i in centers if not (i == None)]
+        # splitter_c = [i for i in splitter_c if type(i) == np.ndarray]
+        # centers = [i for i in centers if not (i == None)]
 
-        try:
-
-            ordered_c = [x for _, x in sorted(zip([y[1] for y in centers], splitter_c), reverse=True)]
-            centers = [x for _, x in sorted(zip([y[1] for y in centers], centers), reverse=True)]
-
-            initial = 0
-
-            inds = self.chain_conts(ordered_c, centers, initial, direction=0)
-            inds = [i for i in inds if i is not -1]
-
-            splitter_c = [ordered_c[i] for i in inds]
-
-        except:
-            pass
+        # try:
+        #
+        #     ordered_c = [x for _, x in sorted(zip([y[1] for y in centers], splitter_c), reverse=True)]
+        #     centers = [x for _, x in sorted(zip([y[1] for y in centers], centers), reverse=True)]
+        #
+        #     initial = 0
+        #
+        #     inds = self.chain_conts(ordered_c, centers, initial, direction=0)
+        #     inds = [i for i in inds if i is not -1]
+        #
+        #     splitter_c = [ordered_c[i] for i in inds]
+        #
+        # except:
+        #     pass
 
         angle, x_inter, cv_line = self.fitCont(splitter_c)
         if not (angle or x_inter or cv_line):

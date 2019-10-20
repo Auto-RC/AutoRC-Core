@@ -25,7 +25,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     Cerebellum runs a supervised learning learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "Github", "AutoRC-Core", "autorc", "models")
+    MODEL_DIR = os.path.join(str(Path.home()), "AutoRC-Core", "autorc", "models")
 
     MEMORY_SIZE = 1000000
 

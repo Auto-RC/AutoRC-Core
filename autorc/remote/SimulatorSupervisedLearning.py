@@ -83,7 +83,7 @@ class Simulator(Thread):
         self.cortex.start()
 
         time.sleep(1)
-        self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=False)
+        self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=True)
         # self.cerebellum.auto = True
         # self.cerebellum.start()
 
