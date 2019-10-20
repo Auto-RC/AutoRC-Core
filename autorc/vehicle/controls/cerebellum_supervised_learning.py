@@ -344,7 +344,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     def run(self):
 
-        time.sleep(2000)
+        time.sleep(0.5)
 
         while True:
 
