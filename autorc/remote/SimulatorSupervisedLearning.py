@@ -662,7 +662,7 @@ class Simulator(Thread):
         self.cerebellum.update_state(self.vectorized_state)
 
         # Getting the machine computed action
-        action = self.cerebellum.compute_controls()[0]
+        action = self.cerebellum.compute_controls()
         print('Action', action)
         self.computed_throttle.set('%.2f' % action[1])
         self.computed_steering.set('%.2f' % action[0])
@@ -695,7 +695,7 @@ if __name__ == '__main__':
     print("Platform: {}".format(platform.platform()))
 
     if 'Darwin' in platform.platform():
-        data_path = "/Users/arnavgupta/AutoRC-Core/autorc/sample_data"
+        data_path = "/Users/arnavgupta/car_data"
     else:
         data_path = r"/home/zhxl0903/Github/AutoRC-Core/autorc/sample_data"
 
