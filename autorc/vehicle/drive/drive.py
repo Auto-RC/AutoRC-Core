@@ -60,6 +60,8 @@ class Drive(threading.Thread):
                 # --------------------------------------------------------------------------------------
                 self.update_controls()
 
+                print("Steering: {} Throttle: {}".format(self.steering, self.throttle))
+
                 self.pca9685.set_steering(self.steering)
                 self.pca9685.set_throttle(self.throttle)
 
