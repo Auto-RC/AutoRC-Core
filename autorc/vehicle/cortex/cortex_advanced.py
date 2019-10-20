@@ -315,7 +315,7 @@ class CortexAdvanced(threading.Thread):
         except:
             self.vectorized_state.append(-1)
 
-        self.vectorized_state.append(self.observation_space['x_acceleration'][0]/10)
+        self.vectorized_state.append(self.observation_space['x_acceleration']/10)
         self.vectorized_state.append(self.observation_space['y_acceleration']/10)
         self.vectorized_state.append(self.observation_space['z_acceleration']/10)
 

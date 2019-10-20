@@ -278,6 +278,7 @@ class AutoRC(threading.Thread):
             logger.debug("Vehicle disabled.")
 
             print(e)
+            raise(e)
 
 
 
