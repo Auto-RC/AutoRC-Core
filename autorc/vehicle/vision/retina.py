@@ -440,6 +440,7 @@ class Retina():
         else:
             self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
 
+        print(len(self.contours))
 
         # if self.mode == 'HSV':
         #     return self.frame
@@ -453,6 +454,7 @@ class Retina():
         splitter_c = []
         lanes = []
         lanes_misc = [[],[]]
+
 
         for i, c in enumerate(self.contours):
 
