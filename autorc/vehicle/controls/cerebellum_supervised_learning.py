@@ -259,12 +259,12 @@ class CerebellumSupervisedLearning(threading.Thread):
         return loss
 
     def restore(self):
-        try:
-            self.saver.restore(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
-            print('Restored from', os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
-        except:
-            print('Could not restore, randomly initializing all variables')
-            self.sess.run(tf.global_variables_initializer())
+        # try:
+        self.saver.restore(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
+        print('Restored from', os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
+        # except:
+        #     print('Could not restore, randomly initializing all variables')
+        #     self.sess.run(tf.global_variables_initializer())
 
     def remember(self, state, user_action, terminal):
 
