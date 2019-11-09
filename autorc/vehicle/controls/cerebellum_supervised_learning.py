@@ -24,7 +24,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     Cerebellum runs a supervised learning learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "AutoRC-Core", "autorc", "models")
+    MODEL_DIR = os.path.join(str(Path.home()), "git", "AutoRC-Core", "autorc", "models")
 
     MEMORY_SIZE = 1000000
 
@@ -193,7 +193,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     def predict(self, x_in):
         one_hot_out = self.sess.run(self.y_out, feed_dict={self.x_in: x_in})
         # print("MACHINE ACTION: {}".format(np.argmax(one_hot_out)))
-        print("ONE HOT OUT: {}".format(one_hot_out))
+        # print("ONE HOT OUT: {}".format(one_hot_out))
         return self.ACTIONS[np.argmax(one_hot_out)]
 
     def fit(self, x_in, exp_y):
@@ -269,7 +269,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
             # Training the model on the updated q_values
             if self.save and terminal_state == 1:
-                self.saver.save(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
+                self.saver.save(self.sess, os.path.join(self.save_path, "".format(self.model_name), "{}.ckpt".format(self.model_name)))
 
             self.batches_trained += 1
 

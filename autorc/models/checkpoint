@@ -1,2 +1,2 @@
-model_checkpoint_path: "/Users/arnavgupta/AutoRC-Core/autorc/models/One_Hot_Test.ckpt"
-all_model_checkpoint_paths: "/Users/arnavgupta/AutoRC-Core/autorc/models/One_Hot_Test.ckpt"
+model_checkpoint_path: "/home/veda/git/AutoRC-Core/autorc/models/M1_20191109.ckpt"
+all_model_checkpoint_paths: "/home/veda/git/AutoRC-Core/autorc/models/M1_20191109.ckpt"

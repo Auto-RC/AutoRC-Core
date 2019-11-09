@@ -71,7 +71,7 @@ class Simulator(Thread):
         oculus = self.vision_recall
 
         mode = True
-        model_name = "One_Hot_Test"
+        model_name = "M1_20191109"
 
         # Parameters
         self.loss_moving_avg = 0
@@ -110,19 +110,21 @@ class Simulator(Thread):
 
         # Init Canvas
         self.init_canvas()
-        self.img_index = 24
+        self.img_index = 0
         self.change_img(self.img_index)
         self.update_img()
 
     def init_recall(self):
 
-        self.vision_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "vision")
+        file_timestamp = "2019-11-09 19;39;46.535512"
+
+        self.vision_recall = Recall(self.data_path, file_timestamp, "vision")
         self.vision_recall.load()
 
-        self.corti_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "corti")
+        self.corti_recall = Recall(self.data_path, file_timestamp, "corti")
         self.corti_recall.load()
 
-        self.drive_recall = Recall(self.data_path, "2019-06-29 20;40;40.259534", "drive")
+        self.drive_recall = Recall(self.data_path, file_timestamp, "drive")
         self.drive_recall.load()
 
     def init_ui(self):
@@ -665,6 +667,7 @@ class Simulator(Thread):
 
         # Computing reward and loss
         # reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
+        reward = self.cortex.compute_reward(action[0], action[1])
         self.cerebellum.remember(self.vectorized_state, self.drive_frame, self.cortex.observation_space['terminal'])
         avg_loss = self.cerebellum.experience_replay()*100
         self.loss.set('%.2f' %  avg_loss)
@@ -688,7 +691,7 @@ if __name__ == '__main__':
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/"
     else:
-        data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data"
+        data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data/temp"
 
     simulator = Simulator(data_path)
     simulator.run()
