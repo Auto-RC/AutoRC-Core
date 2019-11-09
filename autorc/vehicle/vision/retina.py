@@ -341,12 +341,10 @@ class Retina():
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_HSV2RGB)
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
 
-
         if 'Darwin' in platform.platform():
             self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
         else:
             self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
-
 
         # if self.mode == 'HSV':
         #     return self.frame
@@ -361,6 +359,7 @@ class Retina():
         lanes = []
 
         for c in self.contours:
+
             rect = cv2.minAreaRect(c)
             box = cv2.boxPoints(rect)
             box = np.int0(box)
@@ -440,5 +439,3 @@ if __name__ == '__main__':
     retina = Retina()
     # retina.set_calibration('splitter', [20,20,20], [255,255,250])
     # retina.set_calibration('lane', [40, 120, 21], [215, 155, 50])
-
-    retina.print_blue_hvs()
