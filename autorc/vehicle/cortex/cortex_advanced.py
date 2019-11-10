@@ -321,6 +321,10 @@ class CortexAdvanced(threading.Thread):
 
         return np.array(self.vectorized_state)
 
+    def get_raw_state(self):
+
+        return self.retina.frame
+
     def run(self):
 
         """

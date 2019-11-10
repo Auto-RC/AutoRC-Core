@@ -658,7 +658,7 @@ class Simulator(Thread):
     def update_predictions(self):
 
         # Updating the state
-        self.vectorized_state = self.cortex.vectorize_state()
+        self.raw_state = self.cortex.get_raw_state()
         self.cerebellum.update_state(self.vectorized_state)
 
         # Getting the machine computed action
