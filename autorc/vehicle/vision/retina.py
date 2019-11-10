@@ -331,7 +331,7 @@ class Retina():
         # fil_1_l = np.array([30, 0, 0])
         # fil_1_u = np.array([80, 105, 255])
 
-        print(self.frame.shape)
+        # print(self.frame.shape)
 
         self.frame = self.frame[40:73, :, :]
 

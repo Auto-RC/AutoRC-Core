@@ -178,18 +178,19 @@ class CerebellumSupervisedLearning(threading.Thread):
         keep_prob = 0.7 if self.TRAINING_MODE else 1.0
 
         config = dict()
+        config['network'] = self.NETWORK_TYPE
         config['keep_prob'] = keep_prob
         config['observation_space'] = self.OBSERVATION_SPACE
         config['action_space'] = self.ACTION_SPACE
 
-        self.network = Network.select(self.NETWORK_TYPE)
+        self.network = Network.select(**config)
 
     def predict(self, x_in):
 
         print('Input:', x_in)
 
-        output = self.y_out
-        network_out = self.sess.run(tf.nn.sigmoid(output), feed_dict={self.x_in: x_in})
+        output = self.network.y_out
+        network_out = self.sess.run(tf.nn.sigmoid(output), feed_dict={self.network.x_in: x_in})
 
         # 0: Steering [-1, 1] -> [0, 1]
         # 1: Throttle [0, 1]
@@ -214,22 +215,14 @@ class CerebellumSupervisedLearning(threading.Thread):
 
         print('Label: ', exp_y)
 
-        # Encoding into one hot vector
-        # action_ind = self.get_action_index(exp_y)
-        # action_one_hot = self.gen_one_hot(action_ind)
-        # action_one_hot = np.reshape(action_one_hot, [1, 99])
-        # print("MACHINE ACTION ONE HOT: {}".format(action_one_hot))
-        # print('Label:', action_one_hot)
-
-        # Normalize y using tanh
-        # exp_y_normalized = np.tanh(exp_y)
-
-        loss, _, _, learning_rate = self.sess.run([self.loss, self.train_step, self.ADD_GLOBAL, self.LEARNING_RATE],
-                                                  feed_dict={self.x_in: x_in, self.exp_y: exp_y})
+        loss, _, _, learning_rate = self.sess.run([self.network.loss, self.network.train_step, self.ADD_GLOBAL, self.LEARNING_RATE],
+                                                  feed_dict={self.network.x_in: x_in, self.network.exp_y: exp_y})
         print('Learning Rate: {}'.format(learning_rate))
+
         return loss
 
     def restore(self):
+
         try:
             self.saver.restore(self.sess, os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))
             print('Restored from', os.path.join(self.save_path, "{}.ckpt".format(self.model_name)))

@@ -11,38 +11,38 @@ class ConvNet:
 
         self.n_channels = 8
 
-        self.conv1_1 = tf.layers.conv2d(self.x_in, (3, 3), self.n_channels, stride=(1, 1), padding='same',
+        self.conv1_1 = tf.layers.conv2d(self.x_in, (3, 3), self.n_channels, strides=(1, 1), padding='same',
                                         activation=tf.nn.relu,
                                         kernel_initializer=tf.initializers.he_normal())
 
-        self.conv1_2 = tf.layers.conv2d(self.conv1_1, (3, 3), self.n_channels, stride=(1, 1), padding='same',
+        self.conv1_2 = tf.layers.conv2d(self.conv1_1, (3, 3), self.n_channels, strides=(1, 1), padding='same',
                                         activation=tf.nn.relu,
                                         kernel_initializer=tf.initializers.he_normal())
 
         # 64 x 48
-        self.max_pool1 = tf.layers.max_pooling2d(self.conv1_2, (2, 2), stride=(2, 2))
+        self.max_pool1 = tf.layers.max_pooling2d(self.conv1_2, (2, 2), strides=(2, 2))
 
-        self.conv2_1 = tf.layers.conv2d(self.max_pool1, (3, 3), self.n_channels * 2, stride=(1, 1), padding='same',
+        self.conv2_1 = tf.layers.conv2d(self.max_pool1, (3, 3), self.n_channels * 2, strides=(1, 1), padding='same',
                                         activation=tf.nn.relu,
                                         kernel_initializer=tf.initializers.he_normal())
 
-        self.conv2_2 = tf.layers.conv2d(self.conv2_1, (3, 3), self.n_channels * 2, stride=(1, 1), padding='same',
+        self.conv2_2 = tf.layers.conv2d(self.conv2_1, (3, 3), self.n_channels * 2, strides=(1, 1), padding='same',
                                         activation=tf.nn.relu,
                                         kernel_initializer=tf.initializers.he_normal())
 
         # 32 x 24
-        self.max_pool2 = tf.layers.max_pooling2d(self.conv2_2, (2, 2), stride=(2, 2))
+        self.max_pool2 = tf.layers.max_pooling2d(self.conv2_2, (2, 2), strides=(2, 2))
 
-        self.conv3_1 = tf.layers.conv2d(self.max_pool2, (3, 3), self.n_channels * 4, stride=(1, 1), padding='same',
+        self.conv3_1 = tf.layers.conv2d(self.max_pool2, (3, 3), self.n_channels * 4, strides=(1, 1), padding='same',
                                         activation=tf.nn.relu,
                                         kernel_initializer=tf.initializers.he_normal())
 
-        self.conv3_2 = tf.layers.conv2d(self.conv3_1, (3, 3), self.n_channels * 4, stride=(1, 1), padding='same',
+        self.conv3_2 = tf.layers.conv2d(self.conv3_1, (3, 3), self.n_channels * 4, strides=(1, 1), padding='same',
                                         activation=tf.nn.relu,
                                         kernel_initializer=tf.initializers.he_normal())
 
         # 16 x 12
-        self.max_pool3 = tf.layers.max_pooling2d(self.conv3_2, (2, 2), stride=(2, 2))
+        self.max_pool3 = tf.layers.max_pooling2d(self.conv3_2, (2, 2), strides=(2, 2))
 
         self.fc_in = tf.layers.flatten(self.max_pool3)
         self.fc1 = tf.layers.dense(self.fc_in, 256, activation=tf.nn.relu,

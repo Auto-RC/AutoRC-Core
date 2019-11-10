@@ -5,7 +5,7 @@ from autorc.vehicle.networks.dense_net import DenseNet
 class Network:
 
     @staticmethod
-    def select(self, **kwargs):
+    def select(**kwargs):
 
         if kwargs['network'] == "ConvNet":
             return ConvNet(**kwargs)
