@@ -19,6 +19,8 @@ import time
 import os
 import copy
 
+from autorc.vehicle.networks.net_select import Network
+
 
 class CerebellumSupervisedLearning(threading.Thread):
     """
@@ -51,6 +53,9 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     # Turns off dropout if not TRAINING_MODE
     TRAINING_MODE = False
+
+    # Network Type
+    self.NETWORK_TYPE = "ConvNet"
 
     def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True,
                  save=False):
@@ -172,46 +177,12 @@ class CerebellumSupervisedLearning(threading.Thread):
         # Sets keep_prob of dropout layers given TRAINING_MODE
         keep_prob = 0.7 if self.TRAINING_MODE else 1.0
 
-        # Neural network configuration
-        def weight_variable(shape, output_layer=False):
-            initial = tf.truncated_normal(shape, stddev=.5)
-            return tf.Variable(initial)
+        config = dict()
+        config['keep_prob'] = keep_prob
+        config['observation_space'] = self.OBSERVATION_SPACE
+        config['action_space'] = self.ACTION_SPACE
 
-        def bias_variable(shape):
-            initial = tf.constant(0, shape=shape)
-            return tf.Variable(initial)
-
-        # The input to the network is a 15x1 matrix
-        self.x_in = tf.placeholder(tf.float32, shape=[None, self.OBSERVATION_SPACE])
-        self.exp_y = tf.placeholder(tf.float32, shape=[None, self.ACTION_SPACE])
-
-        self.h_fc1 = tf.layers.dense(self.x_in, 512, activation=tf.nn.relu,
-                                     kernel_initializer=tf.initializers.he_normal())
-
-        # Adding randomness
-        self.h_fc1_dropout = tf.nn.dropout(self.h_fc1, keep_prob=keep_prob)
-
-        self.h_fc2 = tf.layers.dense(self.h_fc1_dropout, 512, activation=tf.nn.relu,
-                                     kernel_initializer=tf.initializers.he_normal())
-
-        # # Adding randomness
-        self.h_fc2_dropout = tf.nn.dropout(self.h_fc2, keep_prob=keep_prob)
-        #
-        self.h_fc3 = tf.layers.dense(self.h_fc2_dropout, 512, activation=tf.nn.relu,
-                                     kernel_initializer=tf.initializers.he_normal())
-        #
-        # # Adding randomness
-        self.h_fc3_dropout = tf.nn.dropout(self.h_fc3, keep_prob=keep_prob)
-
-        # Output of the network is a 99x1 matrix
-        # self.y_out = tf.layers.dense(self.h_fc3_dropout, 99, kernel_initializer=tf.contrib.layers.xavier_initializer())
-        self.y_out = tf.layers.dense(self.h_fc3_dropout, 2,
-                                     kernel_initializer=tf.contrib.layers.xavier_initializer())
-
-        self.loss = tf.losses.sigmoid_cross_entropy(self.exp_y, self.y_out)
-        self.train_step = tf.train.MomentumOptimizer(self.LEARNING_RATE, momentum=0.95).minimize(self.loss)
-        # self.sq_error = tf.losses.mean_squared_error(self.exp_y, self.y_out)
-        self.graph = tf.get_default_graph()
+        self.network = Network.select(self.NETWORK_TYPE)
 
     def predict(self, x_in):
 
