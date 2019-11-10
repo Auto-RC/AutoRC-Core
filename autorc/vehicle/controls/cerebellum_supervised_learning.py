@@ -27,7 +27,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     Cerebellum runs a supervised learning learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "git", "AutoRC-Core", "autorc", "models")
+    MODEL_DIR = os.path.join(str(Path.home()), "Github", "AutoRC-Core", "autorc", "models")
 
     MEMORY_SIZE = 1000000
 
@@ -52,7 +52,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     ADD_GLOBAL = GLOBAL_STEP.assign_add(1)
 
     # Turns off dropout if not TRAINING_MODE
-    TRAINING_MODE = False
+    TRAINING_MODE = True
 
     # Network Type
     NETWORK_TYPE = "ConvNet"
@@ -182,6 +182,7 @@ class CerebellumSupervisedLearning(threading.Thread):
         config['keep_prob'] = keep_prob
         config['observation_space'] = self.OBSERVATION_SPACE
         config['action_space'] = self.ACTION_SPACE
+        config['learning_rate'] = self.LEARNING_RATE
 
         self.network = Network.select(**config)
 
@@ -278,7 +279,7 @@ class CerebellumSupervisedLearning(threading.Thread):
         for state, user_action, terminal_state in batch:
 
             # Output of the neural network (q values) given the state
-            state = np.reshape(state, (1, 15))
+            state = np.reshape(state, (-1, 33, 128, 3))
             user_action = np.reshape(user_action, (1, 2))
 
             loss.append(self.fit(state, user_action))

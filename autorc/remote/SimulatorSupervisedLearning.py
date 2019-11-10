@@ -138,7 +138,7 @@ class Simulator(Thread):
         if 'Darwin' in platform.platform():
             self.calibration_parser.read(r"/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
         else:
-            self.calibration_parser.read(r"/home/veda/git/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+            self.calibration_parser.read(r"/home/zhxl0903/Github/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
 
         self.rgb_l = [
             int(self.calibration_parser.get('splitter_parameters', 'l_h')),
@@ -670,7 +670,7 @@ class Simulator(Thread):
         # Computing reward and loss
         # reward = self.cortex.compute_reward(action["action"][0], action["action"][1])
         reward = self.cortex.compute_reward(action[0], action[1])
-        self.cerebellum.remember(self.vectorized_state, self.drive_frame, self.cortex.observation_space['terminal'])
+        self.cerebellum.remember(self.raw_state, self.drive_frame, self.cortex.observation_space['terminal'])
         avg_loss = self.cerebellum.experience_replay()
         self.loss.set('%.8f' %  avg_loss)
 
@@ -693,7 +693,7 @@ if __name__ == '__main__':
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/"
     else:
-        data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data"
+        data_path = r"/home/zhxl0903/Github/AutoRC-Core/autorc/sample_data"
 
     simulator = Simulator(data_path)
     simulator.run()
