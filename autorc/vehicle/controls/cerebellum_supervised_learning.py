@@ -25,7 +25,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     Cerebellum runs a supervised learning learning neural network
     """
 
-    MODEL_DIR = os.path.join(str(Path.home()), "git", "AutoRC-Core", "autorc", "models")
+    MODEL_DIR = os.path.join(str(Path.home()), "Github", "AutoRC-Core", "autorc", "models")
 
     MEMORY_SIZE = 1000000
 
@@ -50,7 +50,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     ADD_GLOBAL = GLOBAL_STEP.assign_add(1)
 
     # Turns off dropout if not TRAINING_MODE
-    TRAINING_MODE = False
+    TRAINING_MODE = True
 
     def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True,
                  save=False):
