@@ -14,8 +14,8 @@ class DenseNet:
             return tf.Variable(initial)
 
         # The input to the network is a 15x1 matrix
-        self.x_in = tf.placeholder(tf.float32, shape=[None, kwargs['observation_space'])
-        self.exp_y = tf.placeholder(tf.float32, shape=[None, kwargs['action_space'])
+        self.x_in = tf.placeholder(tf.float32, shape=[None, kwargs['observation_space']])
+        self.exp_y = tf.placeholder(tf.float32, shape=[None, kwargs['action_space']])
 
         self.h_fc1 = tf.layers.dense(self.x_in, 512, activation=tf.nn.relu,
                                      kernel_initializer=tf.initializers.he_normal())

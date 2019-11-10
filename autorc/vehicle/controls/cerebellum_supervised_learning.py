@@ -55,7 +55,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     TRAINING_MODE = False
 
     # Network Type
-    self.NETWORK_TYPE = "ConvNet"
+    NETWORK_TYPE = "ConvNet"
 
     def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True,
                  save=False):

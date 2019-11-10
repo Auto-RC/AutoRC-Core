@@ -1,46 +1,61 @@
 import tensorflow as tf
 
+
 class ConvNet:
 
     def __init__(self, **kwargs):
 
-        # Neural network configuration
-        def weight_variable(shape, output_layer=False):
-            initial = tf.truncated_normal(shape, stddev=.5)
-            return tf.Variable(initial)
-
-        def bias_variable(shape):
-            initial = tf.constant(0, shape=shape)
-            return tf.Variable(initial)
-
         # The input to the network is a 15x1 matrix
-        self.x_in = tf.placeholder(tf.float32, shape=[None, kwargs['observation_space'])
-        self.exp_y = tf.placeholder(tf.float32, shape=[None, kwargs['action_space'])
+        self.x_in = tf.placeholder(tf.float32, shape=[None, 128, 96, 3])
+        self.exp_y = tf.placeholder(tf.float32, shape=[None, kwargs['action_space']])
 
-        self.h_fc1 = tf.layers.dense(self.x_in, 512, activation=tf.nn.relu,
-                                     kernel_initializer=tf.initializers.he_normal())
+        self.n_channels = 8
 
-        # Adding randomness
-        self.h_fc1_dropout = tf.nn.dropout(self.h_fc1, keep_prob=kwargs['keep_prob'])
+        self.conv1_1 = tf.layers.conv2d(self.x_in, (3, 3), self.n_channels, stride=(1, 1), padding='same',
+                                        activation=tf.nn.relu,
+                                        kernel_initializer=tf.initializers.he_normal())
 
-        self.h_fc2 = tf.layers.dense(self.h_fc1_dropout, 512, activation=tf.nn.relu,
-                                     kernel_initializer=tf.initializers.he_normal())
+        self.conv1_2 = tf.layers.conv2d(self.conv1_1, (3, 3), self.n_channels, stride=(1, 1), padding='same',
+                                        activation=tf.nn.relu,
+                                        kernel_initializer=tf.initializers.he_normal())
 
-        # # Adding randomness
-        self.h_fc2_dropout = tf.nn.dropout(self.h_fc2, keep_prob=kwargs['keep_prob'])
-        #
-        self.h_fc3 = tf.layers.dense(self.h_fc2_dropout, 512, activation=tf.nn.relu,
-                                     kernel_initializer=tf.initializers.he_normal())
-        #
-        # # Adding randomness
-        self.h_fc3_dropout = tf.nn.dropout(self.h_fc3, keep_prob=kwargs['keep_prob'])
+        # 64 x 48
+        self.max_pool1 = tf.layers.max_pooling2d(self.conv1_2, (2, 2), stride=(2, 2))
 
-        # Output of the network is a 99x1 matrix
-        # self.y_out = tf.layers.dense(self.h_fc3_dropout, 99, kernel_initializer=tf.contrib.layers.xavier_initializer())
-        self.y_out = tf.layers.dense(self.h_fc3_dropout, 2,
-                                     kernel_initializer=tf.contrib.layers.xavier_initializer())
+        self.conv2_1 = tf.layers.conv2d(self.max_pool1, (3, 3), self.n_channels * 2, stride=(1, 1), padding='same',
+                                        activation=tf.nn.relu,
+                                        kernel_initializer=tf.initializers.he_normal())
+
+        self.conv2_2 = tf.layers.conv2d(self.conv2_1, (3, 3), self.n_channels * 2, stride=(1, 1), padding='same',
+                                        activation=tf.nn.relu,
+                                        kernel_initializer=tf.initializers.he_normal())
+
+        # 32 x 24
+        self.max_pool2 = tf.layers.max_pooling2d(self.conv2_2, (2, 2), stride=(2, 2))
+
+        self.conv3_1 = tf.layers.conv2d(self.max_pool2, (3, 3), self.n_channels * 4, stride=(1, 1), padding='same',
+                                        activation=tf.nn.relu,
+                                        kernel_initializer=tf.initializers.he_normal())
+
+        self.conv3_2 = tf.layers.conv2d(self.conv3_1, (3, 3), self.n_channels * 4, stride=(1, 1), padding='same',
+                                        activation=tf.nn.relu,
+                                        kernel_initializer=tf.initializers.he_normal())
+
+        # 16 x 12
+        self.max_pool3 = tf.layers.max_pooling2d(self.conv3_2, (2, 2), stride=(2, 2))
+
+        self.fc_in = tf.layers.flatten(self.max_pool3)
+        self.fc1 = tf.layers.dense(self.fc_in, 256, activation=tf.nn.relu,
+                                   kernel_initializer=tf.initializers.he_normal())
+        self.fc1_dropout = tf.nn.dropout(self.fc1, keep_prob=kwargs['keep_prob'])
+        self.fc2 = tf.layers.dense(self.fc1, 256, activation=tf.nn.relu,
+                                   kernel_initializer=tf.initializers.he_normal())
+        self.fc2_dropout = tf.nn.dropout(self.fc2, keep_prob=kwargs['keep_prob'])
+        self.fc3 = tf.layers.dense(self.fc2, 2, activation=tf.nn.sigmoid,
+                                   kernel_initializer=tf.contrib.layers.xavier_initializer())
+        self.y_out = self.fc3
 
         self.loss = tf.losses.sigmoid_cross_entropy(self.exp_y, self.y_out)
-        self.train_step = tf.train.MomentumOptimizer(self.LEARNING_RATE, momentum=0.95).minimize(self.loss)
+        self.train_step = tf.train.AdamOptimizer(learning_rate=kwargs['learning_rate']).minimize(self.loss)
         # self.sq_error = tf.losses.mean_squared_error(self.exp_y, self.y_out)
         self.graph = tf.get_default_graph()
