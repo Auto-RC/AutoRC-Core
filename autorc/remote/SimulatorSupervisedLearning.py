@@ -116,7 +116,7 @@ class Simulator(Thread):
 
     def init_recall(self):
 
-        file_timestamp = "2019-11-09 20;34;31.051699"
+        file_timestamp = "2019-11-09 20;54;16.865105"
 
         self.vision_recall = Recall(self.data_path, file_timestamp, "vision")
         self.vision_recall.load()

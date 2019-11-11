@@ -190,8 +190,9 @@ class CerebellumSupervisedLearning(threading.Thread):
 
         print('Input:', x_in)
 
+        x_input = np.reshape(x_in, (-1, 33, 128, 3))
         output = self.network.y_out
-        network_out = self.sess.run(tf.nn.sigmoid(output), feed_dict={self.network.x_in: x_in})
+        network_out = self.sess.run(tf.nn.sigmoid(output), feed_dict={self.network.x_in: x_input})
 
         # 0: Steering [-1, 1] -> [0, 1]
         # 1: Throttle [0, 1]
