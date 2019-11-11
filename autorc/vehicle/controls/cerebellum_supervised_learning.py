@@ -45,7 +45,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     GLOBAL_STEP = tf.Variable(0, trainable=False)
 
-    LEARNING_RATE = tf.train.exponential_decay(1e-2,
+    LEARNING_RATE = tf.train.exponential_decay(1e-3,
                                                global_step=GLOBAL_STEP,
                                                decay_steps=5000, decay_rate=0.8)
 

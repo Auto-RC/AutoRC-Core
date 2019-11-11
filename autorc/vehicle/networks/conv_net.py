@@ -48,10 +48,10 @@ class ConvNet:
         self.fc1 = tf.layers.dense(self.fc_in, 256, activation=tf.nn.relu,
                                    kernel_initializer=tf.initializers.he_normal())
         self.fc1_dropout = tf.nn.dropout(self.fc1, keep_prob=kwargs['keep_prob'])
-        self.fc2 = tf.layers.dense(self.fc1, 256, activation=tf.nn.relu,
+        self.fc2 = tf.layers.dense(self.fc1_dropout, 256, activation=tf.nn.relu,
                                    kernel_initializer=tf.initializers.he_normal())
         self.fc2_dropout = tf.nn.dropout(self.fc2, keep_prob=kwargs['keep_prob'])
-        self.fc3 = tf.layers.dense(self.fc2, 2, activation=tf.nn.sigmoid,
+        self.fc3 = tf.layers.dense(self.fc2_dropout, 2,
                                    kernel_initializer=tf.contrib.layers.xavier_initializer())
         self.y_out = self.fc3
 
