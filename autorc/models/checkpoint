@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/zhxl0903/Github/AutoRC-Core/autorc/models/M1_20191109.ckpt"
+all_model_checkpoint_paths: "/home/zhxl0903/Github/AutoRC-Core/autorc/models/M1_20191109.ckpt"

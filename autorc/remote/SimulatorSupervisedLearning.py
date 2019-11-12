@@ -16,6 +16,7 @@ from tkinter import *
 from threading import Thread
 import time
 import platform
+import numpy as np
 
 from configparser import ConfigParser
 
@@ -653,7 +654,7 @@ class Simulator(Thread):
     def update_predictions(self):
 
         # Updating the state
-        self.raw_state = self.cortex.get_raw_state()
+        self.raw_state = self.cortex.get_raw_state() / 255.0
         self.cerebellum.update_state(self.raw_state)
 
         # Getting the machine computed action
@@ -665,7 +666,7 @@ class Simulator(Thread):
         print('Drive frame:', self.drive_frame)
         # Getting the user action
         self.user_throttle.set('%.2f' % self.drive_frame[1])
-        self.user_steering.set('%.2f' % ((self.drive_frame[0] + 1.0) / 2.0))
+        self.user_steering.set('%.2f' % self.drive_frame[0])
 
         # Computing reward and loss
         # reward = self.cortex.compute_reward(action["action"][0], action["action"][1])

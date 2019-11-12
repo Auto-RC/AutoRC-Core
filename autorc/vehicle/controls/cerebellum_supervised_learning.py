@@ -45,9 +45,9 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     GLOBAL_STEP = tf.Variable(0, trainable=False)
 
-    LEARNING_RATE = tf.train.exponential_decay(1e-3,
+    LEARNING_RATE = tf.train.exponential_decay(1e-2,
                                                global_step=GLOBAL_STEP,
-                                               decay_steps=5000, decay_rate=0.8)
+                                               decay_steps=50000, decay_rate=0.8)
 
     ADD_GLOBAL = GLOBAL_STEP.assign_add(1)
 
@@ -87,8 +87,8 @@ class CerebellumSupervisedLearning(threading.Thread):
         # Default is no auto mode
         self.auto = False
 
-        # Initializing empty state
-        self.state = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+        # Initializing empty state as None
+        self.state = None
 
         self.init_action_space()
 
@@ -196,7 +196,14 @@ class CerebellumSupervisedLearning(threading.Thread):
 
         # 0: Steering [-1, 1] -> [0, 1]
         # 1: Throttle [0, 1]
+
+        # Converts sterring to [-1, 1]
+        network_out = np.copy(network_out)
+        network_out[0, 0] = (network_out[0, 0] * 2.0) - 1.0
         print('Prediction: ', network_out)
+
+
+
 
         # Converting the one hot encoding back to a throttle and steering value
         # print("MACHINE ACTION: {}".format(np.argmax(network_out)))
@@ -298,7 +305,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     def update_state(self, state):
 
-        self.state = np.array([state])
+        self.state = np.array(state)
 
     def compute_controls(self):
 
