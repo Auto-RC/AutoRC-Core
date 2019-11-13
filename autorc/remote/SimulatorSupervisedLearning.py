@@ -35,7 +35,7 @@ class Simulator(Thread):
     RESIZE_FACTOR = 3
 
     LOAD = True
-    SAVE = True
+    SAVE = False
 
     def __init__(self, data_path):
 
@@ -117,7 +117,7 @@ class Simulator(Thread):
 
     def init_recall(self):
 
-        file_timestamp = "2019-11-09 20;34;31.051699"
+        file_timestamp = "2019-11-09 20;54;16.865105"
 
         self.vision_recall = Recall(self.data_path, file_timestamp, "vision")
         self.vision_recall.load()
@@ -139,7 +139,7 @@ class Simulator(Thread):
         if 'Darwin' in platform.platform():
             self.calibration_parser.read(r"/Users/arnavgupta/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
         else:
-            self.calibration_parser.read(r"/home/zhxl0903/Github/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
+            self.calibration_parser.read(r"/home/veda/git/AutoRC-Core/autorc/vehicle/vision/calibration.ini")
 
         self.rgb_l = [
             int(self.calibration_parser.get('splitter_parameters', 'l_h')),
@@ -694,7 +694,7 @@ if __name__ == '__main__':
     if 'Darwin' in platform.platform():
         data_path = "/Users/arnavgupta/car_data/raw_npy/"
     else:
-        data_path = r"/home/zhxl0903/Github/AutoRC-Core/autorc/sample_data"
+        data_path = r"/home/veda/git/AutoRC-Core/autorc/sample_data"
 
     simulator = Simulator(data_path)
     simulator.run()
