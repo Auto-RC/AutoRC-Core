@@ -78,14 +78,13 @@ class Simulator(Thread):
         self.loss_moving_avg = 0
         self.reward_moving_avg = 0
 
-        self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, drive)
-        self.cortex.enable()
-        self.cortex.start()
 
         time.sleep(1)
-        self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=self.SAVE)
-        # self.cerebellum.auto = True
-        # self.cerebellum.start()
+        self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, corti, model_name, mode, load=self.LOAD, save=self.SAVE)
+
+        self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, drive, self.cerebellum)
+        self.cortex.enable()
+        self.cortex.start()
 
         # Init UI
         self.init_ui()
@@ -111,13 +110,13 @@ class Simulator(Thread):
 
         # Init Canvas
         self.init_canvas()
-        self.img_index = 0
+        self.img_index = 40
         self.change_img(self.img_index)
         self.update_img()
 
     def init_recall(self):
 
-        file_timestamp = "2019-11-09 20;54;16.865105"
+        file_timestamp = "2019-11-09 20;34;31.051699"
 
         self.vision_recall = Recall(self.data_path, file_timestamp, "vision")
         self.vision_recall.load()
@@ -484,8 +483,8 @@ class Simulator(Thread):
             self.processed = self.cortex.retina.frame
             self.img = ImageTk.PhotoImage(self.resize_im(self.processed))
 
-            self.update_vision()
             self.update_predictions()
+            self.update_vision()
 
             self.update_img()
             self.logger.info("Image {} opened".format(self.img_index))
@@ -658,8 +657,8 @@ class Simulator(Thread):
         self.cerebellum.update_state(self.raw_state)
 
         # Getting the machine computed action
-        action = self.cerebellum.compute_controls()[0]
-        print('Action', action)
+        action = self.cortex.compute_controls()
+        print("Action: {}".format(action))
         self.computed_throttle.set('%.2f' % action[1])
         self.computed_steering.set('%.2f' % action[0])
 

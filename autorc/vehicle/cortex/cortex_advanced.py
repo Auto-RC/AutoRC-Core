@@ -18,7 +18,9 @@ class CortexAdvanced(threading.Thread):
     Cortex provides perception via vision and inertial systems
     """
 
-    def __init__(self, update_interval_ms, oculus, corti, drive, mode="simulation"):
+    CONTROL_OPTIMIZATION = True
+
+    def __init__(self, update_interval_ms, oculus, corti, drive, cerebellum, mode="simulation"):
 
         """
         Constructor
@@ -42,6 +44,7 @@ class CortexAdvanced(threading.Thread):
         self.corti = corti
         self.drive = drive
         self.oculus = oculus
+        self.cerebellum = cerebellum
 
         # Lap History
         self.lap_history = LapHistory(memory_size = 5)
@@ -56,22 +59,22 @@ class CortexAdvanced(threading.Thread):
 
         # Observation feature existence
         self.observation_space = dict()
-        self.observation_space['left_lane_present'] = None
-        self.observation_space['right_lane_present'] = None
-        self.observation_space['splitter_present'] = None
-        self.observation_space['vehicle_offroad'] = None
+        self.observation_space['left_lane_present'] = 1
+        self.observation_space['right_lane_present'] = 1
+        self.observation_space['splitter_present'] = 1
+        self.observation_space['vehicle_offroad'] = 0
 
         # Position Observations
-        self.observation_space['left_lane_position'] = None
-        self.observation_space['right_lane_position'] = None
-        self.observation_space['splitter_position'] = None
-        self.observation_space['vehicle_position'] = None
+        self.observation_space['left_lane_position'] = -50
+        self.observation_space['right_lane_position'] = 50
+        self.observation_space['splitter_position'] = 0
+        self.observation_space['vehicle_position'] = 0
 
         # Angle observations
-        self.observation_space['left_lane_angle'] = None
-        self.observation_space['right_lane_angle'] = None
-        self.observation_space['splitter_angle'] = None
-        self.observation_space['vehicle_angle'] = None
+        self.observation_space['left_lane_angle'] = 70
+        self.observation_space['right_lane_angle'] = -70
+        self.observation_space['splitter_angle'] = 0
+        self.observation_space['vehicle_angle'] = 0
 
         # Observation space acceleration
         self.observation_space['x_acceleration'] = 0
@@ -79,9 +82,12 @@ class CortexAdvanced(threading.Thread):
         self.observation_space['z_acceleration'] = 0
 
         # Observation space user controls
-        self.observation_space['user_throttle'] = None
-        self.observation_space['user_steering'] = None
+        self.observation_space['user_throttle'] = 0
+        self.observation_space['user_steering'] = 0.5
         self.observation_space['terminal'] = 0
+
+        # Initializing previous observation state
+        self.prev_observation_space = self.observation_space
 
         # Reward
         self.reward = 0
@@ -116,6 +122,8 @@ class CortexAdvanced(threading.Thread):
 
             # Adding the current snapshot to the track history
             self.lap_history.add_road_snapshot(road)
+
+            self.prev_observation_space = self.observation_space
 
             self.observation_space['left_lane_present'] = road.left_lane.present
             self.observation_space['right_lane_present'] = road.right_lane.present
@@ -329,6 +337,126 @@ class CortexAdvanced(threading.Thread):
     def get_raw_state(self):
 
         return self.retina.frame
+
+    def compute_controls(self):
+
+        action = self.cerebellum.compute_controls()[0]
+        raw_str = action[0]
+        raw_thr = action[1]
+
+        print("raw_thr: {} raw_str: {}".format(raw_thr, raw_str))
+
+        self.thr = raw_thr
+        self.str = raw_str
+
+        try:
+
+            if (self.CONTROL_OPTIMIZATION) and (self.check_retina_confidence() == 1):
+
+                    self.thr = self.optimize_throttle(raw_thr, raw_str)
+                    self.str = self.correct_steering(raw_str)
+
+                    print("Updated throttle from {} to {}".format(raw_thr, self.thr))
+                    print("Updated steering from {} to {}".format(raw_str, self.str))
+
+        except Exception as e:
+            print(e)
+            pass
+
+        # Bounding Throttle
+        self.thr = min(self.thr, 1)
+
+        # Bounding steering
+        if self.str > 1:
+            self.str = 1
+        elif self.str < -1:
+            self.str = -1
+
+        print("thr: {} str: {}".format(self.thr, self.str))
+
+        return [self.str, self.thr]
+
+    def check_retina_confidence(self):
+
+        """
+        1) If splitter_angle is more than 80deg or less than -80def then low confidence
+        2) If vehicle angle > 0.8 and vehicle angle < 0.8 the low confidence
+        3) If abs(splitter_angle - prev_splitter_angle) > 40deg then low confidence
+        4) If abs(vehicle_angle - prev_vehicle_angle) > 0.3 then low confidence
+        """
+
+        splitter_angle_diff = abs(self.observation_space['splitter_angle'] - self.prev_observation_space['splitter_angle'])
+        vehicle_position_diff = abs(self.observation_space['vehicle_position'] - self.prev_observation_space['vehicle_position'])
+
+        if (self.observation_space['splitter_angle'] < -80) or (self.observation_space['splitter_angle'] > 80):
+            self.confidence = 0
+            print("Confidence is zero based on splitter angle")
+        elif (self.observation_space['vehicle_position'] < -1) or (self.observation_space['vehicle_position'] > 1):
+            self.confidence = 0
+            print("Confidence is zero based on vehicle position")
+        elif (splitter_angle_diff > 40):
+            self.confidence = 0
+            print("Confidence is zero based on splitter diff")
+        elif (vehicle_position_diff > 0.3):
+            self.confidence = 0
+            print("Confidence is zero based on vehicle position diff")
+        else:
+            self.confidence = 1
+
+        print("Retina confidence is {}".format(self.confidence))
+
+        return self.confidence
+
+    def optimize_throttle(self, throttle, steering):
+
+        """
+        Checking if there is an opportuinity for the vehicle to increase
+        throttle based on splitter angle and vehicle position
+        """
+
+        if (abs(steering) > 0.5) and (throttle > 0.3):
+            throttle = 0.3
+
+        elif (abs(steering) < 0.5):
+
+            if (self.observation_space['splitter_angle'] < 10) and (self.observation_space['splitter_angle'] > -10):
+                throttle += 0.2
+
+                if (self.observation_space['vehicle_position'] < 0.2) or (self.observation_space['vehicle_angle'] > -0.2):
+                    throttle += 0.1
+
+            elif (self.observation_space['vehicle_position'] < 0.2) or (self.observation_space['vehicle_angle'] > -0.2):
+                throttle += 0.1
+
+        return throttle
+
+    def correct_steering(self, steering):
+
+        if (self.observation_space['vehicle_position'] < 0) and (self.observation_space['splitter_angle'] > 25):
+            if (steering < 0):
+                steering += 0.3
+            elif (steering > 0):
+                steering += 0.1
+
+        elif (self.observation_space['vehicle_position'] > 0) and (self.observation_space['splitter_angle'] < -25):
+            if (steering > 0):
+                steering -= 0.3
+            elif (steering < 0):
+                steering -= 0.1
+
+        # elif (self.observation_space['vehicle_position'] < -0.25) and (self.observation_space['splitter_angle'] < -50):
+        #     steering -= 0.05
+        #
+        # elif (self.observation_space['vehicle_position'] > 0.25) and (self.observation_space['splitter_angle'] > 50):
+        #     steering += 0.05
+
+        elif (self.observation_space['vehicle_position'] > 0.1):
+            steering -= 0.1
+
+        elif (self.observation_space['vehicle_position'] < -0.1):
+            steering += 0.1
+
+        return steering
 
     def run(self):
 

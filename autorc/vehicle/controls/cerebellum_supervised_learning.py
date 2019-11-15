@@ -57,7 +57,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     # Network Type
     NETWORK_TYPE = "ConvNet"
 
-    def __init__(self, update_interval_ms, controller, cortex, corti, model_name, imitation=True, load=True,
+    def __init__(self, update_interval_ms, controller, corti, model_name, imitation=True, load=True,
                  save=False):
 
         """
@@ -94,7 +94,6 @@ class CerebellumSupervisedLearning(threading.Thread):
 
         # External vehicle interfaces
         self.controller = controller
-        self.cortex = cortex
         self.corti = corti
 
         # The number of episodes to store
@@ -155,7 +154,7 @@ class CerebellumSupervisedLearning(threading.Thread):
                 min_str_error = abs(str_values - str)
 
         index = thr_index * len(self.STR_ACTIONS) + str_index - 1
-        print("User Action Index: {}".format(index))
+        # print("User Action Index: {}".format(index))
         return index
 
     def gen_one_hot(self, index):
@@ -188,7 +187,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     def predict(self, x_in):
 
-        print('Input:', x_in)
+        # print('Input:', x_in)
 
         x_input = np.reshape(x_in, (-1, 33, 128, 3))
         output = self.network.y_out
@@ -200,7 +199,7 @@ class CerebellumSupervisedLearning(threading.Thread):
         # Converts sterring to [-1, 1]
         network_out = np.copy(network_out)
         network_out[0, 0] = (network_out[0, 0] * 2.0) - 1.0
-        print('Prediction: ', network_out)
+        # print('Prediction: ', network_out)
 
 
 
@@ -222,11 +221,11 @@ class CerebellumSupervisedLearning(threading.Thread):
         exp_y[0] = (exp_y[0] + 1.0) / 2.0
         exp_y = np.concatenate(exp_y, axis=-1)
 
-        print('Label: ', exp_y)
+        # print('Label: ', exp_y)
 
         loss, _, _, learning_rate = self.sess.run([self.network.loss, self.network.train_step, self.ADD_GLOBAL, self.LEARNING_RATE],
                                                   feed_dict={self.network.x_in: x_in, self.network.exp_y: exp_y})
-        print('Learning Rate: {}'.format(learning_rate))
+        # print('Learning Rate: {}'.format(learning_rate))
 
         return loss
 
