@@ -304,9 +304,9 @@ class CerebellumSupervisedLearning(threading.Thread):
         # Returning the average loss if loss list is not empty
         return np.mean(loss)
 
-    def update_state(self, state):
+    def update_state(self):
 
-        self.state = np.array(state)
+        self.state = self.cortex.get_raw_state() / 255.0
 
     def compute_controls(self):
 
@@ -320,6 +320,7 @@ class CerebellumSupervisedLearning(threading.Thread):
                 self.thr = self.controller.thr
                 self.str = self.controller.str
             elif self.auto == True:
+                self.update_state()
                 self.thr, self.str = self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)
