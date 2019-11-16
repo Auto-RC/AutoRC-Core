@@ -363,6 +363,9 @@ class Retina():
         print(self.contours.shape)
 
         for c in self.contours:
+            print("{} {}".format(c.shape, c))
+
+        for c in self.contours:
 
             rect = cv2.minAreaRect(c)
             box = cv2.boxPoints(rect)
