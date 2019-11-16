@@ -216,6 +216,9 @@ class AutoRC(threading.Thread):
 
         logger.debug("AutoRC live")
 
+        self.cortex.enable()
+        self.enable_cortex = True
+
         while True:
 
             if self.enable_auto == True:
@@ -247,11 +250,11 @@ class AutoRC(threading.Thread):
             if (self.controller.swb > 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
                 self.toggle_corti()
-                self.toggle_cortex()
+                # self.toggle_cortex()
             elif(self.controller.swb < 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
                 self.toggle_corti()
-                self.toggle_cortex()
+                # self.toggle_cortex()
 
 
             # SWC Top Position
