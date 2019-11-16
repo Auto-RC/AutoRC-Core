@@ -313,8 +313,6 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     def run(self):
 
-        time.sleep(2000)
-
         while True:
 
             if self.auto == False:
