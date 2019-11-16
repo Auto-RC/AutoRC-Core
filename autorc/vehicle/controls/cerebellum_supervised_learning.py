@@ -323,6 +323,6 @@ class CerebellumSupervisedLearning(threading.Thread):
                 self.str = self.controller.str
             elif self.auto == True:
                 self.update_state()
-                self.thr, self.str = self.compute_controls()
+                self.str, self.thr = self.compute_controls()
 
             time.sleep(self.update_interval_ms / 1000)
