@@ -188,8 +188,8 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     def predict(self, x_in):
 
-        print('Input:', x_in)
-        print('Input: {}', x_in.shape)
+        # print('Input:', x_in)
+        # print('Input: {}', x_in.shape)
 
         x_input = np.reshape(x_in, (-1, 33, 128, 3))
         output = self.network.y_out
@@ -223,11 +223,11 @@ class CerebellumSupervisedLearning(threading.Thread):
         exp_y[0] = (exp_y[0] + 1.0) / 2.0
         exp_y = np.concatenate(exp_y, axis=-1)
 
-        print('Label: ', exp_y)
+        # print('Label: ', exp_y)
 
         loss, _, _, learning_rate = self.sess.run([self.network.loss, self.network.train_step, self.ADD_GLOBAL, self.LEARNING_RATE],
                                                   feed_dict={self.network.x_in: x_in, self.network.exp_y: exp_y})
-        print('Learning Rate: {}'.format(learning_rate))
+        # print('Learning Rate: {}'.format(learning_rate))
 
         return loss
 
