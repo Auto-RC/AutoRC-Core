@@ -358,6 +358,8 @@ class Retina():
         splitter_c = []
         lanes = []
 
+        print(c)
+
         for c in self.contours:
 
             rect = cv2.minAreaRect(c)
