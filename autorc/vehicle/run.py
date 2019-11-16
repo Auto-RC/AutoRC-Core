@@ -197,8 +197,8 @@ class AutoRC(threading.Thread):
 
         if 'drive' in self.modules:
 
-            steering = self.drive.steering
-            throttle = self.drive.throttle
+            steering = self.cerebellum.str
+            throttle = self.cerebellum.thr
             data_packet['drive'] = [steering, throttle]
 
         if 'corti' in self.modules:
@@ -238,8 +238,8 @@ class AutoRC(threading.Thread):
                     "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
                         .format(
                         self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                        self.enable_memory, self.enable_cortex, self.controller.thr,
-                        self.controller.str, self.controller.swb,
+                        self.enable_memory, self.enable_cortex, self.cerebellum.thr,
+                        self.cerebellum.str, self.controller.swb,
                         self.controller.swc
                     )
                 )
