@@ -359,6 +359,7 @@ class Retina():
         lanes = []
 
         print(self.contours)
+        print(self.contours.shape)
 
         for c in self.contours:
 
