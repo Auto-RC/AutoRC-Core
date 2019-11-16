@@ -129,6 +129,9 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.str = 0
         self.thr = 0
 
+        self.str_comp = 0
+        self.thr_comp = 0
+
     def init_action_space(self):
 
         self.ACTIONS = dict()
