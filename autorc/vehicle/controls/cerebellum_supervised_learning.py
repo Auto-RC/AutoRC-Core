@@ -129,6 +129,12 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.str = 0
         self.thr = 0
 
+        self.str_prev = 0
+        self.thr_prev = 0
+
+        self.str_comp = 0
+        self.thr_comp = 0
+
     def init_action_space(self):
 
         self.ACTIONS = dict()
@@ -263,9 +269,122 @@ class CerebellumSupervisedLearning(threading.Thread):
         """
 
         # If randomness is below threshold choose a random action
-        action = self.predict(state)
+        # action = self.predict(state)
 
-        return action
+        # Setting steering based on splitter angle
+        if (self.cortex.observation_space['splitter_angle'] != None) and \
+                (self.cortex.observation_space['vehicle_position'] != None):
+
+            splitter_input = self.cortex.observation_space['splitter_angle']
+            if splitter_input > 80:
+                splitter_input = 80
+            elif splitter_input < -80:
+                splitter_input = -80
+
+            position_input = -1*self.cortex.observation_space['vehicle_position']
+            if position_input > 1:
+                position_input = 1
+            elif position_input < -1:
+                position_input = -1
+
+            if (splitter_input < 0) and (position_input > 0):
+                A = 0.5
+                B = 0.5
+            elif (splitter_input > 0) and (position_input < 0):
+                A = 0.5
+                B = 0.5
+            elif (splitter_input < 20) and (splitter_input > -20):
+                A = 0.1
+                B = 0.9
+            else:
+                A = 0.6
+                B = 0.4
+
+            P_str = 1.2
+            print("{} {}".format(A*(splitter_input / 80),B*(position_input)))
+            self.str = (A*(splitter_input / 80)+B*(position_input)) * P_str
+
+            # Setting throttle based on steering magnitude
+            # The more the steering magnitude the more less the throttle
+            P_thr = 0.5
+            self.thr = (1 - abs(self.str)) * P_thr
+
+            # self.str = self.observation_space['splitter_angle']
+
+            # Bounding Throttle
+            self.thr = min(self.thr, 1)
+
+            # Bounding steering
+            if self.str > 1:
+                self.str = 1
+            elif self.str < -1:
+                self.str = -1
+
+            action = [self.str, self.thr]
+
+        elif (self.cortex.observation_space['splitter_angle'] != None):
+
+            splitter_input = self.cortex.observation_space['splitter_angle']
+            if splitter_input > 80:
+                splitter_input = 80
+            elif splitter_input < -80:
+                splitter_input = -80
+
+            P_str = 0.5
+            self.str = (splitter_input / 80) * P_str
+
+            # Setting throttle based on steering magnitude
+            # The more the steering magnitude the more less the throttle
+            P_thr = 0.5
+            self.thr = (1 - abs(self.str)) * P_thr
+
+            # self.str = self.observation_space['splitter_angle']
+
+            # Bounding Throttle
+            self.thr = min(self.thr, 1)
+
+            # Bounding steering
+            if self.str > 1:
+                self.str = 1
+            elif self.str < -1:
+                self.str = -1
+
+            action = [self.str, self.thr]
+
+        elif (self.cortex.observation_space['vehicle_position'] != None):
+
+            position_input = -1 * self.cortex.observation_space['vehicle_position']
+            if position_input > 1:
+                position_input = 1
+            elif position_input < -1:
+                position_input = -1
+
+            P_str = 0.5
+            self.str = position_input * P_str
+
+            # Setting throttle based on steering magnitude
+            # The more the steering magnitude the more less the throttle
+            P_thr = 0.5
+            self.thr = (1 - abs(self.str)) * P_thr
+
+            # self.str = self.observation_space['splitter_angle']
+
+            # Bounding Throttle
+            self.thr = min(self.thr, 1)
+
+            # Bounding steering
+            if self.str > 1:
+                self.str = 1
+            elif self.str < -1:
+                self.str = -1
+
+            action = [self.str, self.thr]
+
+            # print("{} {}".format(self.cortex.observation_space['steering_angle'], action))
+        else:
+            action = [self.str_prev, self.thr_prev]
+
+        return [action]
 
     def experience_replay(self):
 
@@ -325,8 +444,12 @@ class CerebellumSupervisedLearning(threading.Thread):
             if self.auto == False:
                 self.thr = self.controller.thr
                 self.str = self.controller.str
+                self.thr_comp = self.controller.thr
+                self.str_comp = self.controller.str
             elif self.auto == True:
                 self.update_state()
                 self.str, self.thr = self.compute_controls()
-
+                # self.thr = self.controller.thr
+                # self.str = self.controller.str
+            #
             time.sleep(self.update_interval_ms / 1000)
