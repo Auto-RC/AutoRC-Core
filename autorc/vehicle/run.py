@@ -197,8 +197,8 @@ class AutoRC(threading.Thread):
 
         if 'drive' in self.modules:
 
-            steering = self.cerebellum.str
-            throttle = self.cerebellum.thr
+            steering = self.cerebellum.str_comp
+            throttle = self.cerebellum.thr_comp
             data_packet['drive'] = [steering, throttle]
 
         if 'corti' in self.modules:
@@ -217,9 +217,11 @@ class AutoRC(threading.Thread):
         logger.debug("AutoRC live")
 
         self.cortex.enable()
-        self.corti.enable()
         self.enable_cortex = True
         self.modules.append('drive')
+
+        self.corti.enable()
+        self.enable_corti = True
         self.modules.append('corti')
 
         while True:
@@ -252,12 +254,8 @@ class AutoRC(threading.Thread):
 
             if (self.controller.swb > 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
-                # self.toggle_corti()
-                # self.toggle_cortex()
             elif(self.controller.swb < 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
-                # self.toggle_corti()
-                # self.toggle_cortex()
 
 
             # SWC Top Position
