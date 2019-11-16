@@ -340,28 +340,43 @@ class CortexAdvanced(threading.Thread):
 
     def compute_controls(self):
 
-        action = self.cerebellum.compute_controls()[0]
-        raw_str = action[0]
-        raw_thr = action[1]
+        # action = self.cerebellum.compute_controls()[0]
+        # raw_str = action[0]
+        # raw_thr = action[1]
 
-        print("raw_thr: {} raw_str: {}".format(raw_thr, raw_str))
+        # print("raw_thr: {} raw_str: {}".format(raw_thr, raw_str))
 
-        self.thr = raw_thr
-        self.str = raw_str
+        # self.thr = raw_thr
+        # self.str = raw_str
 
-        try:
+        # try:
+        #
+        #     if (self.CONTROL_OPTIMIZATION) and (self.check_retina_confidence() == 1):
+        #
+        #             self.thr = self.optimize_throttle(raw_thr, raw_str)
+        #             self.str = self.correct_steering(raw_str)
+        #
+        #             print("Updated throttle from {} to {}".format(raw_thr, self.thr))
+        #             print("Updated steering from {} to {}".format(raw_str, self.str))
+        #
+        # except Exception as e:
+        #     print(e)
+        #     pass
 
-            if (self.CONTROL_OPTIMIZATION) and (self.check_retina_confidence() == 1):
+        # Setting steering based on splitter angle
+        str_input = self.observation_space['splitter_angle']
+        if str_input > 80: str_input = 80
+        elif str_input < -80: str_input = -80
 
-                    self.thr = self.optimize_throttle(raw_thr, raw_str)
-                    self.str = self.correct_steering(raw_str)
+        P_str = 0.5
+        str = (str_input/80)*P_str
 
-                    print("Updated throttle from {} to {}".format(raw_thr, self.thr))
-                    print("Updated steering from {} to {}".format(raw_str, self.str))
+        # Setting throttle based on steering magnitude
+        # The more the steering magnitude the more less the throttle
+        P_thr = 0.5
+        thr =  (1 - abs(str))*P_thr
 
-        except Exception as e:
-            print(e)
-            pass
+        # self.str = self.observation_space['splitter_angle']
 
         # Bounding Throttle
         self.thr = min(self.thr, 1)
