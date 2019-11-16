@@ -232,8 +232,8 @@ class AutoRC(threading.Thread):
                     "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
                         .format(
                         self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                        self.enable_memory, self.enable_cortex, self.cerebellum.thr,
-                        self.cerebellum.str, self.controller.swb,
+                        self.enable_memory, self.enable_cortex, self.cerebellum.thr_comp,
+                        self.cerebellum.str_comp, self.controller.swb,
                         self.controller.swc
                     )
                 )
@@ -243,8 +243,8 @@ class AutoRC(threading.Thread):
                     "VEH: {} CORTI: {} OCULUS: {} MEM: {} CORTEX: {} THR: {} STR: {} SWB: {} SWC: {}"
                         .format(
                         self.enable_vehicle, self.enable_corti, self.enable_oculus,
-                        self.enable_memory, self.enable_cortex, self.cerebellum.thr,
-                        self.cerebellum.str, self.controller.swb,
+                        self.enable_memory, self.enable_cortex, self.cerebellum.thr_comp,
+                        self.cerebellum.str_comp, self.controller.swb,
                         self.controller.swc
                     )
                 )
