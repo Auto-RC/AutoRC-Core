@@ -358,7 +358,7 @@ class Retina():
         splitter_c = []
         lanes = []
 
-        print(c)
+        print(self.contours)
 
         for c in self.contours:
 
