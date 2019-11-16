@@ -320,6 +320,7 @@ class CerebellumSupervisedLearning(threading.Thread):
             if self.auto == False:
                 self.thr = self.controller.thr
                 self.str = self.controller.str
+                print("test")
             elif self.auto == True:
                 self.thr, self.str = self.compute_controls()
 
