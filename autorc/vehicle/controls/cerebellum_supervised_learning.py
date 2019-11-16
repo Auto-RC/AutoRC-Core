@@ -308,6 +308,10 @@ class CerebellumSupervisedLearning(threading.Thread):
 
         self.state = self.cortex.get_raw_state() / 255.0
 
+    def update_state_manual(self, state):
+
+        self.state = state
+
     def compute_controls(self):
 
         return self.act(self.state)[0]

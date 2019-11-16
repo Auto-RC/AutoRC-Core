@@ -117,7 +117,7 @@ class Simulator(Thread):
 
     def init_recall(self):
 
-        file_timestamp = "2019-11-09 20;54;16.865105"
+        file_timestamp = "2019-11-16 21;25;05.025782"
 
         self.vision_recall = Recall(self.data_path, file_timestamp, "vision")
         self.vision_recall.load()
@@ -655,10 +655,10 @@ class Simulator(Thread):
 
         # Updating the state
         self.raw_state = self.cortex.get_raw_state() / 255.0
-        self.cerebellum.update_state(self.raw_state)
+        self.cerebellum.update_state_manual(self.raw_state)
 
         # Getting the machine computed action
-        action = self.cerebellum.compute_controls()[0]
+        action = self.cerebellum.compute_controls()
         print('Action', action)
         self.computed_throttle.set('%.2f' % action[1])
         self.computed_steering.set('%.2f' % action[0])
