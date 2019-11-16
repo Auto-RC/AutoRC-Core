@@ -189,6 +189,7 @@ class CerebellumSupervisedLearning(threading.Thread):
     def predict(self, x_in):
 
         print('Input:', x_in)
+        print('Input: {}', x_in.shape)
 
         x_input = np.reshape(x_in, (-1, 33, 128, 3))
         output = self.network.y_out
