@@ -364,7 +364,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
             # Setting throttle based on steering magnitude
             # The more the steering magnitude the more less the throttle
-            P_thr = 0.5
+            P_thr = 0.8
             self.thr = (1 - abs(self.str)) * P_thr
 
             # self.str = self.observation_space['splitter_angle']
