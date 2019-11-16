@@ -310,7 +310,7 @@ class CerebellumSupervisedLearning(threading.Thread):
 
     def compute_controls(self):
 
-        return self.act(self.state)
+        return self.act(self.state)[0]
 
     def run(self):
 
