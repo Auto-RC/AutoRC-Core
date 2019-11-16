@@ -85,7 +85,7 @@ class AutoRC(threading.Thread):
             self.enable_vehicle = True
             logger.debug("Vehicle enabled.")
 
-            self.modules.append('drive')
+            # self.modules.append('drive')
 
         elif self.enable_vehicle == True:
 
@@ -94,7 +94,7 @@ class AutoRC(threading.Thread):
             self.enable_vehicle = False
             logger.debug("Vehicle disabled.")
 
-            self.modules.remove('drive')
+            # self.modules.remove('drive')
 
     def toggle_oculus(self):
 
@@ -138,21 +138,21 @@ class AutoRC(threading.Thread):
 
         if (self.enable_corti == False):
 
-            self.corti.enable()
+            # self.corti.enable()
 
             self.enable_corti = True
             logger.debug("Started Corti...")
 
-            self.modules.append('corti')
+            # self.modules.append('corti')
 
         elif (self.enable_corti == True):
 
-            self.corti.disable()
+            # self.corti.disable()
 
             self.enable_corti = False
             logger.debug("Stopped Corti.")
 
-            self.modules.remove('corti')
+            # self.modules.remove('corti')
 
     def toggle_cortex(self):
 
@@ -217,7 +217,10 @@ class AutoRC(threading.Thread):
         logger.debug("AutoRC live")
 
         self.cortex.enable()
+        self.corti.enable()
         self.enable_cortex = True
+        self.modules.append('drive')
+        self.modules.append('corti')
 
         while True:
 
@@ -249,11 +252,11 @@ class AutoRC(threading.Thread):
 
             if (self.controller.swb > 50) and (self.enable_vehicle == False):
                 self.toggle_vehicle()
-                self.toggle_corti()
+                # self.toggle_corti()
                 # self.toggle_cortex()
             elif(self.controller.swb < 50) and (self.enable_vehicle == True):
                 self.toggle_vehicle()
-                self.toggle_corti()
+                # self.toggle_corti()
                 # self.toggle_cortex()
 
 
