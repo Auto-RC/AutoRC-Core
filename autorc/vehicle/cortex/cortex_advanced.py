@@ -147,6 +147,7 @@ class CortexAdvanced(threading.Thread):
 
         except Exception as e:
             print(e)
+            raise e
 
 
     def compute_reward(self, cerebellum_thr, cerebellum_str):
