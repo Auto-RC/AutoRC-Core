@@ -116,14 +116,14 @@ class CerebellumSupervisedLearning(threading.Thread):
         self.config = tf.ConfigProto()
 
         # Sets GPU Memory Growth Option
-        self.config.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=self.config)
-        self.init_neural_network()
-        self.saver = tf.train.Saver()
-        if load:
-            self.restore()
-        else:
-            self.sess.run(tf.global_variables_initializer())
+        # self.config.gpu_options.allow_growth = True
+        # self.sess = tf.Session(config=self.config)
+        # self.init_neural_network()
+        # self.saver = tf.train.Saver()
+        # if load:
+        #     self.restore()
+        # else:
+        #     self.sess.run(tf.global_variables_initializer())
 
         # Initializing parameters
         self.str = 0

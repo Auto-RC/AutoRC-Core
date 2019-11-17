@@ -79,8 +79,7 @@ class Simulator(Thread):
         self.reward_moving_avg = 0
 
         self.cortex = CortexAdvanced(cortex_update_interval_ms, oculus, corti, drive)
-        self.cortex.enable()
-        self.cortex.start()
+        # self.cortex.get_state()
 
         time.sleep(1)
         self.cerebellum = CerebellumSupervisedLearning(cerebellum_update_interval_ms, drive, self.cortex, corti, model_name, mode, load=self.LOAD, save=self.SAVE)
@@ -107,17 +106,17 @@ class Simulator(Thread):
         self.init_vision_hsv_controls()
 
         # Init Training Controls
-        self.init_training_controls()
+        # self.init_training_controls()
 
         # Init Canvas
         self.init_canvas()
-        self.img_index = 0
+        self.img_index = 18
         self.change_img(self.img_index)
         self.update_img()
 
     def init_recall(self):
 
-        file_timestamp = "2019-11-16 21;25;05.025782"
+        file_timestamp = "2019-11-09 20;34;31.051699"
 
         self.vision_recall = Recall(self.data_path, file_timestamp, "vision")
         self.vision_recall.load()
@@ -169,37 +168,38 @@ class Simulator(Thread):
         r_upper_limit_label = Label(rgb_filter_frame, text="R Upper Lim", pady=5, padx=5)
         r_upper_limit_label.grid(row=1, column=0)
         self.r_upper_limit_var = DoubleVar()
-        r_upper_limit = Scale(rgb_filter_frame, variable=self.r_upper_limit_var)
+        r_upper_limit = Scale(rgb_filter_frame, variable=self.r_upper_limit_var, from_=255,to=0, command=lambda x: self.update_rgb())
         r_upper_limit.grid(row=2, column=0)
 
         g_upper_limit_label = Label(rgb_filter_frame, text="G Upper Lim", pady=5, padx=5)
         g_upper_limit_label.grid(row=1, column=1)
         self.g_upper_limit_var = DoubleVar()
-        g_upper_limit = Scale(rgb_filter_frame, variable=self.g_upper_limit_var)
+        g_upper_limit = Scale(rgb_filter_frame, variable=self.g_upper_limit_var, from_=255,to=0, command=lambda x: self.update_rgb())
         g_upper_limit.grid(row=2, column=1)
 
         b_upper_limit_label = Label(rgb_filter_frame, text="B Upper Lim", pady=5, padx=5)
         b_upper_limit_label.grid(row=1, column=2)
         self.b_upper_limit_var = DoubleVar()
-        b_upper_limit = Scale(rgb_filter_frame, variable=self.b_upper_limit_var)
+        b_upper_limit = Scale(rgb_filter_frame, variable=self.b_upper_limit_var, from_=255,to=0, command=lambda x: self.update_rgb())
         b_upper_limit.grid(row=2, column=2)
 
         r_lower_limit_label = Label(rgb_filter_frame, text="R Lower Lim", pady=5, padx=5)
         r_lower_limit_label.grid(row=3, column=0)
         self.r_lower_limit_var = DoubleVar()
-        r_lower_limit = Scale(rgb_filter_frame, variable=self.r_lower_limit_var)
+        r_lower_limit = Scale(rgb_filter_frame, variable=self.r_lower_limit_var, from_=255,to=0, command=lambda x: self.update_rgb())
         r_lower_limit.grid(row=4, column=0)
 
         g_lower_limit_label = Label(rgb_filter_frame, text="G Lower Lim", pady=5, padx=5)
         g_lower_limit_label.grid(row=3, column=1)
         self.g_lower_limit_var = DoubleVar()
-        g_lower_limit = Scale(rgb_filter_frame, variable=self.g_lower_limit_var)
+        g_lower_limit = Scale(rgb_filter_frame, variable=self.g_lower_limit_var, from_=255,to=0, command=lambda x: self.update_rgb())
         g_lower_limit.grid(row=4, column=1)
 
         b_lower_limit_label = Label(rgb_filter_frame, text="B Lower Lim", pady=5, padx=5)
         b_lower_limit_label.grid(row=3, column=2)
         self.b_lower_limit_var = DoubleVar()
-        b_lower_limit = Scale(rgb_filter_frame, variable=self.b_lower_limit_var)
+        b_lower_limit = Scale(rgb_filter_frame, variable=self.b_lower_limit_var, from_=255,to=0, command=lambda x: self.update_rgb())
+        b_lower_limit.set(self.rgb_l[2])
         b_lower_limit.grid(row=4, column=2)
 
     def init_vision_hsv_controls(self):
@@ -450,16 +450,16 @@ class Simulator(Thread):
         self.stop = Button(img_controls_frame, text="Stop", command=lambda: self.stop_video())
         self.stop.grid(row=0, column=3)
 
-    def init_training_controls(self):
-
-        training_controls_frame = LabelFrame(self.ui, pady=15, padx=15)
-        training_controls_frame.grid(row=11, column=0, rowspan=1, columnspan=10)
-
-        self.train = Button(training_controls_frame, text="Train", command=lambda: self.start_training())
-        self.train.grid(row=0, column=0)
-
-        self.stop_train = Button(training_controls_frame, text="Stop Training", command=lambda: self.stop_training_thread())
-        self.stop_train.grid(row=0, column=1)
+    # def init_training_controls(self):
+    #
+    #     training_controls_frame = LabelFrame(self.ui, pady=15, padx=15)
+    #     training_controls_frame.grid(row=11, column=0, rowspan=1, columnspan=10)
+    #
+    #     self.train = Button(training_controls_frame, text="Train", command=lambda: self.start_training())
+    #     self.train.grid(row=0, column=0)
+    #
+    #     self.stop_train = Button(training_controls_frame, text="Stop Training", command=lambda: self.stop_training_thread())
+    #     self.stop_train.grid(row=0, column=1)
 
     def init_canvas(self):
 
@@ -481,11 +481,12 @@ class Simulator(Thread):
 
         elif self.apply_retina == True:
 
+            self.cortex.get_state()
             self.processed = self.cortex.retina.frame
             self.img = ImageTk.PhotoImage(self.resize_im(self.processed))
 
-            self.update_vision()
-            self.update_predictions()
+            # self.update_vision()
+            # self.update_predictions()
 
             self.update_img()
             self.logger.info("Image {} opened".format(self.img_index))
@@ -532,7 +533,6 @@ class Simulator(Thread):
             self.img_index -= 1
             self.change_img(self.img_index)
 
-
     def start_video(self):
 
         self.video_active = True
@@ -555,30 +555,42 @@ class Simulator(Thread):
 
             time.sleep(0.05)
 
-    def start_training(self):
+    # def start_training(self):
+    #
+    #     self.training_active = True
+    #     self.training = Thread(target=self.train_thread, args=())
+    #     self.training.start()
+    #
+    # def stop_training_thread(self):
+    #
+    #     self.training_active = False
+    #
+    # def train_thread(self):
+    #
+    #     while self.training_active:
+    #
+    #         self.img_index += 1
+    #         if self.img_index >= self.vision_recall.num_frames:
+    #             self.img_index = 0
+    #
+    #         self.get_frame(self.img_index)
+    #
+    #         self.processed = self.cortex.retina.frame
+    #
+    #         self.update_vision()
+    #         self.update_predictions()
 
-        self.training_active = True
-        self.training = Thread(target=self.train_thread, args=())
-        self.training.start()
+    def update_rgb(self):
 
-    def stop_training_thread(self):
+        self.cortex.retina.fil_rgb_u[0] = int(self.r_upper_limit_var.get())
+        self.cortex.retina.fil_rgb_u[1] = int(self.g_upper_limit_var.get())
+        self.cortex.retina.fil_rgb_u[2] = int(self.b_upper_limit_var.get())
 
-        self.training_active = False
+        self.cortex.retina.fil_rgb_l[0] = int(self.r_lower_limit_var.get())
+        self.cortex.retina.fil_rgb_l[1] = int(self.g_lower_limit_var.get())
+        self.cortex.retina.fil_rgb_l[2] = int(self.b_lower_limit_var.get())
 
-    def train_thread(self):
-
-        while self.training_active:
-
-            self.img_index += 1
-            if self.img_index >= self.vision_recall.num_frames:
-                self.img_index = 0
-
-            self.get_frame(self.img_index)
-
-            self.processed = self.cortex.retina.frame
-
-            self.update_vision()
-            self.update_predictions()
+        self.change_img(self.img_index)
 
     def update_hsv(self):
 

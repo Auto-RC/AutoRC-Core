@@ -10,6 +10,12 @@ import cv2
 import numpy as np
 from autorc.vehicle.cortex.environment.environment import *
 from autorc.vehicle.cortex.environment.lap_history import LapHistory
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import cv2
+import math
+
+from autorc.vehicle.config import *
 
 # ------------------------------------------------------------------------------
 #                                SETUP LOGGING
@@ -46,12 +52,17 @@ class Retina():
 
         self.road = None
 
+        self.road_history_len = 5
+        self.road_history = []
+        for i in range(0, self.road_history_len):
+            self.road_history.append(None)
+
         self.prediction = None
 
     def init_filters(self):
 
-        self.fil_rgb_l = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        self.fil_rgb_u = np.array([[255, 255, 255],[255, 255, 255],[255, 255, 255]])
+        self.fil_rgb_l = np.array([146, 139, 0])
+        self.fil_rgb_u = np.array([255, 255, 255])
         self.fil_hsv_l = np.array([0, 0, 0])
         self.fil_hsv_u = np.array([255, 255, 255])
 
@@ -183,55 +194,61 @@ class Retina():
     def p2l_dist(self, m, b, x, y):
         return np.abs(-m*x + y - b) / (((-m)**2 + 1)**.5)
 
-    def correct_splitter(self, splitter, splitter_c, thresh=20):
-        print(self.prediction.splitter.midpoint, self.prediction.splitter.angle)
-
-        if not self.prediction.splitter.present:
-            print("no correction, no splitter predicted")
-            return splitter
-
-        if not splitter.present:
-            if abs(self.prediction.splitter.midpoint) > 50:
-                print("no correction, splitter entered")
-                return splitter
-
-        if abs(splitter.midpoint - self.prediction.splitter.midpoint) < 10 and abs(splitter.angle - self.prediction.splitter.angle) < 25:
-            print("no correction, splitter close to original")
-            return splitter
-
-        print("correction needed")
-
-        m, b = self.prediction.splitter.cv_line
-
-        for i in range(len(splitter_c)):
-            M = cv2.moments(splitter_c[i])
-            x = int(M['m10'] / M['m00'])
-            y = int(M['m01'] / M['m00'])
-            if self.p2l_dist(m, b, x, y) > thresh:
-                del splitter_c[i]
-
-        # for i in range(len(self.contours)):
-        #     M = cv2.moments([self.contours[i]])
-        #     x = int(M['m10'] / M['m00'])
-        #     y = int(M['m01'] / M['m00'])
-        #     if self.p2l_dist(m, b, x, y) < thresh:
-        #         splitter_c.append(self.contours[i])
-
-        splitter = self.create_splitter(splitter_c, splitter)
-
-        return splitter
+    # def correct_splitter(self, splitter, splitter_c, thresh=20):
+    #     print(self.prediction.splitter.midpoint, self.prediction.splitter.angle)
+    #
+    #     if not self.prediction.splitter.present:
+    #         print("no correction, no splitter predicted")
+    #         return splitter
+    #
+    #     if not splitter.present:
+    #         if abs(self.prediction.splitter.midpoint) > 50:
+    #             print("no correction, splitter entered")
+    #             return splitter
+    #
+    #     if abs(splitter.midpoint - self.prediction.splitter.midpoint) < 10 and abs(splitter.angle - self.prediction.splitter.angle) < 25:
+    #         print("no correction, splitter close to original")
+    #         return splitter
+    #
+    #     print("correction needed")
+    #
+    #     m, b = self.prediction.splitter.cv_line
+    #
+    #     for i in range(len(splitter_c)):
+    #         M = cv2.moments(splitter_c[i])
+    #         x = int(M['m10'] / M['m00'])
+    #         y = int(M['m01'] / M['m00'])
+    #         if self.p2l_dist(m, b, x, y) > thresh:
+    #             del splitter_c[i]
+    #
+    #     # for i in range(len(self.contours)):
+    #     #     M = cv2.moments([self.contours[i]])
+    #     #     x = int(M['m10'] / M['m00'])
+    #     #     y = int(M['m01'] / M['m00'])
+    #     #     if self.p2l_dist(m, b, x, y) < thresh:
+    #     #         splitter_c.append(self.contours[i])
+    #
+    #     splitter = self.create_splitter(splitter_c, splitter)
+    #
+    #     return splitter
 
     def create_splitter(self, splitter_c, splitter):
+
         p1 = None
         p2 = None
+
         if len(splitter_c) > 1:
+
             c = np.array(list(itertools.chain.from_iterable(splitter_c)))
+
             [vx, vy, x, y] = cv2.fitLine(c, cv2.DIST_L2, 0, 0.01, 0.01)
             lefty = int((-x * vy / vx) + y)
             righty = int(((self.frame.shape[1] - x) * vy / vx) + y)
             p1 = (self.frame.shape[1] - 1, righty)
             p2 = (0, lefty)
+
         elif len(splitter_c) > 0:
+
             rect = cv2.minAreaRect(splitter_c[0])
             box = cv2.boxPoints(rect)
             box = np.int0(box)
@@ -251,25 +268,34 @@ class Retina():
 
         if p1 and p2:
 
-            cv2.line(self.frame, p1, p2, (0, 0, 255), 1)
+            if (p2[0]-p1[0]) == 0:
+                p1[0]+=1
 
-            cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0] + 0.0001)
-            cv_b = p1[1] - (cv_m * p1[0])
-            p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
-            p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
+            m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
 
-            try: m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-            except: m = 0
-            m += 0.001
-            x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
-            angle = (np.arctan(1 / m) * 180 / np.pi)
-            # print("splitter", x_inter, angle)
-            splitter = self.update_line(splitter, angle, x_inter, [cv_m, cv_b])
-            self.split_m = splitter.midpoint
+            if (m > 0.25) or (m < -0.25):
+
+                print("m: {} p1: {} p2: {}".format(m, p1, p2))
+                cv2.line(self.frame, p1, p2, (0, 0, 255), 1)
+
+                cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0] + 0.0001)
+                cv_b = p1[1] - (cv_m * p1[0])
+                p1 = (p1[0], (self.frame.shape[0] - 1) - p1[1])
+                p2 = (p2[0], (self.frame.shape[0] - 1) - p2[1])
+
+                try: m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+                except: m = 0
+                m += 0.001
+                x_inter = int((((self.frame.shape[0] / 2) - p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
+                angle = (np.arctan(1 / m) * 180 / np.pi)
+                # print("splitter", x_inter, angle)
+                splitter = self.update_line(splitter, angle, x_inter, [cv_m, cv_b])
+                self.split_m = splitter.midpoint
 
         return splitter
 
     def create_lanes(self, lanes):
+
         lanes = [c for c in lanes if cv2.contourArea(c) > 3]
 
         for i, c in enumerate(lanes):
@@ -281,17 +307,27 @@ class Retina():
             p2 = (0,lefty)
             cv_m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
             cv_b = p1[1] - (cv_m * p1[0])
-            cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
-            p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
-            p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
+
+            if (p2[0] - p1[0]) == 0:
+                p1[0] += 1
+
             m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
-            m += 0.001
-            try:
-                x_inter = int((((self.frame.shape[0]/2)-p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
-            except:
-                x_inter = 1000
-            angle = (np.arctan(1 / m) * 180 / np.pi)
-            lanes[i] = TrackLine(True, angle, x_inter, [cv_m, cv_b])
+
+            if (m > 0.25) or (m < -0.25):
+
+                cv2.line(self.frame, p1, p2, (255, 0, 0), 1)
+                p1 = (p1[0], (self.frame.shape[0] - 1)-p1[1])
+                p2 = (p2[0], (self.frame.shape[0] - 1)-p2[1])
+
+
+                m = float(p2[1] - p1[1]) / float(p2[0] - p1[0])
+                m += 0.001
+                try:
+                    x_inter = int((((self.frame.shape[0]/2)-p1[1]) / m) + p1[0]) - int(self.frame.shape[1] / 2)
+                except:
+                    x_inter = 1000
+                angle = (np.arctan(1 / m) * 180 / np.pi)
+                lanes[i] = TrackLine(True, angle, x_inter, [cv_m, cv_b])
 
         return lanes
 
@@ -299,7 +335,6 @@ class Retina():
 
         right_lane = TrackLine(False, None, None, None)
         left_lane = TrackLine(False, None, None, None)
-
 
         for lane in lanes:
             if lane.midpoint < self.split_m:
@@ -325,108 +360,377 @@ class Retina():
         return [left_lane, right_lane]
 
 
-    def process(self):
+    def calculate_contour_slope(self, contour):
 
-        # This works for the initial images
-        # fil_1_l = np.array([30, 0, 0])
-        # fil_1_u = np.array([80, 105, 255])
+        rect = cv2.minAreaRect(contour)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        smallest_dist = 100
+        n = 0
 
-        # print(self.frame.shape)
+        for i in range(1, 4):
+            dist = ((box[0][0] - box[i][0]) ** 2 + (box[0][1] - box[i][1]) ** 2) ** 0.5
+            if dist < smallest_dist:
+                smallest_dist = dist
+                n = i
 
-        self.frame = self.frame[40:73, :, :]
+        p1 = ((box[0][0] + box[n][0]) / 2, (box[0][1] + box[n][1]) / 2)
+        p2 = (sum([box[i][0] for i in range(1, 4) if i is not n]) / 2,
+              sum([box[i][1] for i in range(1, 4) if i is not n]) / 2)
+        dy = float(p2[1] - p1[1])
+        dx = float(p2[0] - p1[0])
+        p1 = (int(p1[0] + (dx * 200)), int(p1[1] + (dy * 200)))
+        p2 = (int(p2[0] - (dx * 200)), int(p2[1] - (dy * 200)))
 
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-        self.frame = self.filter_color(self.frame, self.fil_hsv_l, self.fil_hsv_u)
-
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_HSV2RGB)
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
-
-        if 'Darwin' in platform.platform():
-            self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
+        # Calculating slope
+        if (p2[0] - p1[0]) == 0:
+            slope = (p2[1] - p1[1]) / 0.001
         else:
-            self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
+            slope = (p2[1] - p1[1])/(p2[0] - p1[0])
 
-        # if self.mode == 'HSV':
-        #     return self.frame
-        # elif self.mode == 'RGB':
-        #     return rgb_frame
+        # Calculating midpoint
+        if slope == 0:
+            mid_x = int((((self.frame.shape[0] / 2) - p1[1]) / 0.001) + p1[0]) - int(self.frame.shape[1] / 2)
+        else:
+            mid_x = int( (((self.frame.shape[0] / 2) - p1[1]) / slope) + p1[0]) - int(self.frame.shape[1] / 2)
 
-        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2RGB)
+        # Calculating the angle from slope
+        raw_angle = np.rad2deg(np.arctan2(p2[1] - p1[1], p2[0] - p1[0]))
+
+        # Shifting the angle quadrants appropriately to get the angle between -90 and 90
+        if (raw_angle >= 0) and (raw_angle < 90):
+            angle = 90 - raw_angle
+        elif (raw_angle <= -90) and (raw_angle > -180):
+            angle = 90-(raw_angle + 180)
+        elif (raw_angle < 0) and (raw_angle > -90):
+            angle = (raw_angle + 180)-90
+        elif (raw_angle >= 90) and (raw_angle <= 180):
+            angle = -(raw_angle - 90)
+
+        angle = -1*angle # TODO: FIX THIS
+
+        return slope, angle, p1, p2, mid_x
+
+    def find_valid_contours(self, contour_limit):
 
         rows, cols = self.frame.shape[:2]
 
-        splitter_c = []
-        lanes = []
+        # Initializing the contour filters
+        contour_filters = []
+        contour_filters.append({"min": contour_limit, "max": 200})
+        # contour_filters.append({"min": 50, "max": 200})
+        # contour_filters.append({"min": 80, "max": 200}) #95
+        # contour_filters.append({"min": 110, "max": 130})
+        # contour_filters.append({"min": 150, "max": 200})
 
+        # Filtering the contours by size
+        filtered_contours = []
         for c in self.contours:
+            print(len(c))
+            for filter in contour_filters:
+                if (len(c) >= filter["min"]) and (len(c) < filter["max"]):
+                    filtered_contours.append(c)
 
+        # Sorting contours
+        sorted_contours = []
+        sorted_contours.append({"min":  -10, "max": -0.1, "contours": [], "data": []})
+        sorted_contours.append({"min":  -25, "max":  -10, "contours": [], "data": []})
+        sorted_contours.append({"min":  -45, "max":  -25, "contours": [], "data": []})
+        sorted_contours.append({"min":  -65, "max":  -45, "contours": [], "data": []})
+        sorted_contours.append({"min":  -89, "max":  -65, "contours": [], "data": []})
+        sorted_contours.append({"min":    0, "max":   10, "contours": [], "data": []})
+        sorted_contours.append({"min":   25, "max":   45, "contours": [], "data": []})
+        sorted_contours.append({"min":   45, "max":   65, "contours": [], "data": []})
+        sorted_contours.append({"min":   65, "max":   89, "contours": [], "data": []})
+
+        # Used to filter on midpoints
+        midpoints = []
+
+        num_sorted_contour = 0
+        for c in filtered_contours:
+
+            # Finds a rotated rectangle of the minimum area enclosing the input 2D point set.
+            # In this case the 2D input point set is each contour
             rect = cv2.minAreaRect(c)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
 
-            lane = False
-            leftmost = tuple(c[c[:, :, 0].argmin()][0])
-            rightmost = tuple(c[c[:, :, 0].argmax()][0])
-            topmost = tuple(c[c[:, :, 1].argmin()][0])
-            bottommost = tuple(c[c[:, :, 1].argmax()][0])
+            # These are the 4 points defining the rotated rectangle provided to it
+            box_points_float = cv2.boxPoints(rect)
+            box_points_int = np.int0(box_points_float)
+            slope, angle, p1, p2, mid_x = self.calculate_contour_slope(box_points_int)
+            print("{} {}".format(slope, angle))
 
+            # Filtering if mid points of lines are very close
+            repeated_midpoint = False
+            for midpoint in midpoints:
+                if abs(mid_x-midpoint) < 15:
+                    repeated_midpoint = True
+            if repeated_midpoint == False:
+                midpoints.append(mid_x)
 
-            if topmost[1] < 1:
-                if bottommost[1] > rows - 5:
-                    lane = True
-                elif rightmost[1] < 1:
-                    if leftmost[0] < 1 and bottommost[0] < 1:
-                        lane = True
-                elif leftmost[1] < 1:
-                    if rightmost[0] > cols - 2 and bottommost[0] > cols - 2:
-                        lane = True
-            elif bottommost[1] > rows - 5:
-                if rightmost[1] > 1:
-                    if leftmost[0] < 1 and topmost[0] < 1:
-                        lane = True
-                elif leftmost[1] > 1:
-                    if rightmost[0] > cols - 2 and topmost[0] > cols - 2:
-                        lane = True
-            elif leftmost[0] > 1 and rightmost[0] > self.frame.shape[1] - 1:
-                lane = True
+            # Sorting the contours if midpoint is not repeated
+            if not repeated_midpoint:
+                for contour_category in sorted_contours:
+                    if (angle >= contour_category["min"]) and (angle < contour_category["max"]):
+                        if (len(contour_category["contours"]) == 0):
+                            contour_category["contours"].append(rect)
+                            contour_category["data"] = {"slope": slope, "angle": angle, "p1": p1, "p2": p2, "mid_x": mid_x}
+                            num_sorted_contour += 1
 
-            if rect[1][0] != 0 and rect[1][1] != 0:
-                extent = cv2.contourArea(c)/(rect[1][0] * rect[1][1])
-                # print(extent,)
+            cv2.drawContours(image=self.frame, contours=[box_points_int], contourIdx=0, color=(0, 0, 255), thickness=1)
+
+        for contour_category in sorted_contours:
+            print("{} {}".format(contour_category, len(contour_category["contours"])))
+
+        return self.frame, sorted_contours, num_sorted_contour
+
+    def build_road(self, contours):
+
+        # Extracting angels and midpoints
+        angles = []
+        midpoints = []
+        p1_list = []
+        p2_list = []
+        for contour in contours:
+            if len(contour["contours"]) > 0:
+               angles.append(contour['data']['angle'])
+               midpoints.append(contour['data']['mid_x'])
+               p1_list.append(contour['data']['p1'])
+               p2_list.append(contour['data']['p2'])
+
+        if len(angles) > 0:
+
+            # Determining turn type
+            if sum(angles) > 10:
+                turn = "right"
+            elif sum(angles) < 10:
+                turn = "left"
             else:
-                extent = 0
+                turn = "straight"
 
-            if lane:
-                # print("edged", rect[0], rect[1])
-                # cv2.drawContours(self.frame, [box], 0, (255, 0, 0), 1)
-                lanes.append(c)
-            elif extent < 0.5:
-                # print("not rect", rect[0], rect[1], topmost, rightmost, bottommost, leftmost)
-                pass
+            print(turn)
+
+            if len(angles) == 2:
+
+                if turn == "right":
+                    if midpoints[0] > midpoints[1]:
+                        splitter = TrackLine(True, angles[0], midpoints[0], [p1_list[0], p2_list[0]])
+                        left_lane = TrackLine(True, angles[1], midpoints[1], [p1_list[1], p2_list[1]])
+                    else:
+                        splitter = TrackLine(True, angles[1], midpoints[1], [p1_list[1], p2_list[1]])
+                        left_lane = TrackLine(True, angles[0], midpoints[0], [p1_list[0], p2_list[0]])
+                    self.road = Road(None, splitter, left_lane, None)
+
+
+                elif turn == "left":
+                    if midpoints[0] < midpoints[1]:
+                        splitter = TrackLine(True, angles[0], midpoints[0], [p1_list[0], p2_list[0]])
+                        right_lane = TrackLine(True, angles[1], midpoints[1], [p1_list[1], p2_list[1]])
+                    else:
+                        splitter = TrackLine(True, angles[1], midpoints[1], [p1_list[1], p2_list[1]])
+                        right_lane = TrackLine(True, angles[0], midpoints[0], [p1_list[0], p2_list[0]])
+                    self.road = Road(None, splitter, None, right_lane)
+
+            elif len(angles) == 3:
+
+                print(midpoints)
+                right_lane_index = midpoints.index(max(midpoints))
+                left_lane_index = midpoints.index(min(midpoints))
+
+                # There must be a better way of doing this?
+                for i in range(0,3):
+                    if (i != right_lane_index) and (i != left_lane_index):
+                        splitter_index = i
+
+                print(right_lane_index, left_lane_index, splitter_index)
+
+                splitter = TrackLine(True, angles[splitter_index], midpoints[splitter_index], [p1_list[splitter_index], p2_list[splitter_index]])
+                left_lane = TrackLine(True, angles[left_lane_index], midpoints[left_lane_index], [p1_list[left_lane_index], p2_list[left_lane_index]])
+                right_lane = TrackLine(True, angles[right_lane_index], midpoints[right_lane_index], [p1_list[right_lane_index], p2_list[right_lane_index]])
+
+                self.road = Road(None, splitter, left_lane, right_lane)
+
+            elif len(angles) == 1:
+
+                splitter = TrackLine(True, angles[0], midpoints[0], [p1_list[0], p2_list[0]])
+                self.road = Road(None, splitter, None, None)
+
             else:
-                cv2.drawContours(self.frame, [box], 0, (0, 0, 255), 1)
-                # print("allowed", rect[0], rect[1])
-                splitter_c.append(c)
 
-        lanes = sorted(lanes, key=lambda x: cv2.contourArea(x), reverse=False)
+                self.road = Road(None, None, None, None)
 
-        splitter = TrackLine(False, None, None, None)
+        return self.road
 
-        splitter = self.create_splitter(splitter_c, splitter)
+    def process_road_history(self, road):
 
-        # if self.prediction:
-        #     splitter = self.correct_splitter(splitter, splitter_c)
-        # else:
-        #     print("no prediction")
+        for i in range(0, self.road_history_len-1):
+            self.road_history[i+1] = self.road_history[i]
 
-        lanes = self.create_lanes(lanes)
-        left_lane, right_lane = self.assign_lanes(lanes, splitter)
+        self.road_history[0] = road
 
-        lines = [splitter, left_lane, right_lane]
-        self.road = Road(None, splitter, left_lane, right_lane)
-        self.road.vehicle = self.calc_vehicle(lines)
+        if (self.road_history[1] != None) and (self.road_history[2] != None):
 
-        # print("veh", self.road.vehicle.angle, self.road.vehicle.position, self.lane_width)
+            if (self.road_history[0].splitter == None):
+
+                # if (self.road_history[1].splitter != None) and (self.road_history[2] != None):
+                #
+                #     splitter_angle_shift = self.road_history[1].splitter.angle - self.road_history[2].splitter.angle
+                #     splitter_midpoint_shift = self.road_history[1].splitter.midpoint - self.road_history[2].splitter.midpoint
+                #     splitter_pred_angle = self.road_history[1].splitter.angle + splitter_angle_shift
+                #     splitter_pred_midpoint = self.road_history[1].splitter.midpoint + splitter_midpoint_shift
+                #     p1 = self.road_history[1].splitter.cv_line[0]
+                #     p2 = self.road_history[1].splitter.cv_line[0]
+                #     splitter_pred_p1 = (p1[0] + splitter_midpoint_shift, p1[1] + splitter_midpoint_shift)
+                #     splitter_pred_p2 = (p2[0] + splitter_midpoint_shift, p2[1] + splitter_midpoint_shift)
+                #
+                #     splitter = TrackLine(True, splitter_pred_angle, splitter_pred_midpoint, [splitter_pred_p1, splitter_pred_p2])
+                #
+                #     self.road_history[0].splitter = splitter
+                #     print("predicted next splitter")
+                #
+                # else:
+
+                prev_found = False
+                for i in range(1, self.road_history_len):
+                    if self.road_history[i].splitter != None:
+                        self.road_history[0].splitter = self.road_history[i].splitter
+                        print('used previous splitter')
+                        prev_found = True
+                        break
+
+            if (self.road_history[0].right_lane == None):
+
+                # if (self.road_history[1].right_lane != None) and (self.road_history[2] != None):
+                #
+                #     right_lane_angle_shift = self.road_history[1].right_lane.angle - self.road_history[2].right_lane.angle
+                #     right_lane_midpoint_shift = self.road_history[1].right_lane.midpoint - self.road_history[
+                #         2].right_lane.midpoint
+                #     right_lane_pred_angle = self.road_history[1].right_lane.angle + right_lane_angle_shift
+                #     right_lane_pred_midpoint = self.road_history[1].right_lane.midpoint + right_lane_midpoint_shift
+                #     p1 = self.road_history[1].right_lane.cv_line[0]
+                #     p2 = self.road_history[1].right_lane.cv_line[0]
+                #     right_lane_pred_p1 = (p1[0] + right_lane_midpoint_shift, p1[1] + right_lane_midpoint_shift)
+                #     right_lane_pred_p2 = (p2[0] + right_lane_midpoint_shift, p2[1] + right_lane_midpoint_shift)
+                #
+                #     right_lane = TrackLine(True, right_lane_pred_angle, right_lane_pred_midpoint,
+                #                          [right_lane_pred_p1, right_lane_pred_p2])
+                #
+                #     self.road_history[0].right_lane = right_lane
+                #
+                #     print("predicted next right lane")
+                #
+                # else:
+
+                prev_found = False
+                for i in range(1, self.road_history_len):
+                    if self.road_history[i].right_lane != None:
+                        self.road_history[0].right_lane = self.road_history[i].right_lane
+                        print("used previous right lane")
+                        prev_found = True
+                        break
+
+            if (self.road_history[0].left_lane == None):
+
+                # if (self.road_history[1].left_lane != None) and (self.road_history[2] != None):
+                #
+                #     left_lane_angle_shift = self.road_history[1].left_lane.angle - self.road_history[2].left_lane.angle
+                #     left_lane_midpoint_shift = self.road_history[1].left_lane.midpoint - self.road_history[2].left_lane.midpoint
+                #     left_lane_pred_angle = self.road_history[1].left_lane.angle + left_lane_angle_shift
+                #     left_lane_pred_midpoint = self.road_history[1].left_lane.midpoint + left_lane_midpoint_shift
+                #     p1 = self.road_history[1].left_lane.cv_line[0]
+                #     p2 = self.road_history[1].left_lane.cv_line[0]
+                #     left_lane_pred_p1 = (p1[0] + left_lane_midpoint_shift, p1[1] + left_lane_midpoint_shift)
+                #     left_lane_pred_p2 = (p2[0] + left_lane_midpoint_shift, p2[1] + left_lane_midpoint_shift)
+                #
+                #     left_lane = TrackLine(True, left_lane_pred_angle, left_lane_pred_midpoint, [left_lane_pred_p1, left_lane_pred_p2])
+                #
+                #     self.road_history[0].left_lane = left_lane
+                #
+                #     print("predicted next left lane")
+                #
+                # else:
+
+                prev_found = False
+                for i in range(1, self.road_history_len):
+                    if self.road_history[i].left_lane != None:
+                        self.road_history[0].left_lane = self.road_history[i].left_lane
+                        print("used previous left lane")
+                        prev_found = True
+                        break
+
+        return self.road_history[0]
+
+    def draw_road(self, road):
+
+        if road != None:
+
+            if road.right_lane != None:
+                cv2.line(self.frame, road.right_lane.cv_line[0], road.right_lane.cv_line[1], (255, 0, 0), 1)
+
+            if road.left_lane != None:
+                cv2.line(self.frame, road.left_lane.cv_line[0], road.left_lane.cv_line[1], (0, 255, 0), 1)
+
+            if road.splitter != None:
+                cv2.line(self.frame, road.splitter.cv_line[0], road.splitter.cv_line[1], (255, 255, 0), 1)
+
+        return self.frame
+
+    def process(self):
+
+        self.frame = self.frame[40:73, :, :]
+
+        # RGB TO HSV
+        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+
+        # HSV FILTER
+        self.frame = self.filter_color(self.frame, self.fil_hsv_l, self.fil_hsv_u)
+
+       # HSV TO RGB TO GRAY SCALE
+        self.frame =  cv2.cvtColor(self.frame, cv2.COLOR_HSV2RGB)
+        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2GRAY)
+
+        # Finding contours
+        self.contours = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[contours_index]
+
+        # GRAY TO RGB
+        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2RGB)
+
+
+        contour_limit = 5
+        retry_attempts = 5
+        self.frame, contours, num_sorted_contours = self.find_valid_contours(contour_limit)
+        while ((num_sorted_contours > 3) or (num_sorted_contours < 2)) and (retry_attempts < 5):
+
+            if num_sorted_contours > 3:
+                contour_limit += 10
+
+            elif num_sorted_contours < 2:
+                contour_limit -= 10
+
+            self.frame, contours, num_sorted_contours = self.find_valid_contours(contour_limit)
+            retry_attempts+=1
+
+        self.road = self.build_road(contours)
+
+        # self.road = self.process_road_history(current_road)
+
+        self.frame = self.draw_road(self.road)
+
+        #
+        # splitter_c = []
+        # lanes = []
+        #
+        # lanes = sorted(lanes, key=lambda x: cv2.contourArea(x), reverse=False)
+        #
+        # splitter = TrackLine(False, None, None, None)
+        #
+        # splitter = self.create_splitter(splitter_c, splitter)
+        #
+        # lanes = self.create_lanes(lanes)
+        # left_lane, right_lane = self.assign_lanes(lanes, splitter)
+        #
+        # lines = [splitter, left_lane, right_lane]
+        # self.road = Road(None, splitter, left_lane, right_lane)
+        # self.road.vehicle = self.calc_vehicle(lines)
 
         return self.road
 
